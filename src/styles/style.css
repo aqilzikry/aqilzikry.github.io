@@ -1,8 +1,8 @@
 /* ========== import font source ========== */
-@import "fonts.css";
+@import 'fonts.css';
 
 /* ========== import custom styles ========== */
-@import "custom-styles.css";
+@import 'custom-styles.css';
 
 @tailwind base;
 @tailwind components;
@@ -37,5 +37,9 @@
   }
   .footer-icons {
     @apply dark:text-light flex items-center border border-dark dark:border-light p-4 rounded-lg justify-center;
+  }
+
+  .footer-icons:hover {
+    @apply border-blue;
   }
 }
