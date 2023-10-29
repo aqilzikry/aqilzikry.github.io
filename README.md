@@ -2,6 +2,10 @@
 [![Hosted with Github Pages](https://img.shields.io/badge/Hosted_with-GitHub_Pages-orange?logo=github&logoColor=white)](https://pages.github.com/ "Go to Github Pages homepage")
 [![Made with Astro](https://img.shields.io/badge/Astro-white?logo=astro&logoColor=purple)](https://astro.build/ "Go to Astro homepage")
 
+# Portfolio Website - Astro
+
+Just change `src/data/info.ts` to get your personal portfolio.
+
 ## 🚀 Project Structure
 
 Inside of your Astro project, you'll see the following folders and files:
