@@ -1,13 +1,17 @@
 ---
-import { IHeroProps } from "@types";
+import { IHeroProps } from '@types';
+import SocialLinks from '@components/general/SocialLinks.astro';
 
 const { name, about } = Astro.props as IHeroProps;
 ---
 
 <section>
-  <p class="dark:text-light mt-[117px]">Hey, I’m</p>
+  <p class='dark:text-light mt-[117px]'>Hey, I’m</p>
   <h1>{name}</h1>
-  <p class="dark:text-light text-lg mb-16">
+  <p class='dark:text-light text-lg mb-8'>
     {about}
   </p>
+  <div class='grid grid-cols-3 gap-4 sm:w-80 mb-10'>
+    <SocialLinks />
+  </div>
 </section>
