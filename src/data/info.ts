@@ -1,7 +1,7 @@
 import myeasyprogthumbnail from '../assets/images/myeasyprog.png';
 
 export const info = {
-  baseUrl: 'https://astro-portfolio-uzair.vercel.app',
+  baseUrl: 'https://aqilzikry.github.io',
   name: 'Aqilzikry Arman',
   jobDescription: 'Web Developer',
   about: `
