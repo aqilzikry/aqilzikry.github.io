@@ -5,11 +5,7 @@ export const info = {
   name: 'Aqilzikry Arman',
   jobDescription: 'Web Developer',
   about: `
-  I'm a software engineer with a passion for building high-quality products that people love to use. I have experience in mobile development, software development, and native development, and I'm always eager to learn new technologies and techniques.
-
-  I'm a team player and I'm always willing to go the extra mile to help my team succeed. I'm also a strong communicator and I'm able to clearly explain complex technical concepts to both technical and non-technical audiences.
-  
-  I'm excited to use my skills and experience to help your company build innovative and successful products.
+  An experienced software engineer with a focus on high-quality user-centric products. Skilled in mobile, software, and native development, continuously learning new tech. Strong team player and communicator. Eager to contribute to your innovative products.
   `,
 
   experience: [
