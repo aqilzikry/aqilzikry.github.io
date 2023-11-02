@@ -78,7 +78,7 @@ export const info = {
       isFeatured: true,
       thumbnail: 'assets/images/profile.png',
       // githubUrl: 'https://github.com/aqilzikry/ycu-webapp',
-      liveUrl: 'https://myeasyprog.my/',
+      liveUrl: 'https://myeasyprog.uniten.edu.my/',
     },
   ],
 };
