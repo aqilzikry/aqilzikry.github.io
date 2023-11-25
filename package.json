@@ -12,7 +12,7 @@
   "devDependencies": {
     "@astrojs/sitemap": "^3.0.3",
     "@astrojs/tailwind": "^5.0.2",
-    "astro": "^3.4.2",
+    "astro": "^3.6.0",
     "astro-robots-txt": "^1.0.0"
   }
 }
