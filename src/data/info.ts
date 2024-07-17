@@ -17,8 +17,8 @@ export const info = {
       description: [
         'Developed RESTful APIs using .NET and Entity Framework to streamline payroll processing, enhancing system efficiency and reliability.',
         'Managed and optimized MSSQL databases, ensuring data integrity, security, and high performance for payroll operations.',
-        ' Designed and implemented complex Stored Procedures to fulfill client-specific business requirements, improving data handling and reporting capabilities.',
-        '• Implemented custom JWT-based authentication mechanisms, securing API endpoints and protecting sensitive payroll data.',
+        'Designed and implemented complex Stored Procedures to fulfill client-specific business requirements, improving data handling and reporting capabilities.',
+        'Implemented custom JWT-based authentication mechanisms, securing API endpoints and protecting sensitive payroll data.',
         'Utilized Azure DevOps to create and manage CI/CD pipelines, automating the build, test, and deployment processes for seamless integration and delivery.',
         'Practised Agile sprints using Azure DevOps, facilitating effective project management and team collaboration.',
         'Participated in code reviews, providing constructive feedback and ensuring code quality during pull request evaluations.'
