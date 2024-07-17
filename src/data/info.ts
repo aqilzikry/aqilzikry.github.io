@@ -10,13 +10,31 @@ export const info = {
 
   experience: [
     {
+      name: 'activpayroll Sdn. Bhd.',
+      location: 'Kuala Lumpur, Malaysia',
+      startDate: 'Mar 2024',
+      endDate: 'Present',
+      description: [
+        'Developed RESTful APIs using .NET and Entity Framework to streamline payroll processing, enhancing system efficiency and reliability.',
+        'Managed and optimized MSSQL databases, ensuring data integrity, security, and high performance for payroll operations.',
+        ' Designed and implemented complex Stored Procedures to fulfill client-specific business requirements, improving data handling and reporting capabilities.',
+        '• Implemented custom JWT-based authentication mechanisms, securing API endpoints and protecting sensitive payroll data.',
+        'Utilized Azure DevOps to create and manage CI/CD pipelines, automating the build, test, and deployment processes for seamless integration and delivery.',
+        'Practised Agile sprints using Azure DevOps, facilitating effective project management and team collaboration.',
+        'Participated in code reviews, providing constructive feedback and ensuring code quality during pull request evaluations.'
+      ],
+    },
+
+    {
       name: 'FPT Software',
       location: 'Kuala Lumpur, Malaysia',
       startDate: 'Aug 2023',
-      endDate: 'Present',
+      endDate: 'May 2024',
       description: [
-        'Develop e-commerce projects using ReactJS, Redux, ExpressJS and NodeJS.',
-        'Develop e-commerce projects using Angular and .NET Core API.',
+        'Developed Rest APIs using ASP.NET Core with Entity Framework, and NodeJS with Sequelize, facilitating seamless communication.',
+        'Maintained MSSQL and MongoDB databases, ensuring data integrity, security, and optimal performance.',
+        'Integrated API endpoints using Angular and React front-ends, ensuring smooth data flow.',
+        'Implemented Auth0 and custom JWT-based authentication for API security.',
       ],
     },
 
