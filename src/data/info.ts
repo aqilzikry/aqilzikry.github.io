@@ -12,7 +12,7 @@ export const info = {
     {
       name: 'activpayroll Sdn. Bhd.',
       location: 'Kuala Lumpur, Malaysia',
-      startDate: 'Mar 2024',
+      startDate: 'May 2024',
       endDate: 'Present',
       description: [
         'Developed RESTful APIs using .NET and Entity Framework to streamline payroll processing, enhancing system efficiency and reliability.',
