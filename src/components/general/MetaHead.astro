@@ -1,7 +1,7 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
-import { IMetaHead } from '@types';
 import { info } from '@data';
+import { IMetaHead } from '@types';
+import { ClientRouter } from 'astro:transitions';
 
 const { title, description, ogImageUrl } = Astro.props as IMetaHead;
 ---
@@ -47,4 +47,4 @@ const { title, description, ogImageUrl } = Astro.props as IMetaHead;
 <link rel='preload' href='/assets/fonts/Outfit/Outfit-SemiBold.ttf' as='font' crossorigin />
 
 <!-- view transition component -->
-<ViewTransitions />
+<ClientRouter />
