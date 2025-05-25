@@ -13,20 +13,18 @@ import Layout from '@layouts/Layout.astro';
 
   <body>
     <Layout>
-      <section class='py-12'>
-        <h1 class='text-center mb-12'>Tools</h1>
+      <h1 style='line-height: 1.2;' transition:animate='slide'>Tools</h1>
 
-        <div class='grid grid-cols-1 md:grid-cols-2 gap-8'>
-          <div class='bg-white dark:bg-dark-gray p-6 rounded-lg shadow-md'>
-            <h2 class='text-2xl font-outfit mb-4 text-dark dark:text-light'>50/30/20 Budget Calculator</h2>
-            <BudgetCalculator />
-          </div>
-          <div class='bg-white dark:bg-dark-gray p-6 rounded-lg shadow-md'>
-            <h2 class='text-2xl font-outfit mb-4 text-dark dark:text-light'>Color Converter</h2>
-            <ColorConverter />
-          </div>
+      <div class='grid grid-cols-1 md:grid-cols-2 gap-8'>
+        <div class='bg-white dark:bg-dark-gray p-6 rounded-lg shadow-md'>
+          <h2 class='text-2xl font-outfit mb-4 text-dark dark:text-light'>50/30/20 Budget Calculator</h2>
+          <BudgetCalculator />
         </div>
-      </section>
+        <div class='bg-white dark:bg-dark-gray p-6 rounded-lg shadow-md'>
+          <h2 class='text-2xl font-outfit mb-4 text-dark dark:text-light'>Color Converter</h2>
+          <ColorConverter />
+        </div>
+      </div>
     </Layout>
   </body>
 </html>
