@@ -5,35 +5,86 @@
 <div class='space-y-6'>
   <div>
     <label for='hexInput' class='block text-lg font-medium text-dark dark:text-gray-300'>HEX Color:</label>
-    <input
-      type='text'
-      id='hexInput'
-      name='hexInput'
-      placeholder='#fefefe'
-      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light'
-    />
+    <div class='relative mt-1'>
+      <input
+        type='text'
+        id='hexInput'
+        name='hexInput'
+        placeholder='#fefefe'
+        class='block w-full px-3 py-2 pr-12 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light'
+      />
+      <button
+        type='button'
+        id='copyHex'
+        class='absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 dark:text-light hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200'
+        title='Copy HEX color'
+      >
+        <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            stroke-width='2'
+            d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
+          ></path>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <div>
     <label for='rgbInput' class='block text-lg font-medium text-dark dark:text-gray-300'>RGB Color:</label>
-    <input
-      type='text'
-      id='rgbInput'
-      name='rgbInput'
-      placeholder='rgb(254, 254, 254)'
-      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light'
-    />
+    <div class='relative mt-1'>
+      <input
+        type='text'
+        id='rgbInput'
+        name='rgbInput'
+        placeholder='rgb(254, 254, 254)'
+        class='block w-full px-3 py-2 pr-12 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light'
+      />
+      <button
+        type='button'
+        id='copyRgb'
+        class='absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 dark:text-light hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200'
+        title='Copy RGB color'
+      >
+        <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            stroke-width='2'
+            d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
+          ></path>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <div>
     <label for='hslInput' class='block text-lg font-medium text-dark dark:text-gray-300'>HSL Color:</label>
-    <input
-      type='text'
-      id='hslInput'
-      name='hslInput'
-      placeholder='hsl(0, 0%, 100%)'
-      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light'
-    />
+    <div class='relative mt-1'>
+      <input
+        type='text'
+        id='hslInput'
+        name='hslInput'
+        placeholder='hsl(0, 0%, 100%)'
+        class='block w-full px-3 py-2 pr-12 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light'
+      />
+      <button
+        type='button'
+        id='copyHsl'
+        class='absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 dark:text-light hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200'
+        title='Copy HSL color'
+      >
+        <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            stroke-width='2'
+            d='M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'
+          ></path>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <div class='h-24 w-full rounded-md border border-gray-300 dark:border-gray-600' id='colorPreview'></div>
@@ -45,13 +96,81 @@
     const rgbInput = document.getElementById('rgbInput');
     const hslInput = document.getElementById('hslInput');
     const colorPreview = document.getElementById('colorPreview');
+    const copyHexBtn = document.getElementById('copyHex');
+    const copyRgbBtn = document.getElementById('copyRgb');
+    const copyHslBtn = document.getElementById('copyHsl');
 
-    if (!hexInput || !rgbInput || !hslInput || !colorPreview) {
+    if (!hexInput || !rgbInput || !hslInput || !colorPreview || !copyHexBtn || !copyRgbBtn || !copyHslBtn) {
       return;
     }
 
     // Set default color
     colorPreview.style.backgroundColor = '#fefefe';
+
+    // Copy to clipboard function with visual feedback
+    async function copyToClipboard(text, button) {
+      if (!text || text.includes('Invalid')) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+
+        // Visual feedback - change icon temporarily
+        const svg = button.querySelector('svg');
+        const originalPath = svg.innerHTML;
+
+        // Check mark icon
+        svg.innerHTML =
+          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+        button.classList.add('text-green-500');
+        button.classList.remove('dark:text-light');
+
+        setTimeout(() => {
+          svg.innerHTML = originalPath;
+          button.classList.remove('text-green-500');
+          button.classList.add('dark:text-light');
+        }, 1000);
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+        // Fallback for older browsers
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+
+          // Visual feedback for fallback
+          const svg = button.querySelector('svg');
+          const originalPath = svg.innerHTML;
+          svg.innerHTML =
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+          button.classList.add('text-green-500');
+
+          setTimeout(() => {
+            svg.innerHTML = originalPath;
+            button.classList.remove('text-green-500');
+          }, 1000);
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed: ', fallbackErr);
+        }
+      }
+    }
+
+    // Copy button event listeners
+    copyHexBtn.addEventListener('click', () => {
+      copyToClipboard(hexInput.value.trim(), copyHexBtn);
+    });
+
+    copyRgbBtn.addEventListener('click', () => {
+      copyToClipboard(rgbInput.value.trim(), copyRgbBtn);
+    });
+
+    copyHslBtn.addEventListener('click', () => {
+      copyToClipboard(hslInput.value.trim(), copyHslBtn);
+    });
 
     // Debounce function to limit rapid updates
     function debounce(func, delay) {
