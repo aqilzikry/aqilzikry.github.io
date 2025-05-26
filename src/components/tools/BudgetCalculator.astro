@@ -34,24 +34,39 @@
   </div>
 </div>
 
-<script>
-  const incomeInput = document.getElementById('income') as HTMLInputElement;
-  const needsResult = document.getElementById('needsResult') as HTMLSpanElement;
-  const wantsResult = document.getElementById('wantsResult') as HTMLSpanElement;
-  const savingsResult = document.getElementById('savingsResult') as HTMLSpanElement;
+<script is:inline>
+  function initBudgetCalculator() {
+    const incomeInput = document.getElementById('income');
+    const needsResult = document.getElementById('needsResult');
+    const wantsResult = document.getElementById('wantsResult');
+    const savingsResult = document.getElementById('savingsResult');
 
-  function calculateBudget() {
-    const income = parseFloat(incomeInput.value) || 0;
-    const needs = income * 0.5;
-    const wants = income * 0.3;
-    const savings = income * 0.2;
+    if (!incomeInput || !needsResult || !wantsResult || !savingsResult) {
+      return;
+    }
 
-    needsResult.textContent = `RM${needs.toFixed(2)}`;
-    wantsResult.textContent = `RM${wants.toFixed(2)}`;
-    savingsResult.textContent = `RM${savings.toFixed(2)}`;
+    function calculateBudget() {
+      const income = parseFloat(incomeInput.value) || 0;
+      const needs = income * 0.5;
+      const wants = income * 0.3;
+      const savings = income * 0.2;
+
+      needsResult.textContent = `RM${needs.toFixed(2)}`;
+      wantsResult.textContent = `RM${wants.toFixed(2)}`;
+      savingsResult.textContent = `RM${savings.toFixed(2)}`;
+    }
+
+    // Remove existing event listeners to prevent duplicates
+    incomeInput.removeEventListener('input', calculateBudget);
+    incomeInput.addEventListener('input', calculateBudget);
+
+    // Initial calculation in case there's a persisted value
+    calculateBudget();
   }
 
-  incomeInput.addEventListener('input', calculateBudget);
-  // Initial calculation in case there's a persisted value
-  calculateBudget();
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initBudgetCalculator);
+
+  // Initialize on view transitions
+  document.addEventListener('astro:page-load', initBudgetCalculator);
 </script>
