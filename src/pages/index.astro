@@ -1,11 +1,12 @@
 ---
-import { info } from "@data";
+import { info } from '@data';
 
-import Layout from "@layouts/Layout.astro";
-import Hero from "@components/home/Hero.astro";
-import Experience from "@components/home/Experience.astro";
-import ProjectsWrapper from "@components/general/ProjectsWrapper.astro";
-import MetaHead from "@components/general/MetaHead.astro";
+import MetaHead from '@components/general/MetaHead.astro';
+import ProjectsWrapper from '@components/general/ProjectsWrapper.astro';
+import Experience from '@components/home/Experience.astro';
+import Hero from '@components/home/Hero.astro';
+import Technologies from '@components/home/Technologies.astro';
+import Layout from '@layouts/Layout.astro';
 
 const featureProjects = info.projects.reduce((accumulator, project) => {
   if (accumulator.length < 6 && project.isFeatured) {
@@ -15,23 +16,20 @@ const featureProjects = info.projects.reduce((accumulator, project) => {
 }, []);
 ---
 
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang='en'>
   <head>
-    <MetaHead
-      title={"Portfolio"}
-      description={info.about}
-      ogImageUrl={"/assets/images/profile.png"}
-    />
+    <MetaHead title={'Portfolio'} description={info.about} ogImageUrl={'/assets/images/profile.png'} />
   </head>
 
   <body>
     <Layout>
       <Hero name={info.name} about={info.about} />
-      <Experience title={"EXPERIENCE"} details={info.experience} />
-      <Experience title={"EDUCATION"} details={info.education} />
+      <Experience title={'EXPERIENCE'} details={info.experience} />
+      <Experience title={'EDUCATION'} details={info.education} />
+      <Technologies />
       <section>
-        <h2 class="w-[15rem] dark:text-light mt-16">FEATURED PROJECTS</h2>
+        <h2 class='w-[15rem] dark:text-light mt-16'>FEATURED PROJECTS</h2>
         <ProjectsWrapper projects={featureProjects} />
       </section>
     </Layout>
