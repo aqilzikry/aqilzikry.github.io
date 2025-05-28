@@ -2,36 +2,38 @@
 import { info } from '@data';
 
 const technologies = info.technologies || [];
-const targetTechForDarkFill = ['.NET', 'SQL', 'MongoDB', 'GitHub'];
+const targetTechForDarkFill = ['.NET', 'SQL', 'MongoDB', 'GitHub', 'NextJS', 'Tailwind CSS'];
 ---
 
 <section class='my-16'>
   <h2 class='w-[15rem] dark:text-light mt-16 mb-8'>TECHNOLOGIES</h2>
   <div class='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8'>
     {
-      technologies.map((tech) => {
-        const isTargetIcon = targetTechForDarkFill.includes(tech.name);
-        // Base classes for the icon wrapper
-        let iconWrapperClasses = ['w-16 h-16 mb-2 flex items-center justify-center'];
+      technologies
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((tech) => {
+          const isTargetIcon = targetTechForDarkFill.includes(tech.name);
+          // Base classes for the icon wrapper
+          let iconWrapperClasses = ['w-16 h-16 mb-2 flex items-center justify-center'];
 
-        if (isTargetIcon) {
-          // Add text color classes for target icons, responsive to dark mode
-          iconWrapperClasses.push('text-dark-gray dark:text-light');
-        }
+          if (isTargetIcon) {
+            // Add text color classes for target icons, responsive to dark mode
+            iconWrapperClasses.push('text-dark-gray dark:text-light');
+          }
 
-        return (
-          <div class='flex flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition-shadow min-h-[10rem]'>
-            {tech.icon && tech.icon.startsWith('<svg') ? (
-              <div class:list={iconWrapperClasses} set:html={tech.icon} />
-            ) : (
-              <div class='w-16 h-16 mb-2 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-xs text-gray-500 dark:text-gray-400'>
-                [ICON]
-              </div>
-            )}
-            <p class='text-center dark:text-light mt-auto'>{tech.name}</p>
-          </div>
-        );
-      })
+          return (
+            <div class='flex flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition-shadow min-h-[10rem]'>
+              {tech.icon && tech.icon.startsWith('<svg') ? (
+                <div class:list={iconWrapperClasses} set:html={tech.icon} />
+              ) : (
+                <div class='w-16 h-16 mb-2 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-xs text-gray-500 dark:text-gray-400'>
+                  [ICON]
+                </div>
+              )}
+              <p class='text-center dark:text-light mt-auto'>{tech.name}</p>
+            </div>
+          );
+        })
     }
   </div>
 </section>
