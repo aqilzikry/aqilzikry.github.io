@@ -117,12 +117,28 @@ export const info = {
     {
       title: 'MyEasyProg',
       isFeatured: true,
-      thumbnail: 'assets/images/myeasyprog.png',
-      images: ['../../assets/images/myeasyprog.png'],
+      thumbnail: '/src/assets/images/myeasyprog.png',
+      images: ['/src/assets/images/myeasyprog.png'],
       description:
         'A comprehensive programming learning platform designed to make coding education accessible and engaging. MyEasyProg provides reading materials, challenges, and real-time feedback to help students master programming concepts effectively.',
       // githubUrl: 'https://github.com/aqilzikry/ycu-webapp',
-      liveUrl: 'https://myeasyprog.uniten.edu.my/',
+      // liveUrl: 'https://myeasyprog.uniten.edu.my/',
+    },
+    {
+      title: 'SmartAlgebra',
+      isFeatured: true,
+      thumbnail: '/src/assets/images/smartalgebra.png',
+      images: [
+        '/src/assets/images/smartalgebra/dashboard.png',
+        '/src/assets/images/smartalgebra/edit-quiz.png',
+        '/src/assets/images/smartalgebra/lesson-plan.png',
+        '/src/assets/images/smartalgebra/manage-quiz.png',
+        '/src/assets/images/smartalgebra/manage-user.png',
+      ],
+      description:
+        'SmartAlgebra is a web-based platform that provides a comprehensive suite of tools for students and teachers to learn and teach algebra. It includes lesson plans, quizzes, and student performance tracking.',
+      // githubUrl: 'https://github.com/aqilzikry/ycu-webapp',
+      // liveUrl: 'https://myeasyprog.uniten.edu.my/',
     },
   ],
 

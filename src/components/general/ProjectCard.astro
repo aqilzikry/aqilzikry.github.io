@@ -1,11 +1,12 @@
 ---
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { IProjectDetails } from '@types';
 
-import myeasyprog_tn from '../../assets/images/myeasyprog.png';
-
 const { projectDetail } = Astro.props as IProjectDetails;
-const { title, liveUrl, githubUrl } = projectDetail;
+const { title, liveUrl, githubUrl, thumbnail } = projectDetail;
+const images = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/*.{jpeg,jpg,png,gif}');
+if (!images[thumbnail]) throw new Error(`"${thumbnail}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif}"`);
 ---
 
 <article
@@ -70,7 +71,7 @@ const { title, liveUrl, githubUrl } = projectDetail;
   </div>
 
   <div class='project-card-content'>
-    <Image src={myeasyprog_tn} alt='Project image' />
+    <Image src={thumbnail} alt='Project image' width={600} height={350} />
   </div>
 
   <div
