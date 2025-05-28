@@ -1,11 +1,33 @@
 ---
 import { info } from '@data';
+import type { ImageMetadata } from 'astro';
 
 import ProjectsWrapper from '@components/general/ProjectsWrapper.astro';
 import MetaHead from '@components/general/MetaHead.astro';
 import Layout from '@layouts/Layout.astro';
 
 const projects = info.projects.map((project) => project);
+
+// Resolve all image imports
+const images = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/**/*.{jpeg,jpg,png,gif}');
+
+// Create a mapping of original paths to resolved image URLs
+const imageUrlMap = {};
+for (const project of projects) {
+  // Process thumbnail
+  if (images[project.thumbnail]) {
+    const resolvedImage = await images[project.thumbnail]();
+    imageUrlMap[project.thumbnail] = resolvedImage.default.src;
+  }
+
+  // Process all images in the images array
+  for (const imagePath of project.images) {
+    if (images[imagePath]) {
+      const resolvedImage = await images[imagePath]();
+      imageUrlMap[imagePath] = resolvedImage.default.src;
+    }
+  }
+}
 ---
 
 <!doctype html>
@@ -133,7 +155,8 @@ const projects = info.projects.map((project) => project);
       </div>
     </Layout>
 
-    <script>
+    <script define:vars={{ imageUrlMap }}>
+      // Now imageUrlMap is available in client-side JavaScript
       let currentIndex = 0;
       let currentProject = null;
 
@@ -157,7 +180,7 @@ const projects = info.projects.map((project) => project);
           imageDiv.className = 'w-full flex-shrink-0 relative';
           imageDiv.innerHTML = `
             <img 
-              src="${image}" 
+              src="${imageUrlMap[image]}" 
               alt="${project.title} - Image ${index + 1}"
               class="w-full h-96 object-contain"
             />
