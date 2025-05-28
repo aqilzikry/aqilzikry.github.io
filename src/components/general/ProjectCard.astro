@@ -5,8 +5,9 @@ import { IProjectDetails } from '@types';
 
 const { projectDetail } = Astro.props as IProjectDetails;
 const { title, liveUrl, githubUrl, thumbnail } = projectDetail;
-const images = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/*.{jpeg,jpg,png,gif}');
-if (!images[thumbnail]) throw new Error(`"${thumbnail}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif}"`);
+const images = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/**/*.{jpeg,jpg,png,gif}');
+if (!images[thumbnail])
+  throw new Error(`"${thumbnail}" does not exist in glob: "src/assets/images/**/*.{jpeg,jpg,png,gif}"`);
 ---
 
 <article
@@ -71,7 +72,7 @@ if (!images[thumbnail]) throw new Error(`"${thumbnail}" does not exist in glob: 
   </div>
 
   <div class='project-card-content'>
-    <Image src={thumbnail} alt='Project image' width={600} height={350} />
+    <Image src={images[thumbnail]()} alt='Project image' />
   </div>
 
   <div
