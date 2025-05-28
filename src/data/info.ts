@@ -117,7 +117,10 @@ export const info = {
     {
       title: 'MyEasyProg',
       isFeatured: true,
-      thumbnail: 'assets/images/profile.png',
+      thumbnail: 'assets/images/myeasyprog.png',
+      images: ['assets/images/myeasyprog.png'],
+      description:
+        'A comprehensive programming learning platform designed to make coding education accessible and engaging. MyEasyProg provides reading materials, challenges, and real-time feedback to help students master programming concepts effectively.',
       // githubUrl: 'https://github.com/aqilzikry/ycu-webapp',
       liveUrl: 'https://myeasyprog.uniten.edu.my/',
     },

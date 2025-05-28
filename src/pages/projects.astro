@@ -1,27 +1,403 @@
 ---
-import { info } from "@data";
+import { info } from '@data';
 
-import ProjectsWrapper from "@components/general/ProjectsWrapper.astro";
-import MetaHead from "@components/general/MetaHead.astro";
-import Layout from "@layouts/Layout.astro";
+import ProjectsWrapper from '@components/general/ProjectsWrapper.astro';
+import MetaHead from '@components/general/MetaHead.astro';
+import Layout from '@layouts/Layout.astro';
 
 const projects = info.projects.map((project) => project);
 ---
 
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang='en'>
   <head>
     <MetaHead
-      title={"Projects"}
-      description={"All projects are available in this page."}
-      ogImageUrl={"/assets/images/profile.png"}
+      title={'Projects'}
+      description={'All projects are available in this page.'}
+      ogImageUrl={'/assets/images/profile.png'}
     />
   </head>
 
   <body>
     <Layout>
-      <h1 style="line-height: 1.2;" transition:animate="slide">Projects</h1>
+      <h1 style='line-height: 1.2;' transition:animate='slide'>Projects</h1>
       <ProjectsWrapper projects={projects} />
+
+      <!-- Project Overlay -->
+      <div
+        id='project-overlay'
+        class='fixed inset-0 bg-black bg-opacity-80 z-50 items-center justify-center p-4 hidden'
+        style='backdrop-filter: blur(8px);'
+      >
+        <!-- Close button -->
+        <button
+          id='close-overlay'
+          class='absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200 z-10'
+          aria-label='Close overlay'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='32'
+            height='32'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+          >
+            <line x1='18' y1='6' x2='6' y2='18'></line>
+            <line x1='6' y1='6' x2='18' y2='18'></line>
+          </svg>
+        </button>
+
+        <!-- Overlay content -->
+        <div class='max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-2xl'>
+          <!-- Carousel container -->
+          <div class='relative'>
+            <!-- Images -->
+            <div id='carousel-container' class='overflow-hidden'>
+              <div id='carousel-track' class='flex transition-transform duration-300 ease-in-out'>
+                <!-- Images will be dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Navigation arrows -->
+            <button
+              id='prev-btn'
+              class='absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all duration-200 hidden'
+              aria-label='Previous image'
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='24'
+                height='24'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round'
+              >
+                <polyline points='15,18 9,12 15,6'></polyline>
+              </svg>
+            </button>
+
+            <button
+              id='next-btn'
+              class='absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all duration-200 hidden'
+              aria-label='Next image'
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='24'
+                height='24'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round'
+              >
+                <polyline points='9,18 15,12 9,6'></polyline>
+              </svg>
+            </button>
+
+            <!-- Dots indicator -->
+            <div
+              id='dots-container'
+              class='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 hidden'
+            >
+              <!-- Dots will be dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class='p-6'>
+            <div class='flex items-center justify-between mb-4'>
+              <h2 id='overlay-title' class='text-2xl font-bold text-gray-900 dark:text-white'>
+                <!-- Title will be dynamically populated -->
+              </h2>
+
+              <!-- External links -->
+              <div id='overlay-links' class='flex space-x-2'>
+                <!-- Links will be dynamically populated -->
+              </div>
+            </div>
+
+            <p id='overlay-description' class='text-gray-700 dark:text-gray-300 leading-relaxed'>
+              <!-- Description will be dynamically populated -->
+            </p>
+          </div>
+        </div>
+      </div>
     </Layout>
+
+    <script>
+      let currentIndex = 0;
+      let currentProject = null;
+
+      function showOverlay(project) {
+        currentProject = project;
+        currentIndex = 0;
+
+        const overlay = document.getElementById('project-overlay');
+        const track = document.getElementById('carousel-track');
+        const dotsContainer = document.getElementById('dots-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Clear previous content
+        track.innerHTML = '';
+        dotsContainer.innerHTML = '';
+
+        // Populate images
+        project.images.forEach((image, index) => {
+          const imageDiv = document.createElement('div');
+          imageDiv.className = 'w-full flex-shrink-0 relative';
+          imageDiv.innerHTML = `
+            <img 
+              src="${image}" 
+              alt="${project.title} - Image ${index + 1}"
+              class="w-full h-96 object-cover"
+            />
+          `;
+          track.appendChild(imageDiv);
+        });
+
+        // Show/hide navigation based on number of images
+        if (project.images.length > 1) {
+          prevBtn.classList.remove('hidden');
+          nextBtn.classList.remove('hidden');
+          dotsContainer.classList.remove('hidden');
+
+          // Create dots
+          project.images.forEach((_, index) => {
+            const dot = document.createElement('button');
+            dot.className =
+              'carousel-dot w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-70 transition-all duration-200';
+            dot.setAttribute('data-index', index.toString());
+            dot.setAttribute('aria-label', `Go to image ${index + 1}`);
+            dot.addEventListener('click', () => goToImage(index));
+            dotsContainer.appendChild(dot);
+          });
+        } else {
+          prevBtn.classList.add('hidden');
+          nextBtn.classList.add('hidden');
+          dotsContainer.classList.add('hidden');
+        }
+
+        // Populate content
+        const titleElement = document.getElementById('overlay-title');
+        const linksElement = document.getElementById('overlay-links');
+        const descriptionElement = document.getElementById('overlay-description');
+
+        if (project.liveUrl) {
+          titleElement.innerHTML = `
+            <a 
+              href="${project.liveUrl}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+            >
+              ${project.title}
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+                class="inline ml-2"
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15,3 21,3 21,9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          `;
+        } else {
+          titleElement.textContent = project.title;
+        }
+
+        // Populate links
+        linksElement.innerHTML = '';
+        if (project.githubUrl) {
+          linksElement.innerHTML += `
+            <a
+              href="${project.githubUrl}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              aria-label="View on GitHub"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+              >
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+              </svg>
+            </a>
+          `;
+        }
+        if (project.liveUrl) {
+          linksElement.innerHTML += `
+            <a
+              href="${project.liveUrl}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              aria-label="View live site"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+              >
+                <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+            </a>
+          `;
+        }
+
+        descriptionElement.textContent = project.description;
+
+        // Show overlay
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+
+        // Initialize carousel
+        updateCarousel();
+      }
+
+      function updateCarousel() {
+        if (!currentProject) return;
+
+        const track = document.getElementById('carousel-track');
+        const dots = document.querySelectorAll('.carousel-dot');
+
+        if (track) {
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+
+        // Update dots
+        dots.forEach((dot, index) => {
+          if (index === currentIndex) {
+            dot.classList.add('bg-white');
+            dot.classList.remove('bg-opacity-50');
+          } else {
+            dot.classList.remove('bg-white');
+            dot.classList.add('bg-opacity-50');
+          }
+        });
+      }
+
+      function nextImage() {
+        if (!currentProject) return;
+        currentIndex = (currentIndex + 1) % currentProject.images.length;
+        updateCarousel();
+      }
+
+      function prevImage() {
+        if (!currentProject) return;
+        currentIndex = (currentIndex - 1 + currentProject.images.length) % currentProject.images.length;
+        updateCarousel();
+      }
+
+      function goToImage(index) {
+        currentIndex = index;
+        updateCarousel();
+      }
+
+      function hideOverlay() {
+        const overlay = document.getElementById('project-overlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+        currentProject = null;
+      }
+
+      function initializeProjectInteractions() {
+        // Project card click handlers
+        document.querySelectorAll('.project-card').forEach((card) => {
+          card.addEventListener('click', (e) => {
+            const projectData = JSON.parse(card.getAttribute('data-project'));
+            showOverlay(projectData);
+          });
+        });
+
+        // Carousel navigation
+        document.getElementById('next-btn')?.addEventListener('click', nextImage);
+        document.getElementById('prev-btn')?.addEventListener('click', prevImage);
+
+        // Close overlay
+        document.getElementById('close-overlay')?.addEventListener('click', hideOverlay);
+
+        // Close on backdrop click
+        document.getElementById('project-overlay')?.addEventListener('click', (e) => {
+          if (e.target === e.currentTarget) {
+            hideOverlay();
+          }
+        });
+      }
+
+      function initializeKeyboardNavigation() {
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+          const overlay = document.getElementById('project-overlay');
+          if (overlay && !overlay.classList.contains('hidden')) {
+            switch (e.key) {
+              case 'ArrowLeft':
+                prevImage();
+                break;
+              case 'ArrowRight':
+                nextImage();
+                break;
+              case 'Escape':
+                hideOverlay();
+                break;
+            }
+          }
+        });
+      }
+
+      // Initialize on both DOMContentLoaded and astro:page-load
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeProjectInteractions();
+        initializeKeyboardNavigation();
+      });
+
+      // Re-initialize when navigating from other pages (Astro view transitions)
+      document.addEventListener('astro:page-load', () => {
+        initializeProjectInteractions();
+      });
+    </script>
+
+    <style>
+      #project-overlay {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
   </body>
 </html>

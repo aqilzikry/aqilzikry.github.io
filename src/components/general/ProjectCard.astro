@@ -8,15 +8,19 @@ const { projectDetail } = Astro.props as IProjectDetails;
 const { title, liveUrl, githubUrl } = projectDetail;
 ---
 
-<article class='w-full max-h-[25rem] overflow-hidden relative group'>
+<article
+  class='w-full max-h-[25rem] overflow-hidden relative group project-card cursor-pointer'
+  data-project={JSON.stringify(projectDetail)}
+>
   <div class='flex items-center absolute right-4 top-4 z-10'>
     {
       githubUrl && (
         <a
           href={githubUrl}
           class='text-white p-3 bg-black/50 rounded-full backdrop-blur-md'
-          aria-label='Social Media'
+          aria-label='View on GitHub'
           target='_blank'
+          onclick='event.stopPropagation()'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -41,8 +45,9 @@ const { title, liveUrl, githubUrl } = projectDetail;
         <a
           href={liveUrl}
           class='text-white p-3 bg-black/50 rounded-full backdrop-blur-md ml-1'
-          aria-label='Social Media'
+          aria-label='View live site'
           target='_blank'
+          onclick='event.stopPropagation()'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -63,9 +68,11 @@ const { title, liveUrl, githubUrl } = projectDetail;
       )
     }
   </div>
-  <a href={liveUrl ? liveUrl : githubUrl} target='_blank'>
+
+  <div class='project-card-content'>
     <Image src={myeasyprog_tn} alt='Project image' />
-  </a>
+  </div>
+
   <div
     class='absolute w-full bottom-0 left-0 backdrop-blur-md dark:text-white text-white bg-black/50 p-4 translate-y-[100%] group-hover:translate-y-0 transition duration-700'
   >
