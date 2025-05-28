@@ -52,7 +52,7 @@ const projects = info.projects.map((project) => project);
         </button>
 
         <!-- Overlay content -->
-        <div class='max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-2xl'>
+        <div class='max-w-4xl mx-auto bg-white dark:bg-dark rounded-lg overflow-hidden shadow-2xl'>
           <!-- Carousel container -->
           <div class='relative'>
             <!-- Images -->
@@ -115,7 +115,7 @@ const projects = info.projects.map((project) => project);
           <!-- Content -->
           <div class='p-6'>
             <div class='flex items-center justify-between mb-4'>
-              <h2 id='overlay-title' class='text-2xl font-bold text-gray-900 dark:text-white'>
+              <h2 id='overlay-title' class='text-2xl font-bold text-gray-900 dark:text-light'>
                 <!-- Title will be dynamically populated -->
               </h2>
 
@@ -125,7 +125,7 @@ const projects = info.projects.map((project) => project);
               </div>
             </div>
 
-            <p id='overlay-description' class='text-gray-700 dark:text-gray-300 leading-relaxed'>
+            <p id='overlay-description' class='text-gray-700 dark:text-light leading-relaxed'>
               <!-- Description will be dynamically populated -->
             </p>
           </div>
@@ -198,7 +198,7 @@ const projects = info.projects.map((project) => project);
               href="${project.liveUrl}" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              class="dark:text-light hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
             >
               ${project.title}
               <svg 
@@ -231,7 +231,7 @@ const projects = info.projects.map((project) => project);
               href="${project.githubUrl}"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              class="dark:text-light hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
               aria-label="View on GitHub"
             >
               <svg 
@@ -252,7 +252,7 @@ const projects = info.projects.map((project) => project);
               href="${project.liveUrl}"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              class="text-gray-600 dark:text-light hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
               aria-label="View live site"
             >
               <svg 
