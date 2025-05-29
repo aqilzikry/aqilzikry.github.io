@@ -7,7 +7,7 @@ const { name, about } = Astro.props as IHeroProps;
 
 <section>
   <p class='dark:text-light mt-[117px]'>Hey, I'm</p>
-  <h1 transition:animate='slide'>
+  <h1 class='leading-[1.2] min-h-[2.5em] sm:min-h-[unset]' transition:animate='slide'>
     <span id='typing-name'></span><span id='cursor' class='cursor-style'>|</span>
   </h1>
   <p class='dark:text-light text-lg mb-8'>
