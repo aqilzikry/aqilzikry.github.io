@@ -6,8 +6,10 @@ const { name, about } = Astro.props as IHeroProps;
 ---
 
 <section>
-  <p class='dark:text-light mt-[117px]'>Hey, I’m</p>
-  <h1 transition:animate="slide">{name}</h1>
+  <p class='dark:text-light mt-[117px]'>Hey, I'm</p>
+  <h1 transition:animate='slide'>
+    <span id='typing-name'></span><span id='cursor' class='cursor-style'>|</span>
+  </h1>
   <p class='dark:text-light text-lg mb-8'>
     {about}
   </p>
@@ -15,3 +17,61 @@ const { name, about } = Astro.props as IHeroProps;
     <SocialLinks />
   </div>
 </section>
+
+<style>
+  .cursor-style {
+    display: inline-block;
+    color: #3b82f6;
+    font-weight: normal;
+    margin-left: 1px;
+  }
+</style>
+
+<script is:inline define:vars={{ name }}>
+  document.addEventListener('astro:page-load', () => {
+    const typingElement = document.getElementById('typing-name');
+    const cursorElement = document.getElementById('cursor');
+    if (!typingElement || !cursorElement) return;
+
+    const fullName = name;
+    let currentText = '';
+    let isDeleting = false;
+    let charIndex = 0;
+    let cursorVisible = true;
+
+    // Cursor blinking function
+    function blinkCursor() {
+      cursorVisible = !cursorVisible;
+      cursorElement.style.opacity = cursorVisible ? '1' : '0';
+    }
+
+    // Start cursor blinking immediately
+    const cursorInterval = setInterval(blinkCursor, 500);
+
+    function typeWriter() {
+      if (!isDeleting && charIndex < fullName.length) {
+        // Typing
+        currentText += fullName.charAt(charIndex);
+        typingElement.textContent = currentText;
+        charIndex++;
+        setTimeout(typeWriter, 80);
+      } else if (isDeleting && charIndex > 0) {
+        // Deleting
+        currentText = fullName.substring(0, charIndex - 1);
+        typingElement.textContent = currentText;
+        charIndex--;
+        setTimeout(typeWriter, 40);
+      } else if (charIndex === fullName.length && !isDeleting) {
+        setTimeout(() => {
+          isDeleting = true;
+          typeWriter();
+        }, 1500);
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        setTimeout(typeWriter, 500);
+      }
+    }
+
+    setTimeout(typeWriter, 300);
+  });
+</script>

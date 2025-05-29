@@ -1,11 +1,64 @@
 ---
-import Footer from "@components/general/Footer.astro";
-import Navbar from "@components/general/Navbar.astro";
-import "../styles/style.css";
+import Footer from '@components/general/Footer.astro';
+import Navbar from '@components/general/Navbar.astro';
+import '../styles/style.css';
 ---
 
 <Navbar />
-<main class="container">
+<main class='container'>
   <slot />
 </main>
 <Footer />
+
+<!-- Scroll to Top Button -->
+<button
+  id='scroll-to-top'
+  class='fixed bottom-8 right-8 w-12 h-12 bg-blue-600 dark:bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all duration-300 opacity-0 invisible z-40 flex items-center justify-center'
+  aria-label='Scroll to top'
+>
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='20'
+    height='20'
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    stroke-width='2'
+    stroke-linecap='round'
+    stroke-linejoin='round'
+  >
+    <polyline points='18,15 12,9 6,15'></polyline>
+  </svg>
+</button>
+
+<script is:inline>
+  document.addEventListener('astro:page-load', () => {
+    const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+    // Show/hide button based on scroll position
+    function toggleScrollButton() {
+      if (window.pageYOffset > 300) {
+        scrollToTopBtn.classList.remove('opacity-0', 'invisible');
+        scrollToTopBtn.classList.add('opacity-100', 'visible');
+      } else {
+        scrollToTopBtn.classList.remove('opacity-100', 'visible');
+        scrollToTopBtn.classList.add('opacity-0', 'invisible');
+      }
+    }
+
+    // Smooth scroll to top
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+
+    // Event listeners
+    window.addEventListener('scroll', toggleScrollButton);
+    scrollToTopBtn.addEventListener('click', scrollToTop);
+
+    // Initial check
+    toggleScrollButton();
+  });
+</script>
