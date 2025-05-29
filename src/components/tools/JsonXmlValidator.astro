@@ -55,7 +55,7 @@
       name='inputData'
       rows='8'
       placeholder='Paste your JSON or XML here...'
-      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light font-mono resize-y'
+      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light font-mono resize-y'
     ></textarea>
   </div>
 
@@ -64,7 +64,7 @@
     <button
       type='button'
       id='validateBtn'
-      class='px-4 py-2 bg-blue text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue focus:ring-offset-2 transition-colors duration-200'
+      class='px-4 py-2 bg-custom-blue text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue focus:ring-offset-2 transition-colors duration-200'
     >
       Validate
     </button>
@@ -103,13 +103,13 @@
         name='outputData'
         rows='8'
         readonly
-        class='block w-full px-3 py-2 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm text-dark dark:text-light font-mono resize-y'
+        class='block w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm text-dark dark:text-light font-mono resize-y'
       ></textarea>
     </div>
     <div id='treeOutput' class='mt-1 hidden'>
       <div
         id='treeContainer'
-        class='block w-full p-3 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm min-h-32 max-h-96 overflow-auto text-dark dark:text-light font-mono'
+        class='block w-full p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm min-h-32 max-h-96 overflow-auto text-dark dark:text-light font-mono'
       >
       </div>
     </div>
@@ -246,7 +246,7 @@
       const createNode = (content, isExpandable = false, isExpanded = true) => {
         const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
         const toggleIcon = isExpandable
-          ? `<span class="tree-toggle cursor-pointer mr-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
+          ? `<span class="tree-toggle cursor-pointer mr-1 text-custom-gray-500 hover:text-custom-gray-700 dark:hover:text-custom-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
           : '<span class="ml-3"></span>';
 
         const nodeDiv = document.createElement('div');
@@ -267,7 +267,7 @@
       };
 
       if (obj === null) {
-        const { nodeDiv } = createNode('<span class="text-gray-500">null</span>');
+        const { nodeDiv } = createNode('<span class="text-custom-gray-500">null</span>');
         return nodeDiv;
       } else if (typeof obj === 'boolean') {
         const { nodeDiv } = createNode(`<span class="text-custom-blue-600 dark:text-custom-blue-400">${obj}</span>`);
@@ -280,7 +280,7 @@
         return nodeDiv;
       } else if (Array.isArray(obj)) {
         const { nodeDiv, childrenDiv } = createNode(
-          `<span class="text-gray-700 dark:text-gray-300">Array (${obj.length} items)</span>`,
+          `<span class="text-custom-gray-700 dark:text-custom-gray-300">Array (${obj.length} items)</span>`,
           true,
           level < 2
         );
@@ -291,7 +291,7 @@
           itemContainer.style.marginLeft = '20px';
 
           const indexLabel = document.createElement('span');
-          indexLabel.className = 'text-gray-500 mr-2 min-w-8';
+          indexLabel.className = 'text-custom-gray-500 mr-2 min-w-8';
           indexLabel.textContent = `[${index}]`;
 
           const itemNode = createCollapsibleJsonTree(item, level + 1);
@@ -305,7 +305,7 @@
       } else if (typeof obj === 'object') {
         const keys = Object.keys(obj);
         const { nodeDiv, childrenDiv } = createNode(
-          `<span class="text-gray-700 dark:text-gray-300">Object (${keys.length} properties)</span>`,
+          `<span class="text-custom-gray-700 dark:text-custom-gray-300">Object (${keys.length} properties)</span>`,
           true,
           level < 2
         );
@@ -334,7 +334,7 @@
       const createNode = (content, isExpandable = false, isExpanded = true) => {
         const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
         const toggleIcon = isExpandable
-          ? `<span class="tree-toggle cursor-pointer mr-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
+          ? `<span class="tree-toggle cursor-pointer mr-1 text-custom-gray-500 hover:text-custom-gray-700 dark:hover:text-custom-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
           : '<span class="ml-3"></span>';
 
         const nodeDiv = document.createElement('div');
@@ -386,7 +386,7 @@
         if (textContent) {
           const textNode = document.createElement('div');
           textNode.style.marginLeft = '20px';
-          textNode.innerHTML = `<span class="ml-3"></span><span class="text-gray-700 dark:text-gray-300">${textContent}</span>`;
+          textNode.innerHTML = `<span class="ml-3"></span><span class="text-custom-gray-700 dark:text-custom-gray-300">${textContent}</span>`;
           childrenDiv.appendChild(textNode);
         }
 

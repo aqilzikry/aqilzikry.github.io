@@ -54,7 +54,7 @@ for (const project of projects) {
         <!-- Close button -->
         <button
           id='close-overlay'
-          class='absolute top-6 right-6 text-white hover:text-gray-300 transition-colors duration-200 z-10'
+          class='absolute top-6 right-6 text-white hover:text-custom-gray-300 transition-colors duration-200 z-10'
           aria-label='Close overlay'
         >
           <svg
@@ -137,7 +137,7 @@ for (const project of projects) {
           <!-- Content -->
           <div class='p-6'>
             <div class='flex items-center justify-between mb-4'>
-              <h2 id='overlay-title' class='text-2xl font-bold text-gray-900 dark:text-light'>
+              <h2 id='overlay-title' class='text-2xl font-bold text-custom-gray-900 dark:text-light'>
                 <!-- Title will be dynamically populated -->
               </h2>
 
@@ -147,7 +147,7 @@ for (const project of projects) {
               </div>
             </div>
 
-            <p id='overlay-description' class='text-gray-700 dark:text-light leading-relaxed'>
+            <p id='overlay-description' class='text-custom-gray-700 dark:text-light leading-relaxed'>
               <!-- Description will be dynamically populated -->
             </p>
           </div>
@@ -242,7 +242,7 @@ for (const project of projects) {
               href="${project.githubUrl}"
               target="_blank"
               rel="noopener noreferrer"
-              class="dark:text-light hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              class="dark:text-light hover:text-custom-gray-900 dark:hover:text-white transition-colors duration-200"
               aria-label="View on GitHub"
             >
               <svg 
@@ -263,7 +263,7 @@ for (const project of projects) {
               href="${project.liveUrl}"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-600 dark:text-light hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              class="text-custom-gray-600 dark:text-light hover:text-custom-gray-900 dark:hover:text-white transition-colors duration-200"
               aria-label="View live site"
             >
               <svg 
