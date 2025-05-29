@@ -1,0 +1,564 @@
+---
+// src/components/tools/JsonXmlValidator.astro
+---
+
+<div class='space-y-6'>
+  <!-- Format Selection -->
+  <div>
+    <label class='block text-lg font-medium text-dark dark:text-light mb-3'>Format:</label>
+    <div class='flex space-x-4'>
+      <label class='flex items-center'>
+        <input type='radio' name='format' value='json' id='jsonFormat' checked class='mr-2 text-blue focus:ring-blue' />
+        <span class='text-dark dark:text-light'>JSON</span>
+      </label>
+      <label class='flex items-center'>
+        <input type='radio' name='format' value='xml' id='xmlFormat' class='mr-2 text-blue focus:ring-blue' />
+        <span class='text-dark dark:text-light'>XML</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- View Mode Selection -->
+  <div>
+    <label class='block text-lg font-medium text-dark dark:text-light mb-3'>View Mode:</label>
+    <div class='flex space-x-4'>
+      <label class='flex items-center'>
+        <input
+          type='radio'
+          name='viewMode'
+          value='normal'
+          id='normalMode'
+          checked
+          class='mr-2 text-blue focus:ring-blue'
+        />
+        <span class='text-dark dark:text-light'>Normal</span>
+      </label>
+      <label class='flex items-center'>
+        <input type='radio' name='viewMode' value='tree' id='treeMode' class='mr-2 text-blue focus:ring-blue' />
+        <span class='text-dark dark:text-light'>Tree</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div>
+    <label for='inputData' class='block text-lg font-medium text-dark dark:text-light'>Input Data:</label>
+    <textarea
+      id='inputData'
+      name='inputData'
+      rows='8'
+      placeholder='Paste your JSON or XML here...'
+      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light font-mono resize-y'
+    ></textarea>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class='grid grid-cols-2 md:grid-cols-4 gap-4'>
+    <button
+      type='button'
+      id='validateBtn'
+      class='px-4 py-2 bg-blue text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue focus:ring-offset-2 transition-colors duration-200'
+    >
+      Validate
+    </button>
+    <button
+      type='button'
+      id='formatBtn'
+      class='px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200'
+    >
+      Format
+    </button>
+    <button
+      type='button'
+      id='clearBtn'
+      class='px-4 py-2 bg-red-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200'
+    >
+      Clear
+    </button>
+    <button
+      type='button'
+      id='copyBtn'
+      class='px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200'
+    >
+      Copy Output
+    </button>
+  </div>
+
+  <!-- Status Message -->
+  <div id='statusMessage' class='hidden p-3 rounded-md'></div>
+
+  <!-- Output Area -->
+  <div>
+    <label for='outputData' class='block text-lg font-medium text-dark dark:text-light'>Output:</label>
+    <div id='normalOutput' class='mt-1'>
+      <textarea
+        id='outputData'
+        name='outputData'
+        rows='8'
+        readonly
+        class='block w-full px-3 py-2 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm text-dark dark:text-light font-mono resize-y'
+      ></textarea>
+    </div>
+    <div id='treeOutput' class='mt-1 hidden'>
+      <div
+        id='treeContainer'
+        class='block w-full p-3 bg-gray-50 dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm min-h-32 max-h-96 overflow-auto text-dark dark:text-light font-mono'
+      >
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  function initJsonXmlValidator() {
+    const inputData = document.getElementById('inputData');
+    const outputData = document.getElementById('outputData');
+    const treeContainer = document.getElementById('treeContainer');
+    const normalOutput = document.getElementById('normalOutput');
+    const treeOutput = document.getElementById('treeOutput');
+    const statusMessage = document.getElementById('statusMessage');
+    const validateBtn = document.getElementById('validateBtn');
+    const formatBtn = document.getElementById('formatBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const jsonFormat = document.getElementById('jsonFormat');
+    const xmlFormat = document.getElementById('xmlFormat');
+    const normalMode = document.getElementById('normalMode');
+    const treeMode = document.getElementById('treeMode');
+
+    if (
+      !inputData ||
+      !outputData ||
+      !treeContainer ||
+      !normalOutput ||
+      !treeOutput ||
+      !statusMessage ||
+      !validateBtn ||
+      !formatBtn ||
+      !clearBtn ||
+      !copyBtn ||
+      !jsonFormat ||
+      !xmlFormat ||
+      !normalMode ||
+      !treeMode
+    ) {
+      return;
+    }
+
+    function showStatus(message, type = 'info') {
+      statusMessage.textContent = message;
+      statusMessage.className = `p-3 rounded-md ${
+        type === 'error'
+          ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+          : type === 'success'
+            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+            : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+      }`;
+    }
+
+    function hideStatus() {
+      statusMessage.className = 'hidden p-3 rounded-md';
+    }
+
+    function updateViewMode() {
+      if (treeMode.checked) {
+        normalOutput.classList.add('hidden');
+        treeOutput.classList.remove('hidden');
+      } else {
+        normalOutput.classList.remove('hidden');
+        treeOutput.classList.add('hidden');
+      }
+    }
+
+    function validateJson(jsonString) {
+      try {
+        JSON.parse(jsonString);
+        return { valid: true, error: null };
+      } catch (error) {
+        return { valid: false, error: error.message };
+      }
+    }
+
+    function validateXml(xmlString) {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xmlString, 'application/xml');
+        const parserError = doc.querySelector('parsererror');
+        if (parserError) {
+          return { valid: false, error: parserError.textContent };
+        }
+        return { valid: true, error: null };
+      } catch (error) {
+        return { valid: false, error: error.message };
+      }
+    }
+
+    function formatJson(jsonString) {
+      try {
+        const parsed = JSON.parse(jsonString);
+        return JSON.stringify(parsed, null, 2);
+      } catch (error) {
+        throw new Error(`JSON formatting error: ${error.message}`);
+      }
+    }
+
+    function formatXml(xmlString) {
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+        const parserError = xmlDoc.querySelector('parsererror');
+        if (parserError) {
+          throw new Error(parserError.textContent);
+        }
+
+        const serializer = new XMLSerializer();
+        let formatted = serializer.serializeToString(xmlDoc);
+
+        // Basic XML formatting
+        formatted = formatted.replace(/></g, '>\n<');
+        const lines = formatted.split('\n');
+        let indent = 0;
+        const indentedLines = lines.map((line) => {
+          if (line.match(/<\/\w/)) {
+            indent--;
+          }
+          const indentedLine = '  '.repeat(Math.max(0, indent)) + line;
+          if (line.match(/<\w[^>]*[^\/]>$/)) {
+            indent++;
+          }
+          return indentedLine;
+        });
+
+        return indentedLines.join('\n');
+      } catch (error) {
+        throw new Error(`XML formatting error: ${error.message}`);
+      }
+    }
+
+    function createCollapsibleJsonTree(obj, level = 0) {
+      const createNode = (content, isExpandable = false, isExpanded = true) => {
+        const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
+        const toggleIcon = isExpandable
+          ? `<span class="tree-toggle cursor-pointer mr-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
+          : '<span class="ml-3"></span>';
+
+        const nodeDiv = document.createElement('div');
+        nodeDiv.className = 'tree-node';
+        nodeDiv.style.marginLeft = `${level * 20}px`;
+        nodeDiv.innerHTML = `${toggleIcon}${content}`;
+
+        if (isExpandable) {
+          const childrenDiv = document.createElement('div');
+          childrenDiv.className = 'tree-children';
+          childrenDiv.id = nodeId;
+          childrenDiv.style.display = isExpanded ? 'block' : 'none';
+          nodeDiv.appendChild(childrenDiv);
+          return { nodeDiv, childrenDiv };
+        }
+
+        return { nodeDiv };
+      };
+
+      if (obj === null) {
+        const { nodeDiv } = createNode('<span class="text-gray-500">null</span>');
+        return nodeDiv;
+      } else if (typeof obj === 'boolean') {
+        const { nodeDiv } = createNode(`<span class="text-blue-600 dark:text-blue-400">${obj}</span>`);
+        return nodeDiv;
+      } else if (typeof obj === 'number') {
+        const { nodeDiv } = createNode(`<span class="text-green-600 dark:text-green-400">${obj}</span>`);
+        return nodeDiv;
+      } else if (typeof obj === 'string') {
+        const { nodeDiv } = createNode(`<span class="text-red-600 dark:text-red-400">"${obj}"</span>`);
+        return nodeDiv;
+      } else if (Array.isArray(obj)) {
+        const { nodeDiv, childrenDiv } = createNode(
+          `<span class="text-gray-700 dark:text-gray-300">Array (${obj.length} items)</span>`,
+          true,
+          level < 2
+        );
+
+        obj.forEach((item, index) => {
+          const itemContainer = document.createElement('div');
+          itemContainer.className = 'flex items-start';
+          itemContainer.style.marginLeft = '20px';
+
+          const indexLabel = document.createElement('span');
+          indexLabel.className = 'text-gray-500 mr-2 min-w-8';
+          indexLabel.textContent = `[${index}]`;
+
+          const itemNode = createCollapsibleJsonTree(item, level + 1);
+
+          itemContainer.appendChild(indexLabel);
+          itemContainer.appendChild(itemNode);
+          childrenDiv.appendChild(itemContainer);
+        });
+
+        return nodeDiv;
+      } else if (typeof obj === 'object') {
+        const keys = Object.keys(obj);
+        const { nodeDiv, childrenDiv } = createNode(
+          `<span class="text-gray-700 dark:text-gray-300">Object (${keys.length} properties)</span>`,
+          true,
+          level < 2
+        );
+
+        keys.forEach((key) => {
+          const propertyContainer = document.createElement('div');
+          propertyContainer.className = 'flex items-start';
+          propertyContainer.style.marginLeft = '20px';
+
+          const keyLabel = document.createElement('span');
+          keyLabel.className = 'text-purple-600 dark:text-purple-400 mr-2 font-semibold';
+          keyLabel.textContent = `"${key}":`;
+
+          const valueNode = createCollapsibleJsonTree(obj[key], level + 1);
+
+          propertyContainer.appendChild(keyLabel);
+          propertyContainer.appendChild(valueNode);
+          childrenDiv.appendChild(propertyContainer);
+        });
+
+        return nodeDiv;
+      }
+    }
+
+    function createCollapsibleXmlTree(node, level = 0) {
+      const createNode = (content, isExpandable = false, isExpanded = true) => {
+        const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
+        const toggleIcon = isExpandable
+          ? `<span class="tree-toggle cursor-pointer mr-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
+          : '<span class="ml-3"></span>';
+
+        const nodeDiv = document.createElement('div');
+        nodeDiv.className = 'tree-node';
+        nodeDiv.style.marginLeft = `${level * 20}px`;
+        nodeDiv.innerHTML = `${toggleIcon}${content}`;
+
+        if (isExpandable) {
+          const childrenDiv = document.createElement('div');
+          childrenDiv.className = 'tree-children';
+          childrenDiv.id = nodeId;
+          childrenDiv.style.display = isExpanded ? 'block' : 'none';
+          nodeDiv.appendChild(childrenDiv);
+          return { nodeDiv, childrenDiv };
+        }
+
+        return { nodeDiv };
+      };
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.tagName.toLowerCase();
+        let content = `<span class="text-blue-600 dark:text-blue-400">&lt;${tagName}</span>`;
+
+        // Add attributes
+        if (node.attributes.length > 0) {
+          for (let attr of node.attributes) {
+            content += ` <span class="text-green-600 dark:text-green-400">${attr.name}</span>=<span class="text-red-600 dark:text-red-400">"${attr.value}"</span>`;
+          }
+        }
+
+        content += `<span class="text-blue-600 dark:text-blue-400">&gt;</span>`;
+
+        const hasChildren = node.childNodes.length > 0;
+        const textContent = Array.from(node.childNodes)
+          .filter((child) => child.nodeType === Node.TEXT_NODE)
+          .map((child) => child.textContent.trim())
+          .filter((text) => text)
+          .join(' ');
+
+        if (!hasChildren || (hasChildren && !textContent && node.children.length === 0)) {
+          content = content.replace('&gt;', '/&gt;');
+          const { nodeDiv } = createNode(content);
+          return nodeDiv;
+        }
+
+        const { nodeDiv, childrenDiv } = createNode(content, true, level < 3);
+
+        // Add text content if any
+        if (textContent) {
+          const textNode = document.createElement('div');
+          textNode.style.marginLeft = '20px';
+          textNode.innerHTML = `<span class="ml-3"></span><span class="text-gray-700 dark:text-gray-300">${textContent}</span>`;
+          childrenDiv.appendChild(textNode);
+        }
+
+        // Add child elements
+        Array.from(node.children).forEach((child) => {
+          const childNode = createCollapsibleXmlTree(child, level + 1);
+          childrenDiv.appendChild(childNode);
+        });
+
+        // Add closing tag
+        const closingDiv = document.createElement('div');
+        closingDiv.innerHTML = `<span class="ml-3"></span><span class="text-blue-600 dark:text-blue-400">&lt;/${tagName}&gt;</span>`;
+        childrenDiv.appendChild(closingDiv);
+
+        return nodeDiv;
+      }
+
+      return document.createElement('div');
+    }
+
+    function generateTreeView(data, format) {
+      treeContainer.innerHTML = '';
+
+      try {
+        if (format === 'json') {
+          const parsed = JSON.parse(data);
+          const treeNode = createCollapsibleJsonTree(parsed);
+          treeContainer.appendChild(treeNode);
+        } else if (format === 'xml') {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(data, 'application/xml');
+          const parserError = xmlDoc.querySelector('parsererror');
+          if (parserError) {
+            throw new Error(parserError.textContent);
+          }
+          const treeNode = createCollapsibleXmlTree(xmlDoc.documentElement);
+          treeContainer.appendChild(treeNode);
+        }
+
+        // Add click handlers for tree toggles
+        addTreeToggleHandlers();
+      } catch (error) {
+        treeContainer.innerHTML = `<span class="text-red-600 dark:text-red-400">Error generating tree view: ${error.message}</span>`;
+      }
+    }
+
+    function addTreeToggleHandlers() {
+      const toggles = treeContainer.querySelectorAll('.tree-toggle');
+      toggles.forEach((toggle) => {
+        toggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const nodeId = toggle.getAttribute('data-node');
+          const childrenDiv = document.getElementById(nodeId);
+
+          if (childrenDiv) {
+            const isVisible = childrenDiv.style.display !== 'none';
+            childrenDiv.style.display = isVisible ? 'none' : 'block';
+            toggle.textContent = isVisible ? '▶' : '▼';
+          }
+        });
+      });
+    }
+
+    // Event listeners
+    validateBtn.addEventListener('click', () => {
+      const data = inputData.value.trim();
+      if (!data) {
+        showStatus('Please enter some data to validate.', 'error');
+        return;
+      }
+
+      const format = jsonFormat.checked ? 'json' : 'xml';
+      let result;
+
+      if (format === 'json') {
+        result = validateJson(data);
+      } else {
+        result = validateXml(data);
+      }
+
+      if (result.valid) {
+        showStatus(`Valid ${format.toUpperCase()}!`, 'success');
+        outputData.value = data;
+        if (treeMode.checked) {
+          generateTreeView(data, format);
+        }
+      } else {
+        showStatus(`Invalid ${format.toUpperCase()}: ${result.error}`, 'error');
+        outputData.value = '';
+        treeContainer.innerHTML = '';
+      }
+    });
+
+    formatBtn.addEventListener('click', () => {
+      const data = inputData.value.trim();
+      if (!data) {
+        showStatus('Please enter some data to format.', 'error');
+        return;
+      }
+
+      const format = jsonFormat.checked ? 'json' : 'xml';
+
+      try {
+        let formatted;
+        if (format === 'json') {
+          formatted = formatJson(data);
+        } else {
+          formatted = formatXml(data);
+        }
+
+        outputData.value = formatted;
+        showStatus(`${format.toUpperCase()} formatted successfully!`, 'success');
+
+        if (treeMode.checked) {
+          generateTreeView(formatted, format);
+        }
+      } catch (error) {
+        showStatus(error.message, 'error');
+        outputData.value = '';
+        treeContainer.innerHTML = '';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      inputData.value = '';
+      outputData.value = '';
+      treeContainer.innerHTML = '';
+      hideStatus();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const textToCopy = treeMode.checked ? treeContainer.textContent : outputData.value;
+
+      if (!textToCopy.trim()) {
+        showStatus('No output to copy.', 'error');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        showStatus('Output copied to clipboard!', 'success');
+
+        // Visual feedback
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy Output';
+        }, 1000);
+      } catch (err) {
+        showStatus('Failed to copy to clipboard.', 'error');
+      }
+    });
+
+    // View mode change listeners
+    normalMode.addEventListener('change', updateViewMode);
+    treeMode.addEventListener('change', () => {
+      updateViewMode();
+      const data = outputData.value.trim();
+      if (data && treeMode.checked) {
+        const format = jsonFormat.checked ? 'json' : 'xml';
+        generateTreeView(data, format);
+      }
+    });
+
+    // Format change listener
+    document.querySelectorAll('input[name="format"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        hideStatus();
+        outputData.value = '';
+        treeContainer.innerHTML = '';
+      });
+    });
+
+    // Initialize view mode
+    updateViewMode();
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initJsonXmlValidator);
+
+  // Initialize on view transitions
+  document.addEventListener('astro:page-load', initJsonXmlValidator);
+</script>
