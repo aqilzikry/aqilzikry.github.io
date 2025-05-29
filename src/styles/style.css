@@ -39,6 +39,6 @@
     @apply dark:text-light flex items-center border border-dark dark:border-light p-4 rounded-lg justify-center;
   }
   .footer-icons:hover {
-    @apply border-blue;
+    @apply border-custom-blue;
   }
 }

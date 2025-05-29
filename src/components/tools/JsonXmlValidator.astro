@@ -8,11 +8,18 @@
     <label class='block text-lg font-medium text-dark dark:text-light mb-3'>Format:</label>
     <div class='flex space-x-4'>
       <label class='flex items-center'>
-        <input type='radio' name='format' value='json' id='jsonFormat' checked class='mr-2 text-blue focus:ring-blue' />
+        <input
+          type='radio'
+          name='format'
+          value='json'
+          id='jsonFormat'
+          checked
+          class='mr-2 text-custom-blue focus:ring-blue'
+        />
         <span class='text-dark dark:text-light'>JSON</span>
       </label>
       <label class='flex items-center'>
-        <input type='radio' name='format' value='xml' id='xmlFormat' class='mr-2 text-blue focus:ring-blue' />
+        <input type='radio' name='format' value='xml' id='xmlFormat' class='mr-2 text-custom-blue focus:ring-blue' />
         <span class='text-dark dark:text-light'>XML</span>
       </label>
     </div>
@@ -29,12 +36,12 @@
           value='normal'
           id='normalMode'
           checked
-          class='mr-2 text-blue focus:ring-blue'
+          class='mr-2 text-custom-blue focus:ring-blue'
         />
         <span class='text-dark dark:text-light'>Normal</span>
       </label>
       <label class='flex items-center'>
-        <input type='radio' name='viewMode' value='tree' id='treeMode' class='mr-2 text-blue focus:ring-blue' />
+        <input type='radio' name='viewMode' value='tree' id='treeMode' class='mr-2 text-custom-blue focus:ring-blue' />
         <span class='text-dark dark:text-light'>Tree</span>
       </label>
     </div>
@@ -48,7 +55,7 @@
       name='inputData'
       rows='8'
       placeholder='Paste your JSON or XML here...'
-      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-blue sm:text-sm text-dark dark:text-light font-mono resize-y'
+      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light font-mono resize-y'
     ></textarea>
   </div>
 
@@ -152,7 +159,7 @@
           ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
           : type === 'success'
             ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-            : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+            : 'bg-blue-100 dark:bg-blue-900 text-custom-blue-800 dark:text-custom-blue-200'
       }`;
     }
 
@@ -263,7 +270,7 @@
         const { nodeDiv } = createNode('<span class="text-gray-500">null</span>');
         return nodeDiv;
       } else if (typeof obj === 'boolean') {
-        const { nodeDiv } = createNode(`<span class="text-blue-600 dark:text-blue-400">${obj}</span>`);
+        const { nodeDiv } = createNode(`<span class="text-custom-blue-600 dark:text-custom-blue-400">${obj}</span>`);
         return nodeDiv;
       } else if (typeof obj === 'number') {
         const { nodeDiv } = createNode(`<span class="text-green-600 dark:text-green-400">${obj}</span>`);
@@ -349,7 +356,7 @@
 
       if (node.nodeType === Node.ELEMENT_NODE) {
         const tagName = node.tagName.toLowerCase();
-        let content = `<span class="text-blue-600 dark:text-blue-400">&lt;${tagName}</span>`;
+        let content = `<span class="text-custom-blue-600 dark:text-custom-blue-400">&lt;${tagName}</span>`;
 
         // Add attributes
         if (node.attributes.length > 0) {
@@ -358,7 +365,7 @@
           }
         }
 
-        content += `<span class="text-blue-600 dark:text-blue-400">&gt;</span>`;
+        content += `<span class="text-custom-blue-600 dark:text-custom-blue-400">&gt;</span>`;
 
         const hasChildren = node.childNodes.length > 0;
         const textContent = Array.from(node.childNodes)
@@ -391,7 +398,7 @@
 
         // Add closing tag
         const closingDiv = document.createElement('div');
-        closingDiv.innerHTML = `<span class="ml-3"></span><span class="text-blue-600 dark:text-blue-400">&lt;/${tagName}&gt;</span>`;
+        closingDiv.innerHTML = `<span class="ml-3"></span><span class="text-custom-blue-600 dark:text-custom-blue-400">&lt;/${tagName}&gt;</span>`;
         childrenDiv.appendChild(closingDiv);
 
         return nodeDiv;
