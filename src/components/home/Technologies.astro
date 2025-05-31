@@ -14,7 +14,9 @@ const targetTechForDarkFill = ['.NET', 'SQL', 'MongoDB', 'GitHub', 'NextJS', 'Ta
         .map((tech) => {
           const isTargetIcon = targetTechForDarkFill.includes(tech.name);
           // Base classes for the icon wrapper
-          let iconWrapperClasses = ['w-16 h-16 mb-2 flex items-center justify-center'];
+          let iconWrapperClasses = [
+            'w-16 h-16 mb-2 flex items-center justify-center transition-all duration-300 ease-in-out',
+          ];
 
           if (isTargetIcon) {
             // Add text color classes for target icons, responsive to dark mode
@@ -22,18 +24,49 @@ const targetTechForDarkFill = ['.NET', 'SQL', 'MongoDB', 'GitHub', 'NextJS', 'Ta
           }
 
           return (
-            <div class='flex flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition-shadow min-h-[10rem]'>
+            <div class='group flex flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg min-h-[10rem] bg-white dark:bg-dark-gray transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50 hover:-translate-y-2 hover:border-blue-300 dark:hover:border-blue-500'>
               {tech.icon && tech.icon.startsWith('<svg') ? (
-                <div class:list={iconWrapperClasses} set:html={tech.icon} />
+                <div
+                  class:list={[...iconWrapperClasses, 'group-hover:scale-110 group-hover:rotate-3']}
+                  set:html={tech.icon}
+                />
               ) : (
-                <div class='w-16 h-16 mb-2 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-xs text-custom-gray-500 dark:text-custom-gray-400'>
+                <div class='w-16 h-16 mb-2 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-xs text-custom-gray-500 dark:text-custom-gray-400 transition-all duration-300 ease-in-out group-hover:scale-110 group-hover:bg-blue-200 dark:group-hover:bg-blue-800'>
                   [ICON]
                 </div>
               )}
-              <p class='text-center dark:text-light mt-auto'>{tech.name}</p>
+              <p class='text-center dark:text-light mt-auto transition-all duration-300 ease-in-out group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:font-medium'>
+                {tech.name}
+              </p>
             </div>
           );
         })
     }
   </div>
 </section>
+
+<style>
+  /* Additional hover effects for smooth animations */
+  .group:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+  }
+
+  .dark .group:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  }
+
+  /* Add a subtle pulse animation on hover */
+  @keyframes pulse-subtle {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .group:hover {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+</style>

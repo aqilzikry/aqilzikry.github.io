@@ -36,9 +36,48 @@
     @apply font-inter text-dark-gray;
   }
   .footer-icons {
-    @apply dark:text-light flex items-center border border-dark dark:border-light p-4 rounded-lg justify-center;
+    @apply dark:text-light flex items-center border border-dark dark:border-light p-4 rounded-lg justify-center cursor-pointer bg-white dark:bg-dark-gray;
+    position: relative;
+    overflow: hidden;
   }
   .footer-icons:hover {
     @apply border-custom-blue;
+  }
+
+  /* Add a subtle gradient background on hover */
+  .footer-icons::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: -1;
+  }
+
+  .footer-icons:hover::before {
+    opacity: 1;
+  }
+
+  .dark .footer-icons::before {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  }
+
+  /* Add a subtle pulse effect */
+  @keyframes social-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+    }
+  }
+
+  .footer-icons:hover {
+    animation: social-pulse 2s ease-in-out infinite;
   }
 }
