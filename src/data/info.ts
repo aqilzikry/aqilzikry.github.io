@@ -8,10 +8,18 @@ export const info = {
 
   experience: [
     {
+      name: 'RBC',
+      location: 'Putrajaya, Malaysia',
+      startDate: 'Nov 2025',
+      endDate: 'Present',
+      description: ['Currently in the onboarding process as a Full Stack Developer.'],
+    },
+
+    {
       name: 'activpayroll Sdn. Bhd.',
       location: 'Kuala Lumpur, Malaysia',
       startDate: 'May 2024',
-      endDate: 'Present',
+      endDate: 'Nov 2025',
       description: [
         'Developed RESTful APIs using .NET and Entity Framework to streamline payroll processing, cutting processing time from hours to minutes and eliminating calculation errors.',
         'Managed and optimized MSSQL databases, reducing query response times from 15+ minutes to sub-second, maintaining performance even during month-end processing peaks.',
