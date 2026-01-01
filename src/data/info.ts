@@ -12,7 +12,11 @@ export const info = {
       location: 'Putrajaya, Malaysia',
       startDate: 'Nov 2025',
       endDate: 'Present',
-      description: ['Currently in the onboarding process as a Full Stack Developer.'],
+      description: [
+        'Work on internal enterprise web applications used by employees of a banking organization.',
+        'Develop and maintain a supervisory dashboard that integrates data from systems such as absence management platforms and Workday to track tasks, training, and leave.',
+        'Contribute to a capital management system for workforce deployment and cost tracking, as well as an access control dashboard for managing user permissions across internal systems.',
+      ],
     },
 
     {
