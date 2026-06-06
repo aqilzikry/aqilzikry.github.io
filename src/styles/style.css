@@ -131,6 +131,7 @@
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     background: var(--gradient-surface);
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
@@ -356,6 +357,88 @@
     to {
       opacity: 1;
       transform: translateX(0);
+    }
+  }
+
+  .tech-card {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.45s ease-out,
+      transform 0.45s ease-out;
+    transition-delay: var(--tech-delay, 0s);
+  }
+
+  .tech-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tech-card--hidden {
+    display: none !important;
+  }
+
+  .copy-email-wrap {
+    position: relative;
+    display: flex;
+    width: 100%;
+  }
+
+  .copy-email-wrap .copy-email-btn {
+    width: 100%;
+  }
+
+  .copy-email-toast {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    z-index: 20;
+    transform: translateX(-50%) translateY(-4px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    white-space: nowrap;
+    border-radius: 9999px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgb(var(--color-accent));
+    background: rgb(var(--color-surface-elevated));
+    border: 1px solid rgb(var(--color-accent) / 0.35);
+    box-shadow: 0 8px 20px rgb(var(--color-accent) / 0.12);
+    transition:
+      opacity 0.2s ease-out,
+      transform 0.2s ease-out,
+      visibility 0.2s ease-out;
+  }
+
+  .copy-email-wrap.is-copied .copy-email-toast {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tech-card {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  .project-card {
+    perspective: 1000px;
+  }
+
+  .project-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.12s ease-out;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card-inner {
+      transition: none;
     }
   }
 }

@@ -32,6 +32,48 @@ import '../styles/style.css';
 </button>
 
 <script is:inline>
+  if (!window.__copyEmailClickBound) {
+    window.__copyEmailClickBound = true;
+
+    document.addEventListener('click', async (event) => {
+      const button = event.target.closest('.copy-email-btn');
+      if (!button) return;
+
+      const wrap = button.closest('.copy-email-wrap');
+      const email = button.dataset.email;
+      if (!email) return;
+
+      event.preventDefault();
+
+      let copied = false;
+
+      try {
+        await navigator.clipboard.writeText(email);
+        copied = true;
+      } catch {
+        const textarea = document.createElement('textarea');
+        textarea.value = email;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+
+      if (!copied) {
+        window.location.href = `mailto:${email}`;
+        return;
+      }
+
+      if (wrap) {
+        wrap.classList.add('is-copied');
+        window.setTimeout(() => wrap.classList.remove('is-copied'), 1800);
+      }
+    });
+  }
+
   document.addEventListener('astro:page-load', () => {
     const scrollToTopBtn = document.getElementById('scroll-to-top');
 

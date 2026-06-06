@@ -8,3 +8,36 @@ const { projects } = Astro.props as IProjects;
 <div class="grid md:grid-cols-2 grid-cols-1 gap-4 my-16">
   {projects.map((project) => <ProjectCard projectDetail={project} />)}
 </div>
+
+<script is:inline>
+  function initProjectCardTilt() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    document.querySelectorAll('.project-card:not([data-tilt-init])').forEach((card) => {
+      card.dataset.tiltInit = 'true';
+      const inner = card.querySelector('.project-card-inner');
+      if (!inner) return;
+
+      const maxTilt = 8;
+
+      const resetTilt = () => {
+        inner.style.transform = '';
+      };
+
+      card.addEventListener('mousemove', (event) => {
+        const rect = card.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -maxTilt;
+        const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * maxTilt;
+        inner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+
+      card.addEventListener('mouseleave', resetTilt);
+    });
+  }
+
+  document.addEventListener('astro:page-load', initProjectCardTilt);
+  initProjectCardTilt();
+</script>

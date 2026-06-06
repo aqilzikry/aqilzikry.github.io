@@ -5,47 +5,93 @@ import { info } from '@data';
 const technologies = info.technologies || [];
 const sortedTechnologies = [...technologies].sort((a, b) => a.name.localeCompare(b.name));
 const targetTechForDarkFill = ['.NET', 'SQL', 'MongoDB', 'GitHub', 'NextJS', 'Tailwind CSS'];
+
+const techCategories: Record<string, string> = {
+  '.NET': 'backend',
+  React: 'frontend',
+  SQL: 'database',
+  'Azure DevOps': 'devops',
+  'Node.js': 'backend',
+  Angular: 'frontend',
+  NextJS: 'frontend',
+  'Tailwind CSS': 'frontend',
+  Java: 'backend',
+  'Spring Boot': 'backend',
+  MongoDB: 'database',
+  'C#': 'backend',
+  JavaScript: 'frontend',
+  Typescript: 'frontend',
+  GitHub: 'devops',
+};
+
+const categories = [
+  { id: 'all', label: 'All' },
+  { id: 'backend', label: 'Backend' },
+  { id: 'frontend', label: 'Frontend' },
+  { id: 'database', label: 'Database' },
+  { id: 'devops', label: 'DevOps' },
+];
 ---
 
-<section class='my-16'>
+<section id='tech-stack' class='my-16 scroll-mt-28'>
   <SectionHeader
     title='Tech Stack'
     subtitle='What I reach for when building stuff'
     class='w-[15rem] mt-16 mb-8'
   />
-  <div class='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8'>
+
+  <div class='flex flex-wrap gap-2 mb-8' role='tablist' aria-label='Filter technologies by category'>
     {
-      sortedTechnologies
-        .map((tech) => {
-          const isTargetIcon = targetTechForDarkFill.includes(tech.name);
-          // Base classes for the icon wrapper
-          let iconWrapperClasses = [
-            'w-16 h-16 mb-2 flex items-center justify-center transition-all duration-300 ease-in-out',
-          ];
+      categories.map((category) => (
+        <button
+          type='button'
+          role='tab'
+          aria-selected={category.id === 'all' ? 'true' : 'false'}
+          class:list={['pill-button', category.id === 'all' && 'active']}
+          data-tech-filter={category.id}
+        >
+          {category.label}
+        </button>
+      ))
+    }
+  </div>
 
-          if (isTargetIcon) {
-            // Add text color classes for target icons, responsive to dark mode
-            iconWrapperClasses.push('text-text-body dark:text-light');
-          }
+  <div class='tech-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8'>
+    {
+      sortedTechnologies.map((tech, index) => {
+        const isTargetIcon = targetTechForDarkFill.includes(tech.name);
+        const category = techCategories[tech.name] ?? 'backend';
 
-          return (
-            <div class='group surface-card subtle-gradient-hover flex flex-col items-center p-4 min-h-[10rem] hover:scale-105 hover:-translate-y-2'>
-              {tech.icon && tech.icon.startsWith('<svg') ? (
-                <div
-                  class:list={[...iconWrapperClasses, 'group-hover:scale-110 group-hover:rotate-3']}
-                  set:html={tech.icon}
-                />
-              ) : (
-                <div class='w-16 h-16 mb-2 bg-surface-muted dark:bg-surface-muted rounded-full flex items-center justify-center text-xs text-text-muted dark:text-custom-gray-300 transition-all duration-300 ease-in-out group-hover:scale-110 group-hover:bg-accent-soft dark:group-hover:bg-accent-soft'>
-                  [ICON]
-                </div>
-              )}
-              <p class='text-center dark:text-light mt-auto transition-all duration-300 ease-in-out group-hover:text-accent group-hover:font-medium'>
-                {tech.name}
-              </p>
-            </div>
-          );
-        })
+        let iconWrapperClasses = [
+          'w-16 h-16 mb-2 flex items-center justify-center transition-all duration-300 ease-in-out',
+        ];
+
+        if (isTargetIcon) {
+          iconWrapperClasses.push('text-text-body dark:text-light');
+        }
+
+        return (
+          <div
+            class='tech-card group surface-card subtle-gradient-hover flex flex-col items-center p-4 min-h-[10rem] hover:scale-105 hover:-translate-y-2'
+            data-category={category}
+            style={`--tech-delay: ${index * 0.05}s`}
+          >
+            {tech.icon && tech.icon.startsWith('<svg') ? (
+              <div
+                class:list={[...iconWrapperClasses, 'group-hover:scale-110 group-hover:rotate-3']}
+                set:html={tech.icon}
+              />
+            ) : (
+              <div class='w-16 h-16 mb-2 bg-surface-muted dark:bg-surface-muted rounded-full flex items-center justify-center text-xs text-text-muted dark:text-custom-gray-300 transition-all duration-300 ease-in-out group-hover:scale-110 group-hover:bg-accent-soft dark:group-hover:bg-accent-soft'>
+                [ICON]
+              </div>
+            )}
+            <p class='text-center dark:text-light mt-auto transition-all duration-300 ease-in-out group-hover:text-accent group-hover:font-medium'>
+              {tech.name}
+            </p>
+          </div>
+        );
+      })
     }
   </div>
 </section>

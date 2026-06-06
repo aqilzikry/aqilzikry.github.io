@@ -75,6 +75,78 @@ const personSchema = {
     </Layout>
 
     <script is:inline>
+      function applyTechFilter(section, filter, activeButton) {
+        const buttons = section.querySelectorAll('[data-tech-filter]');
+        const cards = section.querySelectorAll('.tech-card');
+
+        buttons.forEach((btn) => {
+          const isActive = btn === activeButton;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        cards.forEach((card) => {
+          const category = card.dataset.category;
+          const show = filter === 'all' || category === filter;
+          card.classList.toggle('tech-card--hidden', !show);
+          if (show) {
+            card.classList.add('is-visible');
+          }
+        });
+      }
+
+      function initTechScrollAnimation() {
+        const section = document.getElementById('tech-stack');
+        if (!section) return;
+
+        const cards = section.querySelectorAll('.tech-card:not([data-tech-observed])');
+        if (!cards.length) return;
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReducedMotion) {
+          cards.forEach((card) => {
+            card.dataset.techObserved = 'true';
+            card.classList.add('is-visible');
+          });
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.1, rootMargin: '0px 0px -4% 0px' }
+        );
+
+        cards.forEach((card) => {
+          card.dataset.techObserved = 'true';
+          observer.observe(card);
+        });
+      }
+
+      function initTechStack() {
+        initTechScrollAnimation();
+      }
+
+      if (!window.__techStackClickBound) {
+        window.__techStackClickBound = true;
+
+        document.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-tech-filter]');
+          if (!button) return;
+
+          const section = button.closest('#tech-stack');
+          if (!section) return;
+
+          applyTechFilter(section, button.dataset.techFilter, button);
+        });
+      }
+
       function initTimelineAnimations() {
         const items = document.querySelectorAll('.timeline-item:not([data-timeline-observed])');
         if (!items.length) return;
@@ -106,8 +178,12 @@ const personSchema = {
         });
       }
 
-      document.addEventListener('astro:page-load', initTimelineAnimations);
+      document.addEventListener('astro:page-load', () => {
+        initTimelineAnimations();
+        initTechStack();
+      });
       initTimelineAnimations();
+      initTechStack();
     </script>
   </body>
 </html>
