@@ -4,25 +4,26 @@ import { createLogo } from '@utils';
 ---
 
 <header
-  class='sticky top-0 z-50 bg-white/80 dark:bg-dark/80 backdrop-blur-md container flex items-center justify-between h-[80px] sm:h-[123px]'
+  id='navbar'
+  class='navbar-header sticky top-4 z-50 glass-surface rounded-brand container flex items-center justify-between'
 >
-  <a class='text-2xl dark:text-light font-semibold dark:font-semibold font-outfit' href='/'>{createLogo(info.name)}.</a>
+  <a class='navbar-logo text-2xl dark:text-light font-semibold dark:font-semibold font-outfit' href='/'>{createLogo(info.name)}.</a>
   <nav>
     <ul class='flex items-center'>
       <li>
-        <a class='p-2 md:p-4 dark:text-light block text-lg' href='/'>About</a>
+        <a class='navbar-link p-2 md:p-4 dark:text-light block text-lg' href='/'>About</a>
       </li>
       <li>
-        <a class='p-2 md:p-4 dark:text-light block text-lg' href='/projects'>Projects</a>
+        <a class='navbar-link p-2 md:p-4 dark:text-light block text-lg' href='/projects'>Projects</a>
       </li>
       <li>
-        <a class='p-2 md:p-4 dark:text-light block text-lg' href='/tools'>Tools</a>
+        <a class='navbar-link p-2 md:p-4 dark:text-light block text-lg' href='/tools'>Tools</a>
       </li>
       <li>
         <button
           aria-label='theme-button'
           id='theme-button'
-          class='dark:text-light rounded-lg p-2 sm:p-4 ml-2 bg-slate-100 dark:bg-[#202020]'></button>
+          class='navbar-theme-btn dark:text-light rounded-control p-2 sm:p-4 ml-2 surface-muted interactive-glow'></button>
       </li>
     </ul>
   </nav>
@@ -36,6 +37,11 @@ import { createLogo } from '@utils';
     const themeButton = document.getElementById('theme-button');
     const browserTheme = document.querySelector('[name="theme-color"]');
     let isDark;
+
+    const getThemeColor = () => {
+      const rgb = getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim();
+      return rgb ? `rgb(${rgb})` : '#f8fafc';
+    };
 
     const theme = (() => {
       if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
@@ -51,12 +57,12 @@ import { createLogo } from '@utils';
       document.documentElement.setAttribute('data-theme', 'light');
       isDark = true;
       themeButton.innerHTML = moon;
-      browserTheme.content = '#FFFFFF';
+      browserTheme.content = getThemeColor();
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
       isDark = false;
       themeButton.innerHTML = sun;
-      browserTheme.content = '#111111';
+      browserTheme.content = getThemeColor();
     }
     window.localStorage.setItem('theme', theme);
 
@@ -66,16 +72,25 @@ import { createLogo } from '@utils';
         localStorage.theme = 'dark';
         isDark = false;
         themeButton.innerHTML = sun;
-        browserTheme.content = '#111111';
+        browserTheme.content = getThemeColor();
       } else {
         document.documentElement.setAttribute('data-theme', 'light');
         localStorage.theme = 'light';
         isDark = true;
         themeButton.innerHTML = moon;
-        browserTheme.content = '#FFFFFF';
+        browserTheme.content = getThemeColor();
       }
     };
 
     themeButton.addEventListener('click', darkModeHandler);
+
+    const navbar = document.getElementById('navbar');
+
+    const toggleNavbarShrink = () => {
+      navbar.classList.toggle('is-scrolled', window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', toggleNavbarShrink, { passive: true });
+    toggleNavbarShrink();
   });
 </script>

@@ -11,12 +11,12 @@
         id='hexInput'
         name='hexInput'
         placeholder='#fefefe'
-        class='block w-full px-3 py-2 pr-12 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light'
+        class='block w-full px-3 py-2 pr-12 form-control sm:text-sm'
       />
       <button
         type='button'
         id='copyHex'
-        class='absolute inset-y-0 right-0 px-3 flex items-center text-custom-gray-400 dark:text-light hover:text-custom-gray-600 dark:hover:text-custom-gray-300 transition-colors duration-200'
+        class='absolute inset-y-0 right-0 px-3 flex items-center text-text-muted dark:text-light hover:text-accent transition-colors duration-200'
         title='Copy HEX color'
       >
         <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -39,12 +39,12 @@
         id='rgbInput'
         name='rgbInput'
         placeholder='rgb(254, 254, 254)'
-        class='block w-full px-3 py-2 pr-12 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light'
+        class='block w-full px-3 py-2 pr-12 form-control sm:text-sm'
       />
       <button
         type='button'
         id='copyRgb'
-        class='absolute inset-y-0 right-0 px-3 flex items-center text-custom-gray-400 dark:text-light hover:text-custom-gray-600 dark:hover:text-custom-gray-300 transition-colors duration-200'
+        class='absolute inset-y-0 right-0 px-3 flex items-center text-text-muted dark:text-light hover:text-accent transition-colors duration-200'
         title='Copy RGB color'
       >
         <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -67,12 +67,12 @@
         id='hslInput'
         name='hslInput'
         placeholder='hsl(0, 0%, 100%)'
-        class='block w-full px-3 py-2 pr-12 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light'
+        class='block w-full px-3 py-2 pr-12 form-control sm:text-sm'
       />
       <button
         type='button'
         id='copyHsl'
-        class='absolute inset-y-0 right-0 px-3 flex items-center text-custom-gray-400 dark:text-light hover:text-custom-gray-600 dark:hover:text-custom-gray-300 transition-colors duration-200'
+        class='absolute inset-y-0 right-0 px-3 flex items-center text-text-muted dark:text-light hover:text-accent transition-colors duration-200'
         title='Copy HSL color'
       >
         <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -87,7 +87,7 @@
     </div>
   </div>
 
-  <div class='h-24 w-full rounded-md border border-gray-300 dark:border-gray-600' id='colorPreview'></div>
+  <div class='h-24 w-full rounded-control border border-border-soft dark:border-border-soft' id='colorPreview'></div>
 </div>
 
 <script is:inline>
@@ -123,12 +123,12 @@
         // Check mark icon
         svg.innerHTML =
           '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
-        button.classList.add('text-green-500');
+        button.classList.add('syntax-success');
         button.classList.remove('dark:text-light');
 
         setTimeout(() => {
           svg.innerHTML = originalPath;
-          button.classList.remove('text-green-500');
+          button.classList.remove('syntax-success');
           button.classList.add('dark:text-light');
         }, 1000);
       } catch (err) {
@@ -147,11 +147,11 @@
           const originalPath = svg.innerHTML;
           svg.innerHTML =
             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
-          button.classList.add('text-green-500');
+          button.classList.add('syntax-success');
 
           setTimeout(() => {
             svg.innerHTML = originalPath;
-            button.classList.remove('text-green-500');
+            button.classList.remove('syntax-success');
           }, 1000);
         } catch (fallbackErr) {
           console.error('Fallback copy failed: ', fallbackErr);

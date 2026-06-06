@@ -3,6 +3,7 @@ import { info } from '@data';
 
 import MetaHead from '@components/general/MetaHead.astro';
 import ProjectsWrapper from '@components/general/ProjectsWrapper.astro';
+import SectionHeader from '@components/general/SectionHeader.astro';
 import Experience from '@components/home/Experience.astro';
 import Hero from '@components/home/Hero.astro';
 import Technologies from '@components/home/Technologies.astro';
@@ -24,13 +25,27 @@ const featureProjects = info.projects.reduce((accumulator, project) => {
 
   <body>
     <Layout>
-      <Hero name={info.name} about={info.about} />
-      <Experience title={'EXPERIENCE'} details={info.experience} />
-      <Experience title={'EDUCATION'} details={info.education} />
+      <Hero name={info.name} jobDescription={info.jobDescription} about={info.about} />
+      <Experience
+        title='Experience'
+        subtitle="Where I've actually made a difference"
+        details={info.experience}
+      />
+      <Experience
+        title='Education'
+        subtitle='The school years that got me here'
+        details={info.education}
+      />
       <Technologies />
-      <section>
-        <h2 class='w-[15rem] dark:text-light mt-16'>FEATURED PROJECTS</h2>
-        <ProjectsWrapper projects={featureProjects} />
+      <section class='flex items-start justify-between flex-col sm:flex-row dark:text-light'>
+        <SectionHeader
+          title='Featured Projects'
+          subtitle='A few favorites from the vault'
+          class='w-[15rem] mt-16 shrink-0'
+        />
+        <div class='w-full'>
+          <ProjectsWrapper projects={featureProjects} />
+        </div>
       </section>
     </Layout>
   </body>

@@ -11,7 +11,9 @@
 /* ========== tailwind custom styles ========== */
 @layer components {
   body {
-    @apply bg-light dark:bg-dark;
+    @apply bg-surface text-text-body dark:text-light;
+    background-image: var(--gradient-page);
+    background-attachment: fixed;
   }
   .container {
     @apply max-w-[1112px] mx-auto px-4;
@@ -33,51 +35,227 @@
   p,
   li,
   a {
-    @apply font-inter text-dark-gray;
+    @apply font-inter text-text-body dark:text-light;
   }
-  .footer-icons {
-    @apply dark:text-light flex items-center border border-dark dark:border-light p-4 rounded-lg justify-center cursor-pointer bg-white dark:bg-dark-gray;
+  .text-muted-token {
+    @apply text-text-muted dark:text-custom-gray-300;
+  }
+  .glass-surface {
+    @apply bg-surface-glass/70 dark:bg-surface-glass/70 border border-white/60 dark:border-border-soft/60 backdrop-blur-md shadow-glass;
+  }
+  .navbar-header {
+    @apply mt-4 h-[80px] sm:h-[123px] transition-[height,box-shadow] duration-300 ease-in-out;
+  }
+  .navbar-header.is-scrolled {
+    @apply h-[56px] sm:h-[72px];
+  }
+  .navbar-header .navbar-logo {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  .navbar-header.is-scrolled .navbar-logo {
+    @apply text-xl;
+  }
+  .navbar-header .navbar-link {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  .navbar-header.is-scrolled .navbar-link {
+    @apply text-base p-1.5 md:p-2;
+  }
+  .navbar-header .navbar-theme-btn {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  .navbar-header.is-scrolled .navbar-theme-btn {
+    @apply p-1.5 sm:p-2;
+  }
+  .surface-card {
+    @apply bg-surface-elevated/90 dark:bg-surface-elevated/80 border border-border-soft/80 dark:border-border-soft/70 rounded-brand shadow-card transition-all duration-300 ease-in-out;
+  }
+  .surface-card:hover {
+    @apply shadow-card-hover border-accent/40 dark:border-accent/50;
+  }
+  .surface-muted {
+    @apply bg-surface-muted/80 dark:bg-surface-muted/80 border border-border-soft/70 dark:border-border-soft/60 rounded-control;
+  }
+  .glass-panel {
+    @apply bg-surface-glass/70 dark:bg-surface-glass/70 border border-white/60 dark:border-border-soft/60 backdrop-blur-md shadow-glass rounded-brand;
+  }
+  .glass-button {
+    @apply text-white bg-dark/60 dark:bg-light/20 rounded-pill backdrop-blur-md border border-white/20 shadow-glow transition-all duration-200 ease-in-out;
+  }
+  .glass-button:hover {
+    @apply bg-accent/80 border-white/40;
+  }
+  .overlay-scrim {
+    @apply bg-dark/80 dark:bg-dark/90 backdrop-blur-md;
+  }
+  .form-control {
+    @apply bg-surface-elevated/90 dark:bg-surface-muted/90 border border-border-soft dark:border-border-soft rounded-control shadow-control focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent text-text-strong dark:text-light transition-colors duration-200;
+  }
+  .btn-primary {
+    @apply bg-accent text-white rounded-control hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 focus:ring-offset-surface transition-colors duration-200 shadow-glow;
+  }
+  .btn-success {
+    @apply bg-success text-white rounded-control hover:bg-success/80 focus:outline-none focus:ring-2 focus:ring-success/50 focus:ring-offset-2 focus:ring-offset-surface transition-colors duration-200;
+  }
+  .btn-danger {
+    @apply bg-danger text-white rounded-control hover:bg-danger/80 focus:outline-none focus:ring-2 focus:ring-danger/50 focus:ring-offset-2 focus:ring-offset-surface transition-colors duration-200;
+  }
+  .btn-violet {
+    @apply bg-violet text-white rounded-control hover:bg-violet/80 focus:outline-none focus:ring-2 focus:ring-violet/50 focus:ring-offset-2 focus:ring-offset-surface transition-colors duration-200;
+  }
+  .interactive-glow {
+    @apply transition-all duration-300 ease-in-out hover:shadow-glow;
+  }
+  .subtle-gradient-hover {
     position: relative;
     overflow: hidden;
   }
-  .footer-icons:hover {
-    @apply border-custom-blue;
-  }
-
-  /* Add a subtle gradient background on hover */
-  .footer-icons::before {
+  .subtle-gradient-hover::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+    inset: 0;
+    background: var(--gradient-surface);
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     z-index: -1;
   }
-
+  .subtle-gradient-hover:hover::before {
+    opacity: 1;
+  }
+  .footer-icons {
+    @apply text-text-strong dark:text-light flex items-center border border-border-soft dark:border-border-soft p-4 rounded-brand justify-center cursor-pointer bg-surface-elevated/80 dark:bg-surface-elevated/70 shadow-card transition-all duration-300 ease-in-out hover:shadow-glow;
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-icons::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-surface);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: -1;
+  }
   .footer-icons:hover::before {
     opacity: 1;
   }
-
-  .dark .footer-icons::before {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  .footer-icons:hover {
+    @apply border-accent text-accent;
+  }
+  .tab-button {
+    @apply text-text-muted dark:text-custom-gray-300;
+  }
+  .tab-button.active {
+    @apply bg-surface-elevated/90 dark:bg-surface-elevated text-accent shadow-glow;
+  }
+  .tab-button:not(.active):hover {
+    @apply text-text-strong dark:text-light bg-surface-elevated/70 dark:bg-surface-muted/80;
+  }
+  .pill-button {
+    @apply px-4 py-2 text-sm font-medium rounded-pill text-text-muted dark:text-custom-gray-300 bg-surface-muted/80 dark:bg-surface-muted/80 border border-border-soft/60 hover:bg-surface-elevated/90 dark:hover:bg-surface-elevated hover:text-text-strong dark:hover:text-light transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
+  .pill-button.active {
+    @apply bg-accent text-white border-accent hover:bg-accent-hover shadow-glow;
+  }
+  .icon-badge {
+    @apply rounded-control bg-accent-soft/80 dark:bg-accent-soft/70 text-accent border border-accent/20;
+  }
+  .icon-badge-success {
+    @apply rounded-control bg-success/10 dark:bg-success/20 text-success border border-success/30;
+  }
+  .icon-badge-violet {
+    @apply rounded-control bg-violet/10 dark:bg-violet/20 text-violet border border-violet/30;
+  }
+  .icon-badge-indigo {
+    @apply rounded-control bg-accent/10 dark:bg-accent/20 text-accent border border-accent/30;
+  }
+  .fade-in-up {
+    animation: fade-in-up 0.3s ease-in-out;
+  }
+  .slide-in {
+    animation: slide-in 0.3s ease-in-out;
+  }
+  .tab-panel {
+    animation: fade-in-up 0.3s ease-in-out;
+  }
+  .tool-panel {
+    animation: slide-in 0.3s ease-in-out;
+  }
+  .time-night {
+    background-color: rgb(var(--color-accent-deep));
+  }
+  .time-day {
+    @apply bg-warning dark:bg-warning;
+  }
+  .time-work {
+    @apply bg-success dark:bg-success;
+  }
+  .syntax-muted {
+    color: rgb(var(--color-text-muted));
+  }
+  .syntax-value {
+    color: rgb(var(--color-accent-strong));
+  }
+  .syntax-string,
+  .syntax-success {
+    color: rgb(var(--color-success));
+  }
+  .syntax-key {
+    color: rgb(var(--color-violet));
+  }
+  .syntax-error {
+    color: rgb(var(--color-danger));
+  }
+  .status-error {
+    @apply bg-danger/10 dark:bg-danger/20 text-danger;
+  }
+  .status-success {
+    @apply bg-success/10 dark:bg-success/20 text-success;
+  }
+  .status-info {
+    @apply bg-accent-soft dark:bg-accent-soft text-custom-blue-800 dark:text-custom-blue-200;
+  }
+  .danger-soft-action {
+    @apply text-text-muted hover:text-danger hover:bg-danger/10 dark:hover:bg-danger/20;
+  }
+  .carousel-dots-row {
+    display: flex;
   }
 
   /* Add a subtle pulse effect */
   @keyframes social-pulse {
     0%,
     100% {
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 0 0 rgb(var(--color-accent) / 0.32);
     }
     50% {
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+      box-shadow: 0 0 0 4px rgb(var(--color-accent) / 0);
     }
   }
 
   .footer-icons:hover {
     animation: social-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 }

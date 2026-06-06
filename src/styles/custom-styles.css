@@ -1,15 +1,83 @@
+:root {
+  --color-dark: 13 17 23;
+  --color-light: 255 255 255;
+  --color-surface: 248 250 252;
+  --color-surface-elevated: 255 255 255;
+  --color-surface-muted: 239 246 255;
+  --color-surface-glass: 255 255 255;
+  --color-surface-dark: 241 245 249;
+  --color-border-soft: 207 222 243;
+  --color-border-strong: 125 155 198;
+  --color-text-strong: 13 17 23;
+  --color-text-body: 42 52 71;
+  --color-text-muted: 92 108 135;
+  --color-muted: 148 163 184;
+  --color-muted-light: 203 213 225;
+  --color-muted-strong: 100 116 139;
+  --color-accent: 6 182 212;
+  --color-accent-bright: 34 211 238;
+  --color-accent-strong: 8 145 178;
+  --color-accent-deep: 21 94 117;
+  --color-accent-soft: 207 250 254;
+  --color-accent-muted: 103 232 249;
+  --color-violet: 124 58 237;
+  --color-magenta: 236 72 153;
+  --color-success: 16 185 129;
+  --color-danger: 244 63 94;
+  --color-warning: 245 158 11;
+  --gradient-display: linear-gradient(90deg, rgb(var(--color-violet)) 0%, rgb(var(--color-accent-bright)) 48%, rgb(var(--color-magenta)) 100%);
+  --gradient-surface: linear-gradient(135deg, rgb(var(--color-accent) / 0.1), rgb(var(--color-violet) / 0.08), rgb(var(--color-magenta) / 0.08));
+  --gradient-page: radial-gradient(circle at 10% 0%, rgb(var(--color-accent) / 0.18), transparent 32%), radial-gradient(circle at 90% 10%, rgb(var(--color-magenta) / 0.14), transparent 28%);
+  --shadow-glass: 0 18px 55px rgb(15 23 42 / 0.12);
+  --shadow-glow: 0 16px 38px rgb(var(--color-accent) / 0.18);
+  --shadow-control: 0 1px 2px rgb(15 23 42 / 0.08), 0 0 0 1px rgb(var(--color-border-soft) / 0.22);
+  --shadow-card: 0 16px 45px rgb(15 23 42 / 0.08);
+  --shadow-card-hover: 0 22px 60px rgb(var(--color-violet) / 0.16);
+  --radius-brand: 1.25rem;
+  --radius-control: 0.875rem;
+  --radius-pill: 9999px;
+}
+
+[data-theme='dark'] {
+  --color-dark: 8 11 20;
+  --color-light: 248 250 252;
+  --color-surface: 8 11 20;
+  --color-surface-elevated: 16 23 42;
+  --color-surface-muted: 15 23 42;
+  --color-surface-glass: 15 23 42;
+  --color-surface-dark: 16 23 42;
+  --color-border-soft: 51 65 85;
+  --color-border-strong: 103 117 142;
+  --color-text-strong: 248 250 252;
+  --color-text-body: 226 232 240;
+  --color-text-muted: 148 163 184;
+  --color-muted: 148 163 184;
+  --color-muted-light: 100 116 139;
+  --color-muted-strong: 203 213 225;
+  --color-accent: 34 211 238;
+  --color-accent-bright: 103 232 249;
+  --color-accent-strong: 6 182 212;
+  --color-accent-deep: 14 116 144;
+  --color-accent-soft: 22 78 99;
+  --color-accent-muted: 56 189 248;
+  --color-violet: 167 139 250;
+  --color-magenta: 244 114 182;
+  --gradient-surface: linear-gradient(135deg, rgb(var(--color-accent) / 0.16), rgb(var(--color-violet) / 0.12), rgb(var(--color-magenta) / 0.1));
+  --gradient-page: radial-gradient(circle at 12% 0%, rgb(var(--color-accent) / 0.18), transparent 34%), radial-gradient(circle at 90% 8%, rgb(var(--color-violet) / 0.16), transparent 30%);
+  --shadow-glass: 0 18px 55px rgb(0 0 0 / 0.28);
+  --shadow-glow: 0 16px 42px rgb(var(--color-accent) / 0.16);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(var(--color-border-soft) / 0.16);
+  --shadow-card: 0 18px 48px rgb(0 0 0 / 0.24);
+  --shadow-card-hover: 0 24px 70px rgb(var(--color-accent) / 0.14);
+}
+
 /* gradient heading */
 .main-heading {
   display: inline-block;
   margin: 2rem 0;
   font-style: normal;
   font-weight: 600;
-  background: linear-gradient(
-    89.81deg,
-    #9845e8 -1.72%,
-    #33d2ff 54.05%,
-    #dd5789 99.78%
-  );
+  background: var(--gradient-display);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

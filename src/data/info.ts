@@ -1,7 +1,7 @@
 export const info = {
   baseUrl: 'https://aqilzikry.github.io',
   name: 'Aqilzikry Arman',
-  jobDescription: 'Web Developer',
+  jobDescription: 'Turning ideas into things that work',
   about: `
   An experienced software engineer with a focus on high-quality user-centric products. Skilled in mobile, software, and native development, continuously learning new tech. Strong team player and communicator. Eager to contribute to your innovative products.
   `,

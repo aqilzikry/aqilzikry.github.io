@@ -14,12 +14,12 @@
           value='json'
           id='jsonFormat'
           checked
-          class='mr-2 text-custom-blue focus:ring-blue'
+          class='mr-2 text-accent focus:ring-accent'
         />
         <span class='text-dark dark:text-light'>JSON</span>
       </label>
       <label class='flex items-center'>
-        <input type='radio' name='format' value='xml' id='xmlFormat' class='mr-2 text-custom-blue focus:ring-blue' />
+        <input type='radio' name='format' value='xml' id='xmlFormat' class='mr-2 text-accent focus:ring-accent' />
         <span class='text-dark dark:text-light'>XML</span>
       </label>
     </div>
@@ -36,12 +36,12 @@
           value='normal'
           id='normalMode'
           checked
-          class='mr-2 text-custom-blue focus:ring-blue'
+          class='mr-2 text-accent focus:ring-accent'
         />
         <span class='text-dark dark:text-light'>Normal</span>
       </label>
       <label class='flex items-center'>
-        <input type='radio' name='viewMode' value='tree' id='treeMode' class='mr-2 text-custom-blue focus:ring-blue' />
+        <input type='radio' name='viewMode' value='tree' id='treeMode' class='mr-2 text-accent focus:ring-accent' />
         <span class='text-dark dark:text-light'>Tree</span>
       </label>
     </div>
@@ -55,7 +55,7 @@
       name='inputData'
       rows='8'
       placeholder='Paste your JSON or XML here...'
-      class='mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue focus:border-custom-blue sm:text-sm text-dark dark:text-light font-mono resize-y'
+      class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
     ></textarea>
   </div>
 
@@ -64,35 +64,35 @@
     <button
       type='button'
       id='validateBtn'
-      class='px-4 py-2 bg-custom-blue text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue focus:ring-offset-2 transition-colors duration-200'
+      class='px-4 py-2 btn-primary'
     >
       Validate
     </button>
     <button
       type='button'
       id='formatBtn'
-      class='px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200'
+      class='px-4 py-2 btn-success'
     >
       Format
     </button>
     <button
       type='button'
       id='clearBtn'
-      class='px-4 py-2 bg-red-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200'
+      class='px-4 py-2 btn-danger'
     >
       Clear
     </button>
     <button
       type='button'
       id='copyBtn'
-      class='px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200'
+      class='px-4 py-2 btn-violet'
     >
       Copy Output
     </button>
   </div>
 
   <!-- Status Message -->
-  <div id='statusMessage' class='hidden p-3 rounded-md'></div>
+  <div id='statusMessage' class='hidden p-3 rounded-control'></div>
 
   <!-- Output Area -->
   <div>
@@ -103,13 +103,13 @@
         name='outputData'
         rows='8'
         readonly
-        class='block w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm text-dark dark:text-light font-mono resize-y'
+        class='block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
       ></textarea>
     </div>
     <div id='treeOutput' class='mt-1 hidden'>
       <div
         id='treeContainer'
-        class='block w-full p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm min-h-32 max-h-96 overflow-auto text-dark dark:text-light font-mono'
+        class='block w-full p-3 form-control min-h-32 max-h-96 overflow-auto font-mono'
       >
       </div>
     </div>
@@ -154,17 +154,17 @@
 
     function showStatus(message, type = 'info') {
       statusMessage.textContent = message;
-      statusMessage.className = `p-3 rounded-md ${
+      statusMessage.className = `p-3 rounded-control ${
         type === 'error'
-          ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+          ? 'status-error'
           : type === 'success'
-            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-            : 'bg-blue-100 dark:bg-blue-900 text-custom-blue-800 dark:text-custom-blue-200'
+            ? 'status-success'
+            : 'status-info'
       }`;
     }
 
     function hideStatus() {
-      statusMessage.className = 'hidden p-3 rounded-md';
+      statusMessage.className = 'hidden p-3 rounded-control';
     }
 
     function updateViewMode() {
@@ -246,7 +246,7 @@
       const createNode = (content, isExpandable = false, isExpanded = true) => {
         const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
         const toggleIcon = isExpandable
-          ? `<span class="tree-toggle cursor-pointer mr-1 text-custom-gray-500 hover:text-custom-gray-700 dark:hover:text-custom-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
+          ? `<span class="tree-toggle cursor-pointer mr-1 syntax-muted hover:text-accent" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
           : '<span class="ml-3"></span>';
 
         const nodeDiv = document.createElement('div');
@@ -267,20 +267,20 @@
       };
 
       if (obj === null) {
-        const { nodeDiv } = createNode('<span class="text-custom-gray-500">null</span>');
+        const { nodeDiv } = createNode('<span class="syntax-muted">null</span>');
         return nodeDiv;
       } else if (typeof obj === 'boolean') {
-        const { nodeDiv } = createNode(`<span class="text-custom-blue-600 dark:text-custom-blue-400">${obj}</span>`);
+        const { nodeDiv } = createNode(`<span class="syntax-value">${obj}</span>`);
         return nodeDiv;
       } else if (typeof obj === 'number') {
-        const { nodeDiv } = createNode(`<span class="text-green-600 dark:text-green-400">${obj}</span>`);
+        const { nodeDiv } = createNode(`<span class="syntax-success">${obj}</span>`);
         return nodeDiv;
       } else if (typeof obj === 'string') {
-        const { nodeDiv } = createNode(`<span class="text-red-600 dark:text-red-400">"${obj}"</span>`);
+        const { nodeDiv } = createNode(`<span class="syntax-error">"${obj}"</span>`);
         return nodeDiv;
       } else if (Array.isArray(obj)) {
         const { nodeDiv, childrenDiv } = createNode(
-          `<span class="text-custom-gray-700 dark:text-custom-gray-300">Array (${obj.length} items)</span>`,
+          `<span class="syntax-muted">Array (${obj.length} items)</span>`,
           true,
           level < 2
         );
@@ -291,7 +291,7 @@
           itemContainer.style.marginLeft = '20px';
 
           const indexLabel = document.createElement('span');
-          indexLabel.className = 'text-custom-gray-500 mr-2 min-w-8';
+          indexLabel.className = 'syntax-muted mr-2 min-w-8';
           indexLabel.textContent = `[${index}]`;
 
           const itemNode = createCollapsibleJsonTree(item, level + 1);
@@ -305,7 +305,7 @@
       } else if (typeof obj === 'object') {
         const keys = Object.keys(obj);
         const { nodeDiv, childrenDiv } = createNode(
-          `<span class="text-custom-gray-700 dark:text-custom-gray-300">Object (${keys.length} properties)</span>`,
+          `<span class="syntax-muted">Object (${keys.length} properties)</span>`,
           true,
           level < 2
         );
@@ -316,7 +316,7 @@
           propertyContainer.style.marginLeft = '20px';
 
           const keyLabel = document.createElement('span');
-          keyLabel.className = 'text-purple-600 dark:text-purple-400 mr-2 font-semibold';
+          keyLabel.className = 'syntax-key mr-2 font-semibold';
           keyLabel.textContent = `"${key}":`;
 
           const valueNode = createCollapsibleJsonTree(obj[key], level + 1);
@@ -334,7 +334,7 @@
       const createNode = (content, isExpandable = false, isExpanded = true) => {
         const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
         const toggleIcon = isExpandable
-          ? `<span class="tree-toggle cursor-pointer mr-1 text-custom-gray-500 hover:text-custom-gray-700 dark:hover:text-custom-gray-300" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
+          ? `<span class="tree-toggle cursor-pointer mr-1 syntax-muted hover:text-accent" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
           : '<span class="ml-3"></span>';
 
         const nodeDiv = document.createElement('div');
@@ -356,16 +356,16 @@
 
       if (node.nodeType === Node.ELEMENT_NODE) {
         const tagName = node.tagName.toLowerCase();
-        let content = `<span class="text-custom-blue-600 dark:text-custom-blue-400">&lt;${tagName}</span>`;
+        let content = `<span class="syntax-value">&lt;${tagName}</span>`;
 
         // Add attributes
         if (node.attributes.length > 0) {
           for (let attr of node.attributes) {
-            content += ` <span class="text-green-600 dark:text-green-400">${attr.name}</span>=<span class="text-red-600 dark:text-red-400">"${attr.value}"</span>`;
+            content += ` <span class="syntax-string">${attr.name}</span>=<span class="syntax-error">"${attr.value}"</span>`;
           }
         }
 
-        content += `<span class="text-custom-blue-600 dark:text-custom-blue-400">&gt;</span>`;
+        content += `<span class="syntax-value">&gt;</span>`;
 
         const hasChildren = node.childNodes.length > 0;
         const textContent = Array.from(node.childNodes)
@@ -386,7 +386,7 @@
         if (textContent) {
           const textNode = document.createElement('div');
           textNode.style.marginLeft = '20px';
-          textNode.innerHTML = `<span class="ml-3"></span><span class="text-custom-gray-700 dark:text-custom-gray-300">${textContent}</span>`;
+          textNode.innerHTML = `<span class="ml-3"></span><span class="syntax-muted">${textContent}</span>`;
           childrenDiv.appendChild(textNode);
         }
 
@@ -398,7 +398,7 @@
 
         // Add closing tag
         const closingDiv = document.createElement('div');
-        closingDiv.innerHTML = `<span class="ml-3"></span><span class="text-custom-blue-600 dark:text-custom-blue-400">&lt;/${tagName}&gt;</span>`;
+        closingDiv.innerHTML = `<span class="ml-3"></span><span class="syntax-value">&lt;/${tagName}&gt;</span>`;
         childrenDiv.appendChild(closingDiv);
 
         return nodeDiv;
@@ -429,7 +429,7 @@
         // Add click handlers for tree toggles
         addTreeToggleHandlers();
       } catch (error) {
-        treeContainer.innerHTML = `<span class="text-red-600 dark:text-red-400">Error generating tree view: ${error.message}</span>`;
+        treeContainer.innerHTML = `<span class="syntax-error">Error generating tree view: ${error.message}</span>`;
       }
     }
 

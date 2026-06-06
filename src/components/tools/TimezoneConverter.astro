@@ -4,23 +4,23 @@
 
 <div class='timezone-converter'>
   <!-- Add Timezone Section -->
-  <div class='mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg'>
+  <div class='mb-6 p-4 surface-muted'>
     <h3 class='text-lg font-semibold mb-4 text-dark dark:text-light'>Add Timezone</h3>
     <div class='flex gap-3 items-end'>
       <div class='flex-1'>
-        <label for='timezone-select' class='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+        <label for='timezone-select' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
           Select Timezone
         </label>
         <select
           id='timezone-select'
-          class='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+          class='w-full px-3 py-2 form-control'
         >
           <option value=''>Select a timezone</option>
         </select>
       </div>
       <button
         id='add-timezone-btn'
-        class='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        class='px-4 py-2 btn-primary'
       >
         Add Timezone
       </button>
@@ -30,25 +30,25 @@
   <!-- Global Legend -->
   <div
     id='global-legend'
-    class='mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700 hidden'
+    class='mb-6 p-4 surface-muted hidden'
   >
-    <h4 class='text-sm font-medium text-blue-900 dark:text-blue-100 mb-3 text-center'>24-Hour Activity Color Guide</h4>
+    <h4 class='text-sm font-medium text-text-strong dark:text-light mb-3 text-center'>24-Hour Activity Color Guide</h4>
     <div class='flex justify-center gap-6 text-xs'>
       <div class='flex items-center gap-1'>
-        <div class='w-3 h-3 rounded bg-indigo-900 dark:bg-indigo-950'></div>
-        <span class='text-gray-600 dark:text-gray-400'>Night (10PM-6AM)</span>
+        <div class='w-3 h-3 rounded time-night'></div>
+        <span class='text-text-muted dark:text-custom-gray-300'>Night (10PM-6AM)</span>
       </div>
       <div class='flex items-center gap-1'>
-        <div class='w-3 h-3 rounded bg-yellow-400 dark:bg-yellow-500'></div>
-        <span class='text-gray-600 dark:text-gray-400'>Day (6AM-8AM, 6PM-10PM)</span>
+        <div class='w-3 h-3 rounded time-day'></div>
+        <span class='text-text-muted dark:text-custom-gray-300'>Day (6AM-8AM, 6PM-10PM)</span>
       </div>
       <div class='flex items-center gap-1'>
-        <div class='w-3 h-3 rounded bg-green-500 dark:bg-green-600'></div>
-        <span class='text-gray-600 dark:text-gray-400'>Work (8AM-6PM)</span>
+        <div class='w-3 h-3 rounded time-work'></div>
+        <span class='text-text-muted dark:text-custom-gray-300'>Work (8AM-6PM)</span>
       </div>
       <div class='flex items-center gap-1'>
-        <div class='w-1 h-3 rounded bg-white border border-gray-400'></div>
-        <span class='text-gray-600 dark:text-gray-400'>Current Time</span>
+        <div class='w-1 h-3 rounded bg-light border border-border-strong'></div>
+        <span class='text-text-muted dark:text-custom-gray-300'>Current Time</span>
       </div>
     </div>
   </div>
@@ -59,7 +59,7 @@
   </div>
 
   <!-- Empty State -->
-  <div id='empty-state' class='text-center py-8 text-gray-500 dark:text-gray-400'>
+  <div id='empty-state' class='text-center py-8 text-text-muted dark:text-custom-gray-300'>
     <svg class='mx-auto w-12 h-12 mb-4 opacity-50' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
       <path
         stroke-linecap='round'
@@ -190,13 +190,13 @@
     function getHourColor(hour) {
       if (hour >= 22 || hour < 6) {
         // Night time (10 PM - 6 AM)
-        return 'bg-indigo-900 dark:bg-indigo-950';
+        return 'time-night';
       } else if (hour >= 8 && hour < 18) {
         // Working hours (8 AM - 6 PM)
-        return 'bg-green-500 dark:bg-green-600';
+        return 'time-work';
       } else {
         // Day time non-working hours (6 AM - 8 AM, 6 PM - 10 PM)
-        return 'bg-yellow-400 dark:bg-yellow-500';
+        return 'time-day';
       }
     }
 
@@ -227,7 +227,7 @@
 
       // Create title with actual times
       const title = document.createElement('div');
-      title.className = 'text-xs text-gray-600 dark:text-gray-400 mb-2 flex justify-between items-center';
+      title.className = 'text-xs text-text-muted dark:text-custom-gray-300 mb-2 flex justify-between items-center';
       title.innerHTML = `
         <span class="font-mono">${startTimeStr}</span>
         <span class="font-mono">${endTimeStr}</span>
@@ -239,7 +239,7 @@
 
       // Create the tracker bar
       const trackerBar = document.createElement('div');
-      trackerBar.className = 'flex h-8 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600';
+      trackerBar.className = 'flex h-8 rounded-control overflow-hidden border border-border-soft dark:border-border-soft';
 
       // Create 24 hour segments based on exact time
       for (let i = 0; i < 24; i++) {
@@ -269,7 +269,7 @@
         if (i === 12) {
           segment.style.position = 'relative';
           segment.innerHTML =
-            '<div class="absolute inset-0 flex items-center justify-center"><div class="w-1 h-6 bg-white rounded-full shadow-lg"></div></div>';
+            '<div class="absolute inset-0 flex items-center justify-center"><div class="w-1 h-6 bg-light rounded-full shadow-glow"></div></div>';
         }
 
         trackerBar.appendChild(segment);
@@ -363,16 +363,15 @@
       // Create the card element
       const cardDiv = document.createElement('div');
       cardDiv.setAttribute('data-id', timezoneData.id);
-      cardDiv.className =
-        'w-full bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 shadow-lg hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300';
+      cardDiv.className = 'w-full surface-card p-6';
 
       cardDiv.innerHTML = `
         <div class="flex justify-between items-start mb-4">
           <div class="flex-1">
-            <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">${timezoneData.city}</h4>
-            <span class="inline-block text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-medium">${timeZoneName}</span>
+            <h4 class="text-xl font-bold text-text-strong dark:text-light mb-2">${timezoneData.city}</h4>
+            <span class="inline-block text-xs px-3 py-1 bg-accent-soft dark:bg-accent-soft text-custom-blue-800 dark:text-custom-blue-200 rounded-full font-medium">${timeZoneName}</span>
           </div>
-          <button class="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900 p-2 rounded-lg transition-all duration-200 cursor-pointer" onclick="removeTimezone(${timezoneData.id})" title="Remove timezone">
+          <button class="danger-soft-action p-2 rounded-control transition-all duration-200 cursor-pointer" onclick="removeTimezone(${timezoneData.id})" title="Remove timezone">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -381,10 +380,10 @@
         
         <div class="flex items-center justify-between mb-4">
           <div class="flex-1">
-            <div class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">${time}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">${date}</div>
+            <div class="text-3xl font-bold text-text-strong dark:text-light mb-1">${time}</div>
+            <div class="text-sm text-text-muted dark:text-custom-gray-300">${date}</div>
           </div>
-          <div class="text-right text-sm text-gray-500 dark:text-gray-500 font-mono bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">${offsetStr}</div>
+          <div class="text-right text-sm text-text-muted font-mono bg-surface-muted dark:bg-surface-muted px-3 py-1 rounded-control">${offsetStr}</div>
         </div>
       `;
 

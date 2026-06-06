@@ -2,15 +2,16 @@
 import { IHeroProps } from '@types';
 import SocialLinks from '@components/general/SocialLinks.astro';
 
-const { name, about } = Astro.props as IHeroProps;
+const { name, jobDescription, about } = Astro.props as IHeroProps;
 ---
 
 <section>
-  <p class='dark:text-light mt-[117px]'>Hey, I'm</p>
+  <p class='dark:text-light mt-[117px] text-sm text-text-muted dark:text-custom-gray'>Hey, I'm</p>
   <h1 class='leading-[1.2] min-h-[2.5em] sm:min-h-[unset]' transition:animate='slide'>
     <span id='typing-name'></span><span id='cursor' class='cursor-style'>|</span>
   </h1>
-  <p class='dark:text-light text-lg mb-8'>
+  <p class='dark:text-light text-lg font-medium mb-3'>{jobDescription}</p>
+  <p class='dark:text-light text-base text-text-muted dark:text-custom-gray mb-8 max-w-2xl'>
     {about}
   </p>
   <div class='grid grid-cols-3 gap-4 sm:w-80 mb-10'>
@@ -21,7 +22,7 @@ const { name, about } = Astro.props as IHeroProps;
 <style>
   .cursor-style {
     display: inline-block;
-    color: #3b82f6;
+    color: rgb(var(--color-accent));
     font-weight: normal;
     margin-left: 1px;
   }
