@@ -3,7 +3,11 @@ import { info } from '@data';
 import { IMetaHead } from '@types';
 import { ClientRouter } from 'astro:transitions';
 
-const { title, description, ogImageUrl } = Astro.props as IMetaHead;
+interface Props extends IMetaHead {
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description, ogImageUrl, jsonLd } = Astro.props as Props;
 ---
 
 <meta charset='UTF-8' />
@@ -45,6 +49,8 @@ const { title, description, ogImageUrl } = Astro.props as IMetaHead;
 <!-- preload assests -->
 <link rel='preload' href='/assets/fonts/Inter/Inter-Light.ttf' as='font' crossorigin />
 <link rel='preload' href='/assets/fonts/Outfit/Outfit-SemiBold.ttf' as='font' crossorigin />
+
+{jsonLd && <script type='application/ld+json' set:html={JSON.stringify(jsonLd)} />}
 
 <!-- view transition component -->
 <ClientRouter />

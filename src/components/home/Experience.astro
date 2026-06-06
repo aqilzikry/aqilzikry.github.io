@@ -2,12 +2,12 @@
 import SectionHeader from '@components/general/SectionHeader.astro';
 import { IExperiences } from '@types';
 
-const { title, subtitle, details, variant = 'experience' } = Astro.props as IExperiences;
+const { title, subtitle, details, variant = 'experience', id } = Astro.props as IExperiences;
 
 const isEducation = variant === 'education';
 ---
 
-<section class='flex items-start justify-between flex-col sm:flex-row dark:text-light'>
+<section id={id} class='flex items-start justify-between flex-col sm:flex-row dark:text-light scroll-mt-28'>
   <SectionHeader title={title} subtitle={subtitle} class='w-full sm:w-[15rem] mt-10 sm:mt-16 shrink-0 sm:sticky sm:top-28 sm:self-start' />
   <div class='w-full mt-4 sm:mt-16'>
     <ol class='timeline relative' aria-label={`${title} timeline`}>
@@ -96,43 +96,3 @@ const isEducation = variant === 'education';
     </ol>
   </div>
 </section>
-
-<script is:inline>
-  function initTimelineAnimations() {
-    const items = document.querySelectorAll('.timeline-item:not([data-timeline-observed])');
-    if (!items.length) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (prefersReducedMotion) {
-      items.forEach((item) => {
-        item.dataset.timelineObserved = 'true';
-        item.classList.add('is-visible');
-      });
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
-    );
-
-    items.forEach((item) => {
-      item.dataset.timelineObserved = 'true';
-      observer.observe(item);
-    });
-  }
-
-  if (!window.__timelineAnimationsReady) {
-    window.__timelineAnimationsReady = true;
-    document.addEventListener('astro:page-load', initTimelineAnimations);
-  }
-
-  initTimelineAnimations();
-</script>

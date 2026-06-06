@@ -15,24 +15,47 @@ const featureProjects = info.projects.reduce((accumulator, project) => {
   }
   return accumulator;
 }, []);
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: info.name,
+  url: info.baseUrl,
+  jobTitle: 'Software Engineer',
+  description: info.about,
+  email: info.socialMedia.email,
+  sameAs: [info.socialMedia.github, info.socialMedia.linkedin],
+};
 ---
 
 <!doctype html>
 <html lang='en'>
   <head>
-    <MetaHead title={'Portfolio'} description={info.about} ogImageUrl={'/assets/images/profile.png'} />
+    <MetaHead
+      title={'Portfolio'}
+      description={info.about}
+      ogImageUrl={'/assets/images/profile.png'}
+      jsonLd={personSchema}
+    />
   </head>
 
   <body>
     <Layout>
-      <Hero name={info.name} jobDescription={info.jobDescription} about={info.about} />
+      <Hero
+        name={info.name}
+        jobDescription={info.jobDescription}
+        about={info.about}
+        resumeUrl={info.resumeUrl}
+      />
       <Experience
+        id='experience'
         title='Experience'
         subtitle="Where I've actually made a difference"
         details={info.experience}
         variant='experience'
       />
       <Experience
+        id='education'
         title='Education'
         subtitle='The school years that got me here'
         details={info.education}
@@ -50,5 +73,41 @@ const featureProjects = info.projects.reduce((accumulator, project) => {
         </div>
       </section>
     </Layout>
+
+    <script is:inline>
+      function initTimelineAnimations() {
+        const items = document.querySelectorAll('.timeline-item:not([data-timeline-observed])');
+        if (!items.length) return;
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReducedMotion) {
+          items.forEach((item) => {
+            item.dataset.timelineObserved = 'true';
+            item.classList.add('is-visible');
+          });
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+        );
+
+        items.forEach((item) => {
+          item.dataset.timelineObserved = 'true';
+          observer.observe(item);
+        });
+      }
+
+      document.addEventListener('astro:page-load', initTimelineAnimations);
+      initTimelineAnimations();
+    </script>
   </body>
 </html>

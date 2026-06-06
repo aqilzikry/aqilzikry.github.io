@@ -8,6 +8,7 @@ export interface IHeroProps {
   name: string;
   jobDescription: string;
   about: string;
+  resumeUrl?: string;
 }
 
 export interface IExperience {
@@ -22,6 +23,7 @@ export interface IExperiences {
   subtitle: string;
   details: IExperience[];
   variant?: 'experience' | 'education';
+  id?: string;
 }
 
 export interface IProject {

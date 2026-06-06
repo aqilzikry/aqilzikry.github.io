@@ -2,10 +2,10 @@
 import { IHeroProps } from '@types';
 import SocialLinks from '@components/general/SocialLinks.astro';
 
-const { name, jobDescription, about } = Astro.props as IHeroProps;
+const { name, jobDescription, about, resumeUrl } = Astro.props as IHeroProps;
 ---
 
-<section>
+<section id='about' class='scroll-mt-28'>
   <p class='dark:text-light mt-[117px] text-sm text-text-muted dark:text-custom-gray'>Hey, I'm</p>
   <h1 class='leading-[1.2] min-h-[2.5em] sm:min-h-[unset]' transition:animate='slide'>
     <span id='typing-name'></span><span id='cursor' class='cursor-style'>|</span>
@@ -14,8 +14,26 @@ const { name, jobDescription, about } = Astro.props as IHeroProps;
   <p class='dark:text-light text-base text-text-muted dark:text-custom-gray mb-8 max-w-2xl'>
     {about}
   </p>
-  <div class='grid grid-cols-3 gap-4 sm:w-80 mb-10'>
-    <SocialLinks />
+  <div class='flex flex-wrap items-center gap-4 mb-10'>
+    <div class='grid grid-cols-3 gap-4 sm:w-80'>
+      <SocialLinks />
+    </div>
+    {
+      resumeUrl && (
+        <a
+          href={resumeUrl}
+          download
+          class='btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium'
+        >
+          <svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>
+            <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
+            <polyline points='7 10 12 15 17 10' />
+            <line x1='12' y1='15' x2='12' y2='3' />
+          </svg>
+          Download CV
+        </a>
+      )
+    }
   </div>
 </section>
 
