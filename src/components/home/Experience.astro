@@ -2,29 +2,137 @@
 import SectionHeader from '@components/general/SectionHeader.astro';
 import { IExperiences } from '@types';
 
-const { title, subtitle, details } = Astro.props as IExperiences;
+const { title, subtitle, details, variant = 'experience' } = Astro.props as IExperiences;
+
+const isEducation = variant === 'education';
 ---
 
 <section class='flex items-start justify-between flex-col sm:flex-row dark:text-light'>
-  <SectionHeader title={title} subtitle={subtitle} class='w-[15rem] mt-16 shrink-0' />
-  <div class='w-full'>
-    {
-      details.map((item) => (
-        <div class='my-16'>
-          <div class='flex justify-between items-center flex-wrap'>
-            <h3 class='text-xl font-semibold'>{item.name}</h3>
-            <p class='text-sm dark:text-custom-gray'>
-              {item.startDate} - {item.endDate}
-            </p>
-          </div>
-          <p class='text-sm mt-3 text-custom-blue'>{item.location}</p>
-          <ul class='mt-3 list-disc pl-4'>
-            {item.description.map((item) => (
-              <li class='dark:text-custom-gray'>{item}</li>
-            ))}
-          </ul>
-        </div>
-      ))
-    }
+  <SectionHeader title={title} subtitle={subtitle} class='w-full sm:w-[15rem] mt-10 sm:mt-16 shrink-0 sm:sticky sm:top-28 sm:self-start' />
+  <div class='w-full mt-4 sm:mt-16'>
+    <ol class='timeline relative' aria-label={`${title} timeline`}>
+      <div
+        class='timeline-track absolute left-[13px] sm:left-[19px] top-2 sm:top-3 bottom-2 sm:bottom-3 w-px bg-gradient-to-b from-custom-blue via-violet to-magenta opacity-30'
+        aria-hidden='true'
+      >
+      </div>
+      {
+        details.map((entry, index) => {
+          const isCurrent = entry.endDate.toLowerCase() === 'present';
+
+          return (
+            <li class='timeline-item relative grid grid-cols-[1.75rem_1fr] sm:grid-cols-[2.375rem_1fr] gap-x-3 sm:gap-x-5 pb-6 sm:pb-10 last:pb-0'>
+              <div class='timeline-node-col flex justify-center pt-3 sm:pt-5'>
+                <div
+                  class:list={[
+                    'timeline-node relative z-10 flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border sm:border-2 bg-surface-elevated sm:shadow-glow transition-transform duration-300',
+                    isEducation
+                      ? 'border-violet/60 text-violet'
+                      : 'border-accent/60 text-accent',
+                    isCurrent && 'timeline-node--current',
+                  ]}
+                  aria-hidden='true'
+                >
+                  {isEducation ? (
+                    <svg class='h-3 w-3 sm:h-4 sm:w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                      <path d='M22 10v6M2 10l10-5 10 5-10 5z' />
+                      <path d='M6 12v5c0 1.7 3.3 3 6 3s6-1.3 6-3v-5' />
+                    </svg>
+                  ) : (
+                    <svg class='h-3 w-3 sm:h-4 sm:w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                      <rect x='2' y='7' width='20' height='14' rx='2' ry='2' />
+                      <path d='M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2' />
+                    </svg>
+                  )}
+                </div>
+              </div>
+
+              <article class:list={['timeline-card group surface-card subtle-gradient-hover rounded-control sm:rounded-brand p-3.5 sm:p-6', isCurrent && 'timeline-card--current']}>
+                <div class='flex flex-col gap-2 sm:gap-3'>
+                  <div class='flex flex-wrap items-start justify-between gap-x-2 gap-y-1'>
+                    <h3 class='text-base sm:text-xl font-semibold dark:text-light leading-tight'>{entry.name}</h3>
+                    <time
+                      class:list={[
+                        'timeline-date inline-flex shrink-0 items-center rounded-pill border px-2 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-medium tracking-wide',
+                        isEducation
+                          ? 'border-violet/25 bg-violet/10 text-violet dark:border-violet/30 dark:bg-violet/15'
+                          : 'border-accent/25 bg-accent/10 text-accent dark:border-accent/30 dark:bg-accent/15',
+                      ]}
+                      datetime={`${entry.startDate}/${entry.endDate}`}
+                    >
+                      {entry.startDate} – {entry.endDate}
+                    </time>
+                  </div>
+
+                  <div class='flex flex-wrap items-center justify-between gap-x-2 gap-y-1'>
+                    <p class:list={['flex items-center gap-1 text-xs sm:text-sm', isEducation ? 'text-violet' : 'text-custom-blue']}>
+                      <svg class='h-3 w-3 shrink-0 opacity-80' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>
+                        <path d='M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z' />
+                        <circle cx='12' cy='10' r='3' />
+                      </svg>
+                      <span>{entry.location}</span>
+                    </p>
+                    {isCurrent && (
+                      <span class='timeline-badge inline-flex items-center gap-1 rounded-pill bg-success/10 px-2 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-semibold uppercase tracking-wider text-success'>
+                        <span class='timeline-badge-dot h-1.5 w-1.5 rounded-full bg-success' aria-hidden='true' />
+                        Current
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <ul class='timeline-details mt-2.5 sm:mt-4 space-y-1.5 sm:space-y-2'>
+                  {entry.description.map((point) => (
+                    <li class='timeline-detail-item text-[0.8125rem] sm:text-sm leading-relaxed text-text-body dark:text-custom-gray-600'>
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </li>
+          );
+        })
+      }
+    </ol>
   </div>
 </section>
+
+<script is:inline>
+  function initTimelineAnimations() {
+    const items = document.querySelectorAll('.timeline-item:not([data-timeline-observed])');
+    if (!items.length) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      items.forEach((item) => {
+        item.dataset.timelineObserved = 'true';
+        item.classList.add('is-visible');
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+    );
+
+    items.forEach((item) => {
+      item.dataset.timelineObserved = 'true';
+      observer.observe(item);
+    });
+  }
+
+  if (!window.__timelineAnimationsReady) {
+    window.__timelineAnimationsReady = true;
+    document.addEventListener('astro:page-load', initTimelineAnimations);
+  }
+
+  initTimelineAnimations();
+</script>

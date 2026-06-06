@@ -21,6 +21,7 @@ export interface IExperiences {
   title: string;
   subtitle: string;
   details: IExperience[];
+  variant?: 'experience' | 'education';
 }
 
 export interface IProject {
