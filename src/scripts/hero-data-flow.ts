@@ -531,6 +531,7 @@ function createApiBranch(
 ): BranchResult {
   const group = new THREE.Group();
   group.position.copy(API_ANCHOR);
+  group.scale.setScalar(1.24);
   const nodes: BranchNode[] = [];
   const dynamicMaterials: THREE.MeshBasicMaterial[] = [];
 
@@ -1080,8 +1081,8 @@ export function initHeroDataFlow(): CleanupFn | void {
 
     if (containerWidth < 520) {
       alignBranchToLabel(apiBranch.group, apiAnchor, '.flow-orbit-label--api', {
-        x: -48,
-        y: 36,
+        x: -58,
+        y: 48,
       });
       alignBranchToLabel(opsBranch.group, opsAnchor, '.flow-orbit-label--dash', {
         x: -52,
@@ -1089,8 +1090,8 @@ export function initHeroDataFlow(): CleanupFn | void {
       });
     } else if (containerWidth < 1024) {
       alignBranchToLabel(apiBranch.group, apiAnchor, '.flow-orbit-label--api', {
-        x: -46,
-        y: 36,
+        x: -62,
+        y: 50,
       });
       alignBranchToLabel(opsBranch.group, opsAnchor, '.flow-orbit-label--dash', {
         x: -50,
@@ -1098,8 +1099,8 @@ export function initHeroDataFlow(): CleanupFn | void {
       });
     } else {
       alignBranchToLabel(apiBranch.group, apiAnchor, '.flow-orbit-label--api', {
-        x: -54,
-        y: 40,
+        x: -74,
+        y: 58,
       });
       alignBranchToLabel(opsBranch.group, opsAnchor, '.flow-orbit-label--dash', {
         x: -60,
