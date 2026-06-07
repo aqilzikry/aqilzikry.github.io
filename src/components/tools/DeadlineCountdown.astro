@@ -1,0 +1,186 @@
+---
+// src/components/tools/DeadlineCountdown.astro
+---
+
+<div class='space-y-6'>
+  <div class='grid md:grid-cols-2 gap-4'>
+    <div>
+      <label for='deadlineTitle' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
+        Countdown title
+      </label>
+      <input id='deadlineTitle' type='text' placeholder='e.g., Project launch' class='w-full px-3 py-2 form-control' />
+    </div>
+    <div>
+      <label for='deadlineAt' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
+        Deadline
+      </label>
+      <input id='deadlineAt' type='datetime-local' class='w-full px-3 py-2 form-control' />
+    </div>
+  </div>
+
+  <div class='flex flex-wrap gap-3'>
+    <button id='deadlineCopyBtn' type='button' class='px-4 py-2 btn-primary'>Copy Share Link</button>
+    <button id='deadlineClearBtn' type='button' class='px-4 py-2 btn-danger'>Clear</button>
+  </div>
+
+  <div id='deadlineStatusMessage' class='hidden p-3 rounded-control'></div>
+
+  <div class='p-5 surface-muted'>
+    <p id='deadlineDisplayTitle' class='text-sm text-text-muted dark:text-custom-gray-300 mb-3'>No deadline set</p>
+    <div class='grid grid-cols-2 md:grid-cols-4 gap-3'>
+      <div class='p-3 bg-surface-card dark:bg-surface-card rounded-control border border-border-soft'>
+        <p id='deadlineDays' class='text-3xl font-outfit text-dark dark:text-light'>0</p>
+        <p class='text-xs text-text-muted dark:text-custom-gray-300'>Days</p>
+      </div>
+      <div class='p-3 bg-surface-card dark:bg-surface-card rounded-control border border-border-soft'>
+        <p id='deadlineHours' class='text-3xl font-outfit text-dark dark:text-light'>0</p>
+        <p class='text-xs text-text-muted dark:text-custom-gray-300'>Hours</p>
+      </div>
+      <div class='p-3 bg-surface-card dark:bg-surface-card rounded-control border border-border-soft'>
+        <p id='deadlineMinutes' class='text-3xl font-outfit text-dark dark:text-light'>0</p>
+        <p class='text-xs text-text-muted dark:text-custom-gray-300'>Minutes</p>
+      </div>
+      <div class='p-3 bg-surface-card dark:bg-surface-card rounded-control border border-border-soft'>
+        <p id='deadlineSeconds' class='text-3xl font-outfit text-dark dark:text-light'>0</p>
+        <p class='text-xs text-text-muted dark:text-custom-gray-300'>Seconds</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { copyWithButtonFeedback } from '../../scripts/clipboard';
+  import { registerToolInit } from '../../scripts/tools-registry';
+  import { createStatusHelpers } from '../../scripts/status';
+
+  function initDeadlineCountdown() {
+    const titleInput = document.getElementById('deadlineTitle') as HTMLInputElement | null;
+    const deadlineInput = document.getElementById('deadlineAt') as HTMLInputElement | null;
+    const copyBtn = document.getElementById('deadlineCopyBtn') as HTMLButtonElement | null;
+    const clearBtn = document.getElementById('deadlineClearBtn') as HTMLButtonElement | null;
+    const statusMessage = document.getElementById('deadlineStatusMessage');
+    const displayTitle = document.getElementById('deadlineDisplayTitle');
+    const daysEl = document.getElementById('deadlineDays');
+    const hoursEl = document.getElementById('deadlineHours');
+    const minutesEl = document.getElementById('deadlineMinutes');
+    const secondsEl = document.getElementById('deadlineSeconds');
+
+    if (!titleInput || !deadlineInput || !copyBtn || !clearBtn || !statusMessage || !displayTitle || !daysEl || !hoursEl || !minutesEl || !secondsEl) {
+      return;
+    }
+
+    const status = createStatusHelpers(statusMessage);
+    let interval: number | undefined;
+
+    const params = new URLSearchParams(window.location.search);
+    const initialTitle = params.get('title');
+    const initialDeadline = params.get('deadline');
+
+    if (initialTitle) titleInput.value = initialTitle;
+    if (initialDeadline && !Number.isNaN(new Date(initialDeadline).getTime())) {
+      deadlineInput.value = initialDeadline;
+    }
+
+    const setNumbers = (days: number, hours: number, minutes: number, seconds: number) => {
+      daysEl.textContent = String(days);
+      hoursEl.textContent = String(hours);
+      minutesEl.textContent = String(minutes);
+      secondsEl.textContent = String(seconds);
+    };
+
+    const buildShareUrl = () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tool', 'deadline-countdown');
+
+      const title = titleInput.value.trim();
+      const deadline = deadlineInput.value;
+
+      if (title) url.searchParams.set('title', title);
+      else url.searchParams.delete('title');
+
+      if (deadline) url.searchParams.set('deadline', deadline);
+      else url.searchParams.delete('deadline');
+
+      return url;
+    };
+
+    const syncUrl = () => {
+      const url = buildShareUrl();
+      window.history.replaceState({}, '', url);
+    };
+
+    const render = () => {
+      const title = titleInput.value.trim();
+      const deadline = deadlineInput.value;
+      displayTitle.textContent = title || 'No deadline set';
+
+      if (!deadline) {
+        setNumbers(0, 0, 0, 0);
+        return;
+      }
+
+      const target = new Date(deadline).getTime();
+      if (Number.isNaN(target)) {
+        setNumbers(0, 0, 0, 0);
+        status.show('Please enter a valid deadline.', 'error');
+        return;
+      }
+
+      const remaining = target - Date.now();
+      if (remaining <= 0) {
+        setNumbers(0, 0, 0, 0);
+        displayTitle.textContent = title ? `${title} has passed` : 'Deadline has passed';
+        return;
+      }
+
+      const totalSeconds = Math.floor(remaining / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setNumbers(days, hours, minutes, seconds);
+    };
+
+    const restartTimer = () => {
+      if (interval) window.clearInterval(interval);
+      render();
+      interval = window.setInterval(render, 1000);
+    };
+
+    const handleInput = () => {
+      status.hide();
+      syncUrl();
+      restartTimer();
+    };
+
+    titleInput.addEventListener('input', handleInput);
+    deadlineInput.addEventListener('input', handleInput);
+
+    copyBtn.addEventListener('click', async () => {
+      if (!deadlineInput.value) {
+        status.show('Add a deadline before copying the share link.', 'error');
+        return;
+      }
+
+      syncUrl();
+      const copied = await copyWithButtonFeedback(buildShareUrl().toString(), copyBtn, 'Copy Share Link');
+      status.show(copied ? 'Share link copied to clipboard!' : 'Failed to copy share link.', copied ? 'success' : 'error');
+    });
+
+    clearBtn.addEventListener('click', () => {
+      titleInput.value = '';
+      deadlineInput.value = '';
+      const url = new URL(window.location.href);
+      url.searchParams.delete('title');
+      url.searchParams.delete('deadline');
+      window.history.replaceState({}, '', url);
+      status.hide();
+      restartTimer();
+    });
+
+    restartTimer();
+  }
+
+  registerToolInit('deadline-countdown', initDeadlineCountdown);
+</script>

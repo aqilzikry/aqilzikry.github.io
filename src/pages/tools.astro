@@ -6,7 +6,9 @@ import BudgetCalculator from '@components/tools/BudgetCalculator.astro';
 import ColorConverter from '@components/tools/ColorConverter.astro';
 import JsonXmlValidator from '@components/tools/JsonXmlValidator.astro';
 import JwtDecoder from '@components/tools/JwtDecoder.astro';
+import DeadlineCountdown from '@components/tools/DeadlineCountdown.astro';
 import TimezoneConverter from '@components/tools/TimezoneConverter.astro';
+import UnitPriceCalculator from '@components/tools/UnitPriceCalculator.astro';
 import UrlConverter from '@components/tools/UrlConverter.astro';
 ---
 
@@ -247,6 +249,12 @@ import UrlConverter from '@components/tools/UrlConverter.astro';
               <button class='pill-button' data-tool='timezone-converter' data-category='productivity'>
                 <span class='flex items-center gap-2'> Timezone Converter </span>
               </button>
+              <button class='pill-button' data-tool='unit-price-calculator' data-category='productivity'>
+                <span class='flex items-center gap-2'> Unit Price Calculator </span>
+              </button>
+              <button class='pill-button' data-tool='deadline-countdown' data-category='productivity'>
+                <span class='flex items-center gap-2'> Deadline Countdown </span>
+              </button>
             </nav>
           </div>
 
@@ -314,14 +322,66 @@ import UrlConverter from '@components/tools/UrlConverter.astro';
                 <TimezoneConverter />
               </div>
             </div>
+
+            <!-- Unit Price Calculator Tool -->
+            <div id='tool-unit-price-calculator' class='tool-panel hidden' data-category='productivity'>
+              <div class='surface-card p-6 max-w-3xl'>
+                <div class='flex items-center gap-3 mb-4'>
+                  <div class='p-2 icon-badge-success'>
+                    <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2'
+                        d='M9 14l2-2 4 4m5-5a9 9 0 11-18 0 9 9 0 0118 0z'></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class='text-2xl font-outfit text-dark dark:text-light'>Unit Price Calculator</h2>
+                    <p class='text-text-muted dark:text-custom-gray-300 text-sm'>
+                      Compare two options by what they really cost per unit
+                    </p>
+                  </div>
+                </div>
+                <UnitPriceCalculator />
+              </div>
+            </div>
+
+            <!-- Deadline Countdown Tool -->
+            <div id='tool-deadline-countdown' class='tool-panel hidden' data-category='productivity'>
+              <div class='surface-card p-6 max-w-3xl'>
+                <div class='flex items-center gap-3 mb-4'>
+                  <div class='p-2 icon-badge-indigo'>
+                    <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2'
+                        d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class='text-2xl font-outfit text-dark dark:text-light'>Deadline Countdown</h2>
+                    <p class='text-text-muted dark:text-custom-gray-300 text-sm'>
+                      Set a date, share the link, watch the clock behave
+                    </p>
+                  </div>
+                </div>
+                <DeadlineCountdown />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
   <script slot='scripts' is:inline>
-      function showFirstToolInCategory(category) {
+      function showToolInCategory(category, toolId) {
         const firstPill = document.querySelector(`[data-category="${category}"].pill-button`);
-        if (!firstPill) return;
+        const requestedPill = toolId
+          ? document.querySelector(`[data-category="${category}"].pill-button[data-tool="${toolId}"]`)
+          : null;
+        const activePill = requestedPill || firstPill;
+        if (!activePill) return;
 
         const categoryPills = document.querySelectorAll(`[data-category="${category}"].pill-button`);
         categoryPills.forEach((pill) => pill.classList.remove('active'));
@@ -329,11 +389,15 @@ import UrlConverter from '@components/tools/UrlConverter.astro';
         const categoryTools = document.querySelectorAll(`[data-category="${category}"].tool-panel`);
         categoryTools.forEach((tool) => tool.classList.add('hidden'));
 
-        firstPill.classList.add('active');
-        const firstToolId = firstPill.getAttribute('data-tool');
-        const firstTool = document.getElementById(`tool-${firstToolId}`);
-        if (firstTool) firstTool.classList.remove('hidden');
-        if (firstToolId) window.ensureToolInit?.(firstToolId);
+        activePill.classList.add('active');
+        const activeToolId = activePill.getAttribute('data-tool');
+        const activeTool = document.getElementById(`tool-${activeToolId}`);
+        if (activeTool) activeTool.classList.remove('hidden');
+        if (activeToolId) window.ensureToolInit?.(activeToolId);
+      }
+
+      function showFirstToolInCategory(category) {
+        showToolInCategory(category);
       }
 
       window.onPageLoad?.('tools-tabs', () => {
@@ -344,8 +408,24 @@ import UrlConverter from '@components/tools/UrlConverter.astro';
 
         const handlers = [];
 
-        const activeTab = document.querySelector('[data-tab="development"]');
-        if (activeTab) activeTab.classList.add('active');
+        const params = new URLSearchParams(window.location.search);
+        const requestedTool = params.get('tool');
+        const requestedPill = requestedTool
+          ? document.querySelector(`.pill-button[data-tool="${requestedTool}"]`)
+          : null;
+        const initialCategory = requestedPill?.getAttribute('data-category') || 'development';
+
+        tabButtons.forEach((button) => {
+          button.classList.remove('active');
+          button.setAttribute('aria-selected', 'false');
+        });
+        const activeTab = document.querySelector(`[data-tab="${initialCategory}"]`);
+        if (activeTab) {
+          activeTab.classList.add('active');
+          activeTab.setAttribute('aria-selected', 'true');
+        }
+        tabPanels.forEach((panel) => panel.classList.add('hidden'));
+        document.getElementById(`panel-${initialCategory}`)?.classList.remove('hidden');
 
         tabButtons.forEach((button) => {
           const onTabClick = () => {
@@ -403,7 +483,7 @@ import UrlConverter from '@components/tools/UrlConverter.astro';
           handlers.push({ el: button, type: 'keydown', fn: onKeydown });
         });
 
-        showFirstToolInCategory('development');
+        showToolInCategory(initialCategory, requestedTool);
 
         return () => {
           handlers.forEach(({ el, type, fn }) => el.removeEventListener(type, fn));

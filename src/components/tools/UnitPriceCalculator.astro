@@ -1,0 +1,185 @@
+---
+// src/components/tools/UnitPriceCalculator.astro
+---
+
+<div class='space-y-6'>
+  <div class='grid md:grid-cols-2 gap-4'>
+    <div class='p-4 surface-muted space-y-4'>
+      <h3 class='text-lg font-outfit text-dark dark:text-light'>Option A</h3>
+      <div>
+        <label for='unitPriceA' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
+          Price
+        </label>
+        <input id='unitPriceA' type='number' min='0' step='0.01' placeholder='e.g., 12.90' class='w-full px-3 py-2 form-control' />
+      </div>
+      <div>
+        <label for='unitQuantityA' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
+          Quantity
+        </label>
+        <div class='grid grid-cols-[minmax(0,1fr)_7rem] gap-3'>
+          <input id='unitQuantityA' type='number' min='0' step='0.01' placeholder='e.g., 500' class='w-full px-3 py-2 form-control' />
+          <select id='unitMeasureA' aria-label='Option A unit' class='w-full px-3 py-2 form-control'>
+            <option value='g'>g</option>
+            <option value='kg'>kg</option>
+            <option value='ml'>ml</option>
+            <option value='l'>L</option>
+            <option value='unit'>unit</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class='p-4 surface-muted space-y-4'>
+      <h3 class='text-lg font-outfit text-dark dark:text-light'>Option B</h3>
+      <div>
+        <label for='unitPriceB' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
+          Price
+        </label>
+        <input id='unitPriceB' type='number' min='0' step='0.01' placeholder='e.g., 19.90' class='w-full px-3 py-2 form-control' />
+      </div>
+      <div>
+        <label for='unitQuantityB' class='block text-sm font-medium text-text-body dark:text-custom-gray-300 mb-2'>
+          Quantity
+        </label>
+        <div class='grid grid-cols-[minmax(0,1fr)_7rem] gap-3'>
+          <input id='unitQuantityB' type='number' min='0' step='0.01' placeholder='e.g., 1.2' class='w-full px-3 py-2 form-control' />
+          <select id='unitMeasureB' aria-label='Option B unit' class='w-full px-3 py-2 form-control'>
+            <option value='g'>g</option>
+            <option value='kg'>kg</option>
+            <option value='ml'>ml</option>
+            <option value='l'>L</option>
+            <option value='unit'>unit</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id='unitPriceStatusMessage' class='hidden p-3 rounded-control'></div>
+
+  <div class='grid md:grid-cols-3 gap-4'>
+    <div class='p-4 surface-muted'>
+      <p class='text-sm text-text-muted dark:text-custom-gray-300 mb-1'>Option A</p>
+      <p id='unitResultA' class='text-xl font-outfit text-dark dark:text-light'>RM0.00 / unit</p>
+    </div>
+    <div class='p-4 surface-muted'>
+      <p class='text-sm text-text-muted dark:text-custom-gray-300 mb-1'>Option B</p>
+      <p id='unitResultB' class='text-xl font-outfit text-dark dark:text-light'>RM0.00 / unit</p>
+    </div>
+    <div class='p-4 surface-muted'>
+      <p class='text-sm text-text-muted dark:text-custom-gray-300 mb-1'>Better deal</p>
+      <p id='unitWinner' class='text-xl font-outfit text-dark dark:text-light'>Enter both options</p>
+    </div>
+  </div>
+
+  <button id='unitPriceClearBtn' type='button' class='px-4 py-2 btn-danger'>Clear</button>
+</div>
+
+<script>
+  import { registerToolInit } from '../../scripts/tools-registry';
+  import { createStatusHelpers } from '../../scripts/status';
+
+  function initUnitPriceCalculator() {
+    const priceA = document.getElementById('unitPriceA') as HTMLInputElement | null;
+    const quantityA = document.getElementById('unitQuantityA') as HTMLInputElement | null;
+    const priceB = document.getElementById('unitPriceB') as HTMLInputElement | null;
+    const quantityB = document.getElementById('unitQuantityB') as HTMLInputElement | null;
+    const measureA = document.getElementById('unitMeasureA') as HTMLSelectElement | null;
+    const measureB = document.getElementById('unitMeasureB') as HTMLSelectElement | null;
+    const resultA = document.getElementById('unitResultA');
+    const resultB = document.getElementById('unitResultB');
+    const winner = document.getElementById('unitWinner');
+    const clearBtn = document.getElementById('unitPriceClearBtn') as HTMLButtonElement | null;
+    const statusMessage = document.getElementById('unitPriceStatusMessage');
+
+    if (!priceA || !quantityA || !priceB || !quantityB || !measureA || !measureB || !resultA || !resultB || !winner || !clearBtn || !statusMessage) {
+      return;
+    }
+
+    const status = createStatusHelpers(statusMessage);
+    const formatter = new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' });
+    const measures = {
+      g: { group: 'weight', factor: 0.001, compareLabel: 'kg' },
+      kg: { group: 'weight', factor: 1, compareLabel: 'kg' },
+      ml: { group: 'volume', factor: 0.001, compareLabel: 'L' },
+      l: { group: 'volume', factor: 1, compareLabel: 'L' },
+      unit: { group: 'count', factor: 1, compareLabel: 'unit' },
+    } as const;
+    type MeasureKey = keyof typeof measures;
+
+    const readPositiveNumber = (input: HTMLInputElement) => {
+      const value = Number.parseFloat(input.value);
+      return Number.isFinite(value) && value > 0 ? value : null;
+    };
+
+    const normalizeQuantity = (quantity: number, measure: MeasureKey) => quantity * measures[measure].factor;
+
+    const formatUnitPrice = (value: number, label: string) => {
+      return `${formatter.format(value)} / ${label}`;
+    };
+
+    const calculate = () => {
+      status.hide();
+
+      const aPrice = readPositiveNumber(priceA);
+      const aQuantity = readPositiveNumber(quantityA);
+      const bPrice = readPositiveNumber(priceB);
+      const bQuantity = readPositiveNumber(quantityB);
+      const aMeasure = measureA.value as MeasureKey;
+      const bMeasure = measureB.value as MeasureKey;
+      const compareLabel = measures[aMeasure].compareLabel;
+
+      if (measures[aMeasure].group !== measures[bMeasure].group) {
+        resultA.textContent = 'RM0.00 / unit';
+        resultB.textContent = 'RM0.00 / unit';
+        winner.textContent = 'Choose matching units';
+        status.show('Compare weight with weight, volume with volume, or unit with unit.', 'error');
+        return;
+      }
+
+      const aUnit = aPrice && aQuantity ? aPrice / normalizeQuantity(aQuantity, aMeasure) : null;
+      const bUnit = bPrice && bQuantity ? bPrice / normalizeQuantity(bQuantity, bMeasure) : null;
+
+      resultA.textContent = aUnit ? formatUnitPrice(aUnit, compareLabel) : `RM0.00 / ${compareLabel}`;
+      resultB.textContent = bUnit ? formatUnitPrice(bUnit, compareLabel) : `RM0.00 / ${compareLabel}`;
+
+      if (!aUnit || !bUnit) {
+        winner.textContent = 'Enter both options';
+        return;
+      }
+
+      if (Math.abs(aUnit - bUnit) < 0.000001) {
+        winner.textContent = 'Same unit price';
+        status.show('Both options cost the same per unit.', 'info');
+        return;
+      }
+
+      const cheaper = aUnit < bUnit ? 'Option A' : 'Option B';
+      const savings = Math.abs(aUnit - bUnit);
+      winner.textContent = cheaper;
+      status.show(`${cheaper} saves ${formatUnitPrice(savings, compareLabel)}.`, 'success');
+    };
+
+    [priceA, quantityA, priceB, quantityB].forEach((input) => {
+      input.addEventListener('input', calculate);
+    });
+    [measureA, measureB].forEach((select) => {
+      select.addEventListener('input', calculate);
+      select.addEventListener('change', calculate);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      [priceA, quantityA, priceB, quantityB].forEach((input) => {
+        input.value = '';
+      });
+      measureA.value = 'g';
+      measureB.value = 'g';
+      calculate();
+      status.hide();
+    });
+
+    calculate();
+  }
+
+  registerToolInit('unit-price-calculator', initUnitPriceCalculator);
+</script>
