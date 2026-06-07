@@ -65,6 +65,22 @@ function colorRgb(color: THREE.Color, alpha = 1): string {
   return alpha < 1 ? `rgba(${red}, ${green}, ${blue}, ${alpha})` : `rgb(${red}, ${green}, ${blue})`;
 }
 
+function getTexturePalette() {
+  const surface = readColor('--color-surface-elevated', '#ffffff');
+  const strong = readColor('--color-text-strong', '#0d1117');
+  const muted = readColor('--color-text-muted', '#5c6c87');
+  const isLightSurface = surface.r * 0.2126 + surface.g * 0.7152 + surface.b * 0.0722 > 0.65;
+
+  return {
+    panel: colorRgb(surface, isLightSurface ? 0.82 : 0.42),
+    panelAlt: colorRgb(strong, isLightSurface ? 0.055 : 0.05),
+    panelAltSubtle: colorRgb(strong, isLightSurface ? 0.032 : 0.025),
+    strong: colorRgb(strong, isLightSurface ? 0.84 : 0.78),
+    muted: colorRgb(muted, isLightSurface ? 0.78 : 0.65),
+    subtle: colorRgb(muted, isLightSurface ? 0.66 : 0.45),
+  };
+}
+
 function makeGlowTexture(color: THREE.Color): THREE.CanvasTexture {
   const size = 96;
   const canvas = document.createElement('canvas');
@@ -93,8 +109,10 @@ function makeDatabaseTexture(accent: THREE.Color, bright: THREE.Color): THREE.Ca
   const context = canvas.getContext('2d');
 
   if (context) {
+    const palette = getTexturePalette();
+
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     context.strokeStyle = colorRgb(bright, 0.55);
@@ -114,15 +132,15 @@ function makeDatabaseTexture(accent: THREE.Color, bright: THREE.Color): THREE.Ca
           row === 0
             ? colorRgb(accent, 0.38)
             : row % 2 === 0
-              ? 'rgba(255, 255, 255, 0.05)'
-              : 'rgba(255, 255, 255, 0.02)';
+              ? palette.panelAlt
+              : palette.panelAltSubtle;
         context.fillRect(x, y, cellWidth - 2, cellHeight - 2);
         context.strokeStyle = colorRgb(bright, 0.22);
         context.strokeRect(x, y, cellWidth - 2, cellHeight - 2);
       }
     }
 
-    context.fillStyle = 'rgba(255, 255, 255, 0.72)';
+    context.fillStyle = palette.strong;
     context.font = '700 28px Inter, sans-serif';
     context.fillText('SQL', 36, 52);
 
@@ -147,7 +165,9 @@ function makeTableChipTexture(
   const context = canvas.getContext('2d');
 
   if (context) {
-    context.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    const palette = getTexturePalette();
+
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = colorRgb(bright, 0.4);
     context.strokeRect(8, 8, 176, 112);
@@ -158,7 +178,7 @@ function makeTableChipTexture(
 
     for (let row = 0; row < 3; row += 1) {
       for (let column = 0; column < 4; column += 1) {
-        context.fillStyle = row === 0 ? colorRgb(accent, 0.35) : 'rgba(255, 255, 255, 0.04)';
+        context.fillStyle = row === 0 ? colorRgb(accent, 0.35) : palette.panelAlt;
         context.fillRect(16 + column * 40, 32 + row * 26, 36, 20);
       }
     }
@@ -176,14 +196,16 @@ function makeApiServiceTexture(violet: THREE.Color, bright: THREE.Color): THREE.
   const context = canvas.getContext('2d');
 
   if (context) {
+    const palette = getTexturePalette();
+
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = colorRgb(violet, 0.5);
     context.lineWidth = 2;
     context.strokeRect(24, 24, 336, 208);
 
-    context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    context.fillStyle = palette.strong;
     context.font = '700 24px Inter, sans-serif';
     context.fillText('REST  ·  .NET', 36, 52);
 
@@ -200,7 +222,7 @@ function makeApiServiceTexture(violet: THREE.Color, bright: THREE.Color): THREE.
     context.moveTo(36, 160);
     context.lineTo(348, 160);
     context.stroke();
-    context.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    context.fillStyle = palette.subtle;
     context.font = '500 14px Inter, sans-serif';
     context.fillText('Entity Framework · services', 36, 188);
   }
@@ -221,7 +243,9 @@ function makeApiEndpointTexture(
   const context = canvas.getContext('2d');
 
   if (context) {
-    context.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    const palette = getTexturePalette();
+
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = colorRgb(violet, 0.45);
     context.strokeRect(6, 6, 180, 84);
@@ -229,7 +253,7 @@ function makeApiEndpointTexture(
     context.fillStyle = colorRgb(violet, 0.82);
     context.fillText(`${method} ${path}`, 12, 40);
     context.font = '500 12px ui-monospace, monospace';
-    context.fillStyle = 'rgba(255, 255, 255, 0.42)';
+    context.fillStyle = palette.subtle;
     context.fillText('{ "status": "ok" }', 12, 68);
   }
 
@@ -250,11 +274,13 @@ function makeMetricChipTexture(
   const context = canvas.getContext('2d');
 
   if (context) {
-    context.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    const palette = getTexturePalette();
+
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = colorRgb(success, 0.42);
     context.strokeRect(6, 6, 164, 100);
-    context.fillStyle = 'rgba(255, 255, 255, 0.58)';
+    context.fillStyle = palette.muted;
     context.font = '600 13px Inter, sans-serif';
     context.fillText(label, 14, 28);
     context.font = '700 22px Outfit, sans-serif';
@@ -282,8 +308,10 @@ function makeDashboardTexture(
   const context = canvas.getContext('2d');
 
   if (context) {
+    const palette = getTexturePalette();
+
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = colorRgb(accent, 0.45);
     context.lineWidth = 2;
@@ -323,7 +351,7 @@ function makeDashboardTexture(
     context.bezierCurveTo(346, 62, 410, 102, 468, 66);
     context.stroke();
 
-    context.fillStyle = 'rgba(255, 255, 255, 0.78)';
+    context.fillStyle = palette.strong;
     context.font = '700 30px Inter, sans-serif';
     context.fillText('OPS', 36, 48);
     context.font = '600 20px Inter, sans-serif';
@@ -343,11 +371,13 @@ function makeKpiTexture(success: THREE.Color, accent: THREE.Color): THREE.Canvas
   const context = canvas.getContext('2d');
 
   if (context) {
-    context.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    const palette = getTexturePalette();
+
+    context.fillStyle = palette.panel;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = colorRgb(success, 0.45);
     context.strokeRect(8, 8, 240, 144);
-    context.fillStyle = 'rgba(255, 255, 255, 0.65)';
+    context.fillStyle = palette.muted;
     context.font = '600 18px Inter, sans-serif';
     context.fillText('uptime', 20, 36);
     context.font = '700 36px Outfit, sans-serif';
