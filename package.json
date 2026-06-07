@@ -19,9 +19,13 @@
     "@astrojs/tailwind": "^6.0.2",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/outfit": "^5.2.8",
+    "@types/three": "^0.184.1",
     "astro": "^5.16.6",
     "astro-robots-txt": "^1.0.0",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "three": "^0.184.0"
   }
 }

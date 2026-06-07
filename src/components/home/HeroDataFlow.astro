@@ -1,0 +1,189 @@
+<div class='hero-data-flow' data-hero-data-flow aria-label='Animated data-flow visualization'>
+  <div class='hero-data-flow__stage'>
+    <canvas data-flow-canvas></canvas>
+  </div>
+  <div class='flow-orbit-label flow-orbit-label--sql'>
+    <span>SQL</span>
+    <strong>sub-second queries</strong>
+  </div>
+  <div class='flow-orbit-label flow-orbit-label--api'>
+    <span>APIs</span>
+    <strong>REST · EF Core</strong>
+  </div>
+  <div class='flow-orbit-label flow-orbit-label--dash'>
+    <span>Ops</span>
+    <strong>supervisory KPIs</strong>
+  </div>
+</div>
+
+<style>
+  .hero-data-flow {
+    position: relative;
+    isolation: isolate;
+    z-index: 2;
+    width: min(105%, 36rem);
+    height: clamp(19rem, 34vw, 28rem);
+    margin-inline: auto 0;
+    overflow: visible;
+  }
+
+  .hero-data-flow__stage {
+    position: absolute;
+    inset: -8% -10% -8% -16%;
+    z-index: 0;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(
+      ellipse 120% 108% at 54% 50%,
+      #000 46%,
+      rgb(0 0 0 / 0.72) 58%,
+      transparent 80%
+    );
+    mask-image: radial-gradient(
+      ellipse 120% 108% at 54% 50%,
+      #000 46%,
+      rgb(0 0 0 / 0.72) 58%,
+      transparent 80%
+    );
+  }
+
+  .hero-data-flow__stage::before {
+    content: '';
+    position: absolute;
+    inset: 10% 8% 10% 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 48% 46%, rgb(var(--color-accent) / 0.14), transparent 42%),
+      radial-gradient(circle at 78% 36%, rgb(var(--color-violet) / 0.07), transparent 34%),
+      radial-gradient(circle at 28% 64%, rgb(var(--color-success) / 0.06), transparent 34%);
+    filter: blur(26px);
+  }
+
+  .hero-data-flow canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    pointer-events: auto;
+  }
+
+  .flow-orbit-label {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    gap: 0.125rem;
+    min-width: 6.75rem;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid rgb(var(--color-border-soft) / 0.46);
+    border-radius: 0.75rem;
+    background: rgb(var(--color-surface-glass) / 0.46);
+    box-shadow: 0 12px 34px rgb(0 0 0 / 0.18);
+    backdrop-filter: blur(14px);
+    transform: translate3d(var(--label-x, 0), var(--label-y, 0), 0);
+    transition: transform 0.15s ease-out;
+  }
+
+  .flow-orbit-label span,
+  .flow-orbit-label strong {
+    color: rgb(var(--color-text-strong));
+    line-height: 1.1;
+  }
+
+  .flow-orbit-label span {
+    font-family: Inter, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .flow-orbit-label strong {
+    font-family: Outfit, sans-serif;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .flow-orbit-label--sql {
+    left: 4%;
+    top: 66%;
+  }
+
+  .flow-orbit-label--api {
+    right: 2%;
+    top: 12%;
+  }
+
+  .flow-orbit-label--dash {
+    right: 0;
+    bottom: 8%;
+  }
+
+  @media (max-width: 1023px) {
+    .hero-data-flow {
+      width: min(100%, 34rem);
+      height: clamp(19rem, 62vw, 26rem);
+      margin-inline: auto;
+    }
+
+    .hero-data-flow__stage {
+      inset: -4% -6% -4% -6%;
+      -webkit-mask-image: radial-gradient(
+        ellipse 104% 94% at 50% 50%,
+        #000 52%,
+        rgb(0 0 0 / 0.75) 64%,
+        transparent 86%
+      );
+      mask-image: radial-gradient(
+        ellipse 104% 94% at 50% 50%,
+        #000 52%,
+        rgb(0 0 0 / 0.75) 64%,
+        transparent 86%
+      );
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero-data-flow {
+      height: clamp(18rem, 78vw, 22rem);
+      margin-top: 0.25rem;
+    }
+
+    .flow-orbit-label {
+      min-width: 6rem;
+      padding: 0.45rem 0.55rem;
+    }
+
+    .flow-orbit-label strong {
+      font-size: 0.72rem;
+    }
+
+    .flow-orbit-label--sql {
+      left: 0;
+      top: 67%;
+    }
+
+    .flow-orbit-label--api {
+      right: 0;
+      top: 13%;
+    }
+
+    .flow-orbit-label--dash {
+      right: 0;
+      bottom: 8%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flow-orbit-label {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { initHeroDataFlow } from '../../scripts/hero-data-flow';
+
+  window.onPageLoad?.('hero-data-flow', initHeroDataFlow);
+</script>

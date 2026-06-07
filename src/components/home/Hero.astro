@@ -1,110 +1,90 @@
 ---
 import type { IHeroProps } from '@types';
 import SocialLinks from '@components/general/SocialLinks.astro';
+import HeroDataFlow from './HeroDataFlow.astro';
 
 interface Props extends IHeroProps {}
 
 const { name, jobDescription, about, resumeUrl } = Astro.props;
 ---
 
-<section id='about' class='scroll-mt-28'>
-  <p class='dark:text-light mt-[117px] text-sm text-text-muted dark:text-custom-gray'>Hey, I'm</p>
-  <h1 class='leading-[1.2] min-h-[2.5em] sm:min-h-[unset]' transition:animate='slide'>
-    <span id='typing-name'></span><span id='cursor' class='cursor-style'>|</span>
-  </h1>
-  <p class='dark:text-light text-lg font-medium mb-3'>{jobDescription}</p>
-  <p class='dark:text-light text-base text-text-muted dark:text-custom-gray mb-8 max-w-2xl'>
-    {about}
-  </p>
-  <div class='flex flex-wrap items-center gap-4 mb-10'>
-    <div class='grid grid-cols-3 gap-4 sm:w-80'>
-      <SocialLinks />
+<section id='about' class='hero-section scroll-mt-28'>
+  <div class='hero-copy'>
+    <p class='dark:text-light text-sm text-text-muted dark:text-custom-gray'>Hey, I'm</p>
+    <h1 class='leading-[1.2]' transition:animate='slide'>
+      {name}
+    </h1>
+    <p class='dark:text-light text-lg font-medium mb-3'>{jobDescription}</p>
+    <p class='dark:text-light text-base text-text-muted dark:text-custom-gray mb-8 max-w-2xl'>
+      {about}
+    </p>
+    <div class='flex flex-wrap items-center gap-4 mb-10'>
+      <div class='grid grid-cols-3 gap-4 sm:w-80'>
+        <SocialLinks />
+      </div>
+      {
+        resumeUrl && (
+          <a
+            href={resumeUrl}
+            download
+            class='btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium'
+          >
+            <svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>
+              <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
+              <polyline points='7 10 12 15 17 10' />
+              <line x1='12' y1='15' x2='12' y2='3' />
+            </svg>
+            Download CV
+          </a>
+        )
+      }
     </div>
-    {
-      resumeUrl && (
-        <a
-          href={resumeUrl}
-          download
-          class='btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium'
-        >
-          <svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>
-            <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
-            <polyline points='7 10 12 15 17 10' />
-            <line x1='12' y1='15' x2='12' y2='3' />
-          </svg>
-          Download CV
-        </a>
-      )
-    }
+  </div>
+  <div class='hero-visual' aria-hidden='true'>
+    <HeroDataFlow />
   </div>
 </section>
 
 <style>
-  .cursor-style {
-    display: inline-block;
-    color: rgb(var(--color-accent));
-    font-weight: normal;
-    margin-left: 1px;
+  .hero-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1.03fr) minmax(20rem, 0.78fr);
+    gap: clamp(1rem, 2.5vw, 3rem);
+    align-items: center;
+    min-height: min(35rem, calc(100vh - 9rem));
+    padding-top: clamp(2.75rem, 6vw, 4.75rem);
+    padding-bottom: clamp(1rem, 3vw, 2rem);
+    overflow: visible;
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-visual {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+    overflow: visible;
+    margin-left: clamp(-1.75rem, -3vw, -0.25rem);
+  }
+
+  @media (max-width: 1023px) {
+    .hero-section {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding-top: clamp(4.75rem, 14vw, 6.5rem);
+      gap: 1.25rem;
+    }
+
+    .hero-visual {
+      order: 2;
+      justify-content: center;
+      margin-left: 0;
+    }
   }
 </style>
-
-<script is:inline define:vars={{ heroName: name }}>
-  window.onPageLoad?.('hero-typing', () => {
-    const typingElement = document.getElementById('typing-name');
-    const cursorElement = document.getElementById('cursor');
-    if (!typingElement || !cursorElement) return;
-
-    const fullName = heroName;
-    let currentText = '';
-    let isDeleting = false;
-    let charIndex = 0;
-    let cursorVisible = true;
-    let cancelled = false;
-    const timeouts = [];
-
-    function schedule(fn, delay) {
-      const id = setTimeout(fn, delay);
-      timeouts.push(id);
-      return id;
-    }
-
-    function blinkCursor() {
-      cursorVisible = !cursorVisible;
-      cursorElement.style.opacity = cursorVisible ? '1' : '0';
-    }
-
-    const cursorInterval = setInterval(blinkCursor, 500);
-
-    function typeWriter() {
-      if (cancelled) return;
-
-      if (!isDeleting && charIndex < fullName.length) {
-        currentText += fullName.charAt(charIndex);
-        typingElement.textContent = currentText;
-        charIndex++;
-        schedule(typeWriter, 80);
-      } else if (isDeleting && charIndex > 0) {
-        currentText = fullName.substring(0, charIndex - 1);
-        typingElement.textContent = currentText;
-        charIndex--;
-        schedule(typeWriter, 40);
-      } else if (charIndex === fullName.length && !isDeleting) {
-        schedule(() => {
-          isDeleting = true;
-          typeWriter();
-        }, 1500);
-      } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        schedule(typeWriter, 500);
-      }
-    }
-
-    schedule(typeWriter, 300);
-
-    return () => {
-      cancelled = true;
-      clearInterval(cursorInterval);
-      timeouts.forEach(clearTimeout);
-    };
-  });
-</script>
