@@ -6,7 +6,7 @@ interface Props {
   class?: string;
 }
 
-const { title, subtitle, as = 'h2', class: className = '' } = Astro.props;
+const { title, subtitle, as = 'h2', class: className = '' } = Astro.props as Props;
 const Tag = as;
 const subtitleClass =
   as === 'h1'

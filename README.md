@@ -1,67 +1,57 @@
-![Status - WIP](https://img.shields.io/badge/Status-WIP-yellow) 
-[![Hosted with Github Pages](https://img.shields.io/badge/Hosted_with-GitHub_Pages-blue?logo=github&logoColor=white)](https://pages.github.com/ "Go to Github Pages homepage")
-[![Made with Astro](https://img.shields.io/badge/Astro-white?logo=astro&logoColor=purple)](https://astro.build/ "Go to Astro homepage")
+![Status - WIP](https://img.shields.io/badge/Status-WIP-yellow)
+[![Hosted with Github Pages](https://img.shields.io/badge/Hosted_with-GitHub_Pages-blue?logo=github&logoColor=white)](https://pages.github.com/)
+[![Made with Astro](https://img.shields.io/badge/Astro-white?logo=astro&logoColor=purple)](https://astro.build/)
 
 # Portfolio Website - Astro
 
-Just change `src/data/info.ts` to get your personal portfolio.
+Personal portfolio built with Astro 5 and Tailwind CSS. Update [`src/data/info.ts`](src/data/info.ts) for portfolio content and [`src/data/icons.ts`](src/data/icons.ts) for technology icons.
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Project Structure
 
 ```
 /
 ├── public/
-│   ├── assets
-│   │   ├── fonts
-|   |   └── images
+│   ├── assets/
+│   │   ├── fonts/
+│   │   └── images/
 │   └── favicon.ico
+├── scripts/
+│   ├── optimize-images.mjs
+│   └── generate-og-image.mjs
 ├── src/
 │   ├── components/
-│   │   ├── home/
-|   |   └── general/
-|   |       ├── Header.astro
-|   |       ├── Footer.astro
-|   |       └── ...
+│   │   ├── general/     # Navbar, Footer, ProjectCard, MetaHead
+│   │   ├── home/        # Hero, Experience, Technologies
+│   │   └── tools/       # Interactive utility widgets
 │   ├── data/
+│   │   ├── info.ts
+│   │   └── icons.ts
 │   ├── layouts/
-│   |   |── Layout.astro
-│   |   └── ...
+│   │   ├── BaseLayout.astro
+│   │   └── Layout.astro
 │   ├── pages/
-│   |   ├── peojects.astro
-│   |   ├── index.astro
+│   │   ├── index.astro
+│   │   ├── projects.astro
+│   │   ├── tools.astro
+│   │   └── 404.astro
+│   ├── scripts/         # Shared client utilities
 │   ├── styles/
-│   |   |── custom-styles.css
-│   |   |── fonts.css
-│   |   └── styles.css
+│   │   ├── style.css
+│   │   ├── custom-styles.css
+│   │   └── fonts.css
 │   ├── types/
-│   ├── utils/
-├── package.json
-└── ...
+│   └── utils/
+└── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Commands
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/assets` directory.
-
-Your personal data would be go on `src/data` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `npm install`          | Installs dependencies                            |
-| `npm run dev`          | Starts local dev server at `localhost:3000`      |
-| `npm run build`        | Build your production site to `./dist/`          |
-| `npm run preview`      | Preview your build locally, before deploying     |
-| `npm run astro ...`    | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [Astro documentation](https://docs.astro.build) or jump into Astro [Discord server](https://astro.build/chat). Template forked from [Uzair Ahmed](https://github.com/uzzii-21/astro-portfolio)
+| Command | Action |
+| :------ | :----- |
+| `npm install` | Installs dependencies |
+| `npm run dev` | Starts local dev server |
+| `npm run build` | Builds production site to `./dist/` |
+| `npm run preview` | Previews the production build |
+| `npm run check` | Runs Astro type checking |
+| `npm run optimize:images` | Compresses project screenshots |
+| `npm run optimize:og` | Regenerates the OG image |

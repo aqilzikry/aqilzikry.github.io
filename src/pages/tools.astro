@@ -1,6 +1,6 @@
 ---
-import MetaHead from '@components/general/MetaHead.astro';
 import SectionHeader from '@components/general/SectionHeader.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
 import Base64Converter from '@components/tools/Base64Converter.astro';
 import BudgetCalculator from '@components/tools/BudgetCalculator.astro';
 import ColorConverter from '@components/tools/ColorConverter.astro';
@@ -8,21 +8,13 @@ import JsonXmlValidator from '@components/tools/JsonXmlValidator.astro';
 import JwtDecoder from '@components/tools/JwtDecoder.astro';
 import TimezoneConverter from '@components/tools/TimezoneConverter.astro';
 import UrlConverter from '@components/tools/UrlConverter.astro';
-import Layout from '@layouts/Layout.astro';
 ---
 
-<!doctype html>
-<html lang='en'>
-  <head>
-    <MetaHead
-      title={'Tools'}
-      description={'Handy bits I use more than I probably should.'}
-      ogImageUrl={'/assets/images/profile.png'}
-    />
-  </head>
-
-  <body>
-    <Layout>
+<BaseLayout
+  title='Tools'
+  description='Handy bits I use more than I probably should.'
+  ogImageUrl='/assets/images/og-image.webp'
+>
       <SectionHeader
         as='h1'
         title='Tools'
@@ -325,120 +317,97 @@ import Layout from '@layouts/Layout.astro';
           </div>
         </div>
       </div>
-    </Layout>
 
-    <script is:inline>
-      document.addEventListener('astro:page-load', () => {
-        // Initialize tab functionality
+  <script slot='scripts' is:inline>
+      function showFirstToolInCategory(category) {
+        const firstPill = document.querySelector(`[data-category="${category}"].pill-button`);
+        if (!firstPill) return;
+
+        const categoryPills = document.querySelectorAll(`[data-category="${category}"].pill-button`);
+        categoryPills.forEach((pill) => pill.classList.remove('active'));
+
+        const categoryTools = document.querySelectorAll(`[data-category="${category}"].tool-panel`);
+        categoryTools.forEach((tool) => tool.classList.add('hidden'));
+
+        firstPill.classList.add('active');
+        const firstToolId = firstPill.getAttribute('data-tool');
+        const firstTool = document.getElementById(`tool-${firstToolId}`);
+        if (firstTool) firstTool.classList.remove('hidden');
+        if (firstToolId) window.ensureToolInit?.(firstToolId);
+      }
+
+      window.onPageLoad?.('tools-tabs', () => {
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanels = document.querySelectorAll('.tab-panel');
         const pillButtons = document.querySelectorAll('.pill-button');
-        const toolPanels = document.querySelectorAll('.tool-panel');
+        if (!tabButtons.length) return;
 
-        // Set initial active state
+        const handlers = [];
+
         const activeTab = document.querySelector('[data-tab="development"]');
-        if (activeTab) {
-          activeTab.classList.add('active');
-        }
+        if (activeTab) activeTab.classList.add('active');
 
-        // Tab functionality
         tabButtons.forEach((button) => {
-          button.addEventListener('click', () => {
+          const onTabClick = () => {
             const targetTab = button.getAttribute('data-tab');
             const targetPanel = document.getElementById(`panel-${targetTab}`);
 
-            // Remove active class from all buttons and hide all panels
             tabButtons.forEach((btn) => {
               btn.classList.remove('active');
               btn.setAttribute('aria-selected', 'false');
             });
+            tabPanels.forEach((panel) => panel.classList.add('hidden'));
 
-            tabPanels.forEach((panel) => {
-              panel.classList.add('hidden');
-            });
-
-            // Add active class to clicked button and show target panel
             button.classList.add('active');
             button.setAttribute('aria-selected', 'true');
-            targetPanel.classList.remove('hidden');
-
-            // Show first tool in the category
+            targetPanel?.classList.remove('hidden');
             showFirstToolInCategory(targetTab);
-          });
+          };
+          button.addEventListener('click', onTabClick);
+          handlers.push({ el: button, type: 'click', fn: onTabClick });
         });
 
-        // Pill button functionality
         pillButtons.forEach((button) => {
-          button.addEventListener('click', () => {
+          const onPillClick = () => {
             const targetTool = button.getAttribute('data-tool');
             const category = button.getAttribute('data-category');
 
-            // Remove active class from all pill buttons in the same category
-            const categoryPills = document.querySelectorAll(`[data-category="${category}"].pill-button`);
-            categoryPills.forEach((pill) => {
+            document.querySelectorAll(`[data-category="${category}"].pill-button`).forEach((pill) => {
               pill.classList.remove('active');
             });
-
-            // Hide all tools in the same category
-            const categoryTools = document.querySelectorAll(`[data-category="${category}"].tool-panel`);
-            categoryTools.forEach((tool) => {
+            document.querySelectorAll(`[data-category="${category}"].tool-panel`).forEach((tool) => {
               tool.classList.add('hidden');
             });
 
-            // Add active class to clicked pill and show target tool
             button.classList.add('active');
             const targetToolPanel = document.getElementById(`tool-${targetTool}`);
-            if (targetToolPanel) {
-              targetToolPanel.classList.remove('hidden');
-            }
-          });
+            if (targetToolPanel) targetToolPanel.classList.remove('hidden');
+            if (targetTool) window.ensureToolInit?.(targetTool);
+          };
+          button.addEventListener('click', onPillClick);
+          handlers.push({ el: button, type: 'click', fn: onPillClick });
         });
 
-        // Function to show first tool in category
-        function showFirstToolInCategory(category) {
-          const firstPill = document.querySelector(`[data-category="${category}"].pill-button`);
-          if (firstPill) {
-            // Remove active from all pills in category
-            const categoryPills = document.querySelectorAll(`[data-category="${category}"].pill-button`);
-            categoryPills.forEach((pill) => {
-              pill.classList.remove('active');
-            });
-
-            // Hide all tools in category
-            const categoryTools = document.querySelectorAll(`[data-category="${category}"].tool-panel`);
-            categoryTools.forEach((tool) => {
-              tool.classList.add('hidden');
-            });
-
-            // Activate first pill and show first tool
-            firstPill.classList.add('active');
-            const firstToolId = firstPill.getAttribute('data-tool');
-            const firstTool = document.getElementById(`tool-${firstToolId}`);
-            if (firstTool) {
-              firstTool.classList.remove('hidden');
-            }
-          }
-        }
-
-        // Keyboard navigation for tabs
         tabButtons.forEach((button, index) => {
-          button.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-              e.preventDefault();
-              const nextIndex =
-                e.key === 'ArrowRight'
-                  ? (index + 1) % tabButtons.length
-                  : (index - 1 + tabButtons.length) % tabButtons.length;
-
-              tabButtons[nextIndex].focus();
-              tabButtons[nextIndex].click();
-            }
-          });
+          const onKeydown = (e) => {
+            if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+            e.preventDefault();
+            const nextIndex =
+              e.key === 'ArrowRight'
+                ? (index + 1) % tabButtons.length
+                : (index - 1 + tabButtons.length) % tabButtons.length;
+            tabButtons[nextIndex].focus();
+            tabButtons[nextIndex].click();
+          };
+          button.addEventListener('keydown', onKeydown);
+          handlers.push({ el: button, type: 'keydown', fn: onKeydown });
         });
 
-        // Initialize with first tool visible
         showFirstToolInCategory('development');
+
+        return () => {
+          handlers.forEach(({ el, type, fn }) => el.removeEventListener(type, fn));
+        };
       });
-    </script>
-  </body>
-</html>
+  </script>
+</BaseLayout>

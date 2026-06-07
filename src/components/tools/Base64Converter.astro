@@ -61,16 +61,20 @@
   </div>
 </div>
 
-<script is:inline>
+<script>
+  import { copyWithButtonFeedback } from '../../scripts/clipboard';
+  import { base64Decode, base64Encode } from '../../scripts/encoding';
+  import { createStatusHelpers } from '../../scripts/status';
+
   function initBase64Converter() {
-    const base64Input = document.getElementById('base64Input');
-    const base64Output = document.getElementById('base64Output');
+    const base64Input = document.getElementById('base64Input') as HTMLTextAreaElement | null;
+    const base64Output = document.getElementById('base64Output') as HTMLTextAreaElement | null;
     const base64StatusMessage = document.getElementById('base64StatusMessage');
-    const base64ConvertBtn = document.getElementById('base64ConvertBtn');
-    const base64ClearBtn = document.getElementById('base64ClearBtn');
-    const base64CopyBtn = document.getElementById('base64CopyBtn');
-    const base64EncodeMode = document.getElementById('base64EncodeMode');
-    const base64DecodeMode = document.getElementById('base64DecodeMode');
+    const base64ConvertBtn = document.getElementById('base64ConvertBtn') as HTMLButtonElement | null;
+    const base64ClearBtn = document.getElementById('base64ClearBtn') as HTMLButtonElement | null;
+    const base64CopyBtn = document.getElementById('base64CopyBtn') as HTMLButtonElement | null;
+    const base64EncodeMode = document.getElementById('base64EncodeMode') as HTMLInputElement | null;
+    const base64DecodeMode = document.getElementById('base64DecodeMode') as HTMLInputElement | null;
 
     if (
       !base64Input ||
@@ -85,55 +89,35 @@
       return;
     }
 
-    function showStatus(message, type = 'info') {
-      base64StatusMessage.textContent = message;
-      base64StatusMessage.className = `p-3 rounded-control ${
-        type === 'error' ? 'status-error' : type === 'success' ? 'status-success' : 'status-info'
-      }`;
-    }
+    const status = createStatusHelpers(base64StatusMessage);
 
-    function hideStatus() {
-      base64StatusMessage.className = 'hidden p-3 rounded-control';
-    }
-
-    function base64Encode(str) {
-      const bytes = new TextEncoder().encode(str);
-      let binary = '';
-      bytes.forEach((b) => (binary += String.fromCharCode(b)));
-      return btoa(binary);
-    }
-
-    function base64Decode(str) {
-      const binary = atob(str.replace(/\s/g, ''));
-      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-      return new TextDecoder().decode(bytes);
-    }
-
-    function updateConvertButtonLabel() {
+    const updateConvertButtonLabel = () => {
       base64ConvertBtn.textContent = base64EncodeMode.checked ? 'Encode' : 'Decode';
-    }
+    };
 
     base64ConvertBtn.addEventListener('click', () => {
       const input = base64Input.value;
-      hideStatus();
+      status.hide();
 
       if (!input) {
-        showStatus('Please enter some text to convert.', 'error');
+        status.show('Please enter some text to convert.', 'error');
         return;
       }
 
       try {
         if (base64EncodeMode.checked) {
           base64Output.value = base64Encode(input);
-          showStatus('Encoded to Base64 successfully!', 'success');
+          status.show('Encoded to Base64 successfully!', 'success');
         } else {
           base64Output.value = base64Decode(input);
-          showStatus('Decoded from Base64 successfully!', 'success');
+          status.show('Decoded from Base64 successfully!', 'success');
         }
       } catch (error) {
         base64Output.value = '';
-        showStatus(
-          base64EncodeMode.checked ? `Encoding failed: ${error.message}` : `Decoding failed: invalid Base64 input.`,
+        status.show(
+          base64EncodeMode.checked
+            ? `Encoding failed: ${(error as Error).message}`
+            : 'Decoding failed: invalid Base64 input.',
           'error'
         );
       }
@@ -142,43 +126,35 @@
     base64ClearBtn.addEventListener('click', () => {
       base64Input.value = '';
       base64Output.value = '';
-      hideStatus();
+      status.hide();
     });
 
     base64CopyBtn.addEventListener('click', async () => {
       const output = base64Output.value;
       if (!output) {
-        showStatus('No output to copy.', 'error');
+        status.show('No output to copy.', 'error');
         return;
       }
 
-      try {
-        await navigator.clipboard.writeText(output);
-        showStatus('Output copied to clipboard!', 'success');
-        base64CopyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          base64CopyBtn.textContent = 'Copy Output';
-        }, 1000);
-      } catch {
-        showStatus('Failed to copy to clipboard.', 'error');
-      }
+      const copied = await copyWithButtonFeedback(output, base64CopyBtn, 'Copy Output');
+      status.show(copied ? 'Output copied to clipboard!' : 'Failed to copy to clipboard.', copied ? 'success' : 'error');
     });
 
     base64EncodeMode.addEventListener('change', () => {
       updateConvertButtonLabel();
       base64Output.value = '';
-      hideStatus();
+      status.hide();
     });
 
     base64DecodeMode.addEventListener('change', () => {
       updateConvertButtonLabel();
       base64Output.value = '';
-      hideStatus();
+      status.hide();
     });
 
     updateConvertButtonLabel();
   }
 
-  document.addEventListener('DOMContentLoaded', initBase64Converter);
-  document.addEventListener('astro:page-load', initBase64Converter);
+  import { registerToolInit } from '../../scripts/tools-registry';
+  registerToolInit('base64-converter', initBase64Converter);
 </script>

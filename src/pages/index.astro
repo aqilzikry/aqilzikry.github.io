@@ -1,15 +1,15 @@
 ---
 import { info } from '@data';
+import type { IProject } from '@types';
 
-import MetaHead from '@components/general/MetaHead.astro';
 import ProjectsWrapper from '@components/general/ProjectsWrapper.astro';
 import SectionHeader from '@components/general/SectionHeader.astro';
 import Experience from '@components/home/Experience.astro';
 import Hero from '@components/home/Hero.astro';
 import Technologies from '@components/home/Technologies.astro';
-import Layout from '@layouts/Layout.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
 
-const featureProjects = info.projects.reduce((accumulator, project) => {
+const featureProjects = info.projects.reduce<IProject[]>((accumulator, project) => {
   if (accumulator.length < 6 && project.isFeatured) {
     accumulator.push(project);
   }
@@ -28,162 +28,151 @@ const personSchema = {
 };
 ---
 
-<!doctype html>
-<html lang='en'>
-  <head>
-    <MetaHead
-      title={'Portfolio'}
-      description={info.about}
-      ogImageUrl={'/assets/images/profile.png'}
-      jsonLd={personSchema}
+<BaseLayout
+  title='Portfolio'
+  description={info.about}
+  ogImageUrl='/assets/images/og-image.webp'
+  jsonLd={personSchema}
+>
+  <Hero
+    name={info.name}
+    jobDescription={info.jobDescription}
+    about={info.about}
+    resumeUrl={info.resumeUrl}
+  />
+  <Experience
+    id='experience'
+    title='Experience'
+    subtitle="Where I've actually made a difference"
+    details={info.experience}
+    variant='experience'
+  />
+  <Experience
+    id='education'
+    title='Education'
+    subtitle='The school years that got me here'
+    details={info.education}
+    variant='education'
+  />
+  <Technologies />
+  <section class='flex items-start justify-between flex-col sm:flex-row dark:text-light'>
+    <SectionHeader
+      title='Featured Projects'
+      subtitle='A few favorites from the vault'
+      class='w-[15rem] mt-16 shrink-0'
     />
-  </head>
+    <div class='w-full'>
+      <ProjectsWrapper projects={featureProjects} />
+    </div>
+  </section>
 
-  <body>
-    <Layout>
-      <Hero
-        name={info.name}
-        jobDescription={info.jobDescription}
-        about={info.about}
-        resumeUrl={info.resumeUrl}
-      />
-      <Experience
-        id='experience'
-        title='Experience'
-        subtitle="Where I've actually made a difference"
-        details={info.experience}
-        variant='experience'
-      />
-      <Experience
-        id='education'
-        title='Education'
-        subtitle='The school years that got me here'
-        details={info.education}
-        variant='education'
-      />
-      <Technologies />
-      <section class='flex items-start justify-between flex-col sm:flex-row dark:text-light'>
-        <SectionHeader
-          title='Featured Projects'
-          subtitle='A few favorites from the vault'
-          class='w-[15rem] mt-16 shrink-0'
-        />
-        <div class='w-full'>
-          <ProjectsWrapper projects={featureProjects} />
-        </div>
-      </section>
-    </Layout>
+  <script slot='scripts' is:inline>
+    function applyTechFilter(section, filter, activeButton) {
+      const buttons = section.querySelectorAll('[data-tech-filter]');
+      const cards = section.querySelectorAll('.tech-card');
 
-    <script is:inline>
-      function applyTechFilter(section, filter, activeButton) {
-        const buttons = section.querySelectorAll('[data-tech-filter]');
-        const cards = section.querySelectorAll('.tech-card');
+      buttons.forEach((btn) => {
+        const isActive = btn === activeButton;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
 
-        buttons.forEach((btn) => {
-          const isActive = btn === activeButton;
-          btn.classList.toggle('active', isActive);
-          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-        });
-
-        cards.forEach((card) => {
-          const category = card.dataset.category;
-          const show = filter === 'all' || category === filter;
-          card.classList.toggle('tech-card--hidden', !show);
-          if (show) {
-            card.classList.add('is-visible');
-          }
-        });
-      }
-
-      function initTechScrollAnimation() {
-        const section = document.getElementById('tech-stack');
-        if (!section) return;
-
-        const cards = section.querySelectorAll('.tech-card:not([data-tech-observed])');
-        if (!cards.length) return;
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        if (prefersReducedMotion) {
-          cards.forEach((card) => {
-            card.dataset.techObserved = 'true';
-            card.classList.add('is-visible');
-          });
-          return;
+      cards.forEach((card) => {
+        const category = card.dataset.category;
+        const show = filter === 'all' || category === filter;
+        card.classList.toggle('tech-card--hidden', !show);
+        if (show) {
+          card.classList.add('is-visible');
         }
+      });
+    }
 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (!entry.isIntersecting) return;
-              entry.target.classList.add('is-visible');
-              observer.unobserve(entry.target);
-            });
-          },
-          { threshold: 0.1, rootMargin: '0px 0px -4% 0px' }
-        );
+    function initTechScrollAnimation() {
+      const section = document.getElementById('tech-stack');
+      if (!section) return;
 
+      const cards = section.querySelectorAll('.tech-card:not([data-tech-observed])');
+      if (!cards.length) return;
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (prefersReducedMotion) {
         cards.forEach((card) => {
           card.dataset.techObserved = 'true';
-          observer.observe(card);
+          card.classList.add('is-visible');
         });
+        return;
       }
 
-      function initTechStack() {
-        initTechScrollAnimation();
-      }
-
-      if (!window.__techStackClickBound) {
-        window.__techStackClickBound = true;
-
-        document.addEventListener('click', (event) => {
-          const button = event.target.closest('[data-tech-filter]');
-          if (!button) return;
-
-          const section = button.closest('#tech-stack');
-          if (!section) return;
-
-          applyTechFilter(section, button.dataset.techFilter, button);
-        });
-      }
-
-      function initTimelineAnimations() {
-        const items = document.querySelectorAll('.timeline-item:not([data-timeline-observed])');
-        if (!items.length) return;
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        if (prefersReducedMotion) {
-          items.forEach((item) => {
-            item.dataset.timelineObserved = 'true';
-            item.classList.add('is-visible');
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
           });
-          return;
-        }
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -4% 0px' }
+      );
 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (!entry.isIntersecting) return;
-              entry.target.classList.add('is-visible');
-              observer.unobserve(entry.target);
-            });
-          },
-          { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
-        );
+      cards.forEach((card) => {
+        card.dataset.techObserved = 'true';
+        observer.observe(card);
+      });
+    }
 
+    function initTechStack() {
+      initTechScrollAnimation();
+    }
+
+    if (!window.__techStackClickBound) {
+      window.__techStackClickBound = true;
+
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-tech-filter]');
+        if (!button) return;
+
+        const section = button.closest('#tech-stack');
+        if (!section) return;
+
+        applyTechFilter(section, button.dataset.techFilter, button);
+      });
+    }
+
+    function initTimelineAnimations() {
+      const items = document.querySelectorAll('.timeline-item:not([data-timeline-observed])');
+      if (!items.length) return;
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (prefersReducedMotion) {
         items.forEach((item) => {
           item.dataset.timelineObserved = 'true';
-          observer.observe(item);
+          item.classList.add('is-visible');
         });
+        return;
       }
 
-      document.addEventListener('astro:page-load', () => {
-        initTimelineAnimations();
-        initTechStack();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+      );
+
+      items.forEach((item) => {
+        item.dataset.timelineObserved = 'true';
+        observer.observe(item);
       });
+    }
+
+    window.onPageLoad?.('home-animations', () => {
       initTimelineAnimations();
       initTechStack();
-    </script>
-  </body>
-</html>
+    });
+  </script>
+</BaseLayout>

@@ -6,6 +6,11 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: 'https://aqilzikry.github.io',
+  output: 'static',
+  compressHTML: true,
+  build: {
+    inlineStylesheets: 'auto',
+  },
   integrations: [
     tailwind(),
     sitemap({

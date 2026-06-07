@@ -1,5 +1,5 @@
 ---
-import { IProjects } from "@types";
+import type { IProjects } from "@types";
 import ProjectCard from "./ProjectCard.astro";
 
 const { projects } = Astro.props as IProjects;
@@ -38,6 +38,5 @@ const { projects } = Astro.props as IProjects;
     });
   }
 
-  document.addEventListener('astro:page-load', initProjectCardTilt);
-  initProjectCardTilt();
+  window.onPageLoad?.('project-card-tilt', initProjectCardTilt);
 </script>

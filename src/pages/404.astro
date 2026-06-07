@@ -1,0 +1,18 @@
+---
+import SectionHeader from '@components/general/SectionHeader.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title='Page Not Found'
+  description='The page you are looking for does not exist.'
+  ogImageUrl='/assets/images/og-image.webp'
+>
+  <SectionHeader
+    as='h1'
+    title='404'
+    subtitle="This page doesn't exist — but plenty of other things do."
+    class='mb-8'
+  />
+  <a href='/' class='btn-primary inline-flex px-5 py-2.5 text-sm font-medium'>Back to home</a>
+</BaseLayout>

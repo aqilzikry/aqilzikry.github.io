@@ -2,6 +2,8 @@
 import Footer from '@components/general/Footer.astro';
 import Navbar from '@components/general/Navbar.astro';
 import '../styles/style.css';
+import '../scripts/dom';
+import '../scripts/tools-registry';
 ---
 
 <Navbar />
@@ -31,53 +33,16 @@ import '../styles/style.css';
   </svg>
 </button>
 
+<script>
+  import { initCopyEmail } from '../scripts/copy-email';
+  initCopyEmail();
+</script>
+
 <script is:inline>
-  if (!window.__copyEmailClickBound) {
-    window.__copyEmailClickBound = true;
-
-    document.addEventListener('click', async (event) => {
-      const button = event.target.closest('.copy-email-btn');
-      if (!button) return;
-
-      const wrap = button.closest('.copy-email-wrap');
-      const email = button.dataset.email;
-      if (!email) return;
-
-      event.preventDefault();
-
-      let copied = false;
-
-      try {
-        await navigator.clipboard.writeText(email);
-        copied = true;
-      } catch {
-        const textarea = document.createElement('textarea');
-        textarea.value = email;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'absolute';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        copied = document.execCommand('copy');
-        document.body.removeChild(textarea);
-      }
-
-      if (!copied) {
-        window.location.href = `mailto:${email}`;
-        return;
-      }
-
-      if (wrap) {
-        wrap.classList.add('is-copied');
-        window.setTimeout(() => wrap.classList.remove('is-copied'), 1800);
-      }
-    });
-  }
-
-  document.addEventListener('astro:page-load', () => {
+  window.onPageLoad?.('scroll-to-top', () => {
     const scrollToTopBtn = document.getElementById('scroll-to-top');
+    if (!scrollToTopBtn) return;
 
-    // Show/hide button based on scroll position
     function toggleScrollButton() {
       if (window.pageYOffset > 300) {
         scrollToTopBtn.classList.remove('opacity-0', 'invisible');
@@ -88,19 +53,17 @@ import '../styles/style.css';
       }
     }
 
-    // Smooth scroll to top
     function scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Event listeners
-    window.addEventListener('scroll', toggleScrollButton);
+    window.addEventListener('scroll', toggleScrollButton, { passive: true });
     scrollToTopBtn.addEventListener('click', scrollToTop);
-
-    // Initial check
     toggleScrollButton();
+
+    return () => {
+      window.removeEventListener('scroll', toggleScrollButton);
+      scrollToTopBtn.removeEventListener('click', scrollToTop);
+    };
   });
 </script>

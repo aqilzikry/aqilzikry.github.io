@@ -1,8 +1,10 @@
 ---
-import { IHeroProps } from '@types';
+import type { IHeroProps } from '@types';
 import SocialLinks from '@components/general/SocialLinks.astro';
 
-const { name, jobDescription, about, resumeUrl } = Astro.props as IHeroProps;
+interface Props extends IHeroProps {}
+
+const { name, jobDescription, about, resumeUrl } = Astro.props;
 ---
 
 <section id='about' class='scroll-mt-28'>
@@ -46,51 +48,63 @@ const { name, jobDescription, about, resumeUrl } = Astro.props as IHeroProps;
   }
 </style>
 
-<script is:inline define:vars={{ name }}>
-  document.addEventListener('astro:page-load', () => {
+<script is:inline define:vars={{ heroName: name }}>
+  window.onPageLoad?.('hero-typing', () => {
     const typingElement = document.getElementById('typing-name');
     const cursorElement = document.getElementById('cursor');
     if (!typingElement || !cursorElement) return;
 
-    const fullName = name;
+    const fullName = heroName;
     let currentText = '';
     let isDeleting = false;
     let charIndex = 0;
     let cursorVisible = true;
+    let cancelled = false;
+    const timeouts = [];
 
-    // Cursor blinking function
+    function schedule(fn, delay) {
+      const id = setTimeout(fn, delay);
+      timeouts.push(id);
+      return id;
+    }
+
     function blinkCursor() {
       cursorVisible = !cursorVisible;
       cursorElement.style.opacity = cursorVisible ? '1' : '0';
     }
 
-    // Start cursor blinking immediately
     const cursorInterval = setInterval(blinkCursor, 500);
 
     function typeWriter() {
+      if (cancelled) return;
+
       if (!isDeleting && charIndex < fullName.length) {
-        // Typing
         currentText += fullName.charAt(charIndex);
         typingElement.textContent = currentText;
         charIndex++;
-        setTimeout(typeWriter, 80);
+        schedule(typeWriter, 80);
       } else if (isDeleting && charIndex > 0) {
-        // Deleting
         currentText = fullName.substring(0, charIndex - 1);
         typingElement.textContent = currentText;
         charIndex--;
-        setTimeout(typeWriter, 40);
+        schedule(typeWriter, 40);
       } else if (charIndex === fullName.length && !isDeleting) {
-        setTimeout(() => {
+        schedule(() => {
           isDeleting = true;
           typeWriter();
         }, 1500);
       } else if (isDeleting && charIndex === 0) {
         isDeleting = false;
-        setTimeout(typeWriter, 500);
+        schedule(typeWriter, 500);
       }
     }
 
-    setTimeout(typeWriter, 300);
+    schedule(typeWriter, 300);
+
+    return () => {
+      cancelled = true;
+      clearInterval(cursorInterval);
+      timeouts.forEach(clearTimeout);
+    };
   });
 </script>

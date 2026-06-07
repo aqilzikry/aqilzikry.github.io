@@ -25,6 +25,7 @@
         Add Timezone
       </button>
     </div>
+    <div id='timezoneStatusMessage' class='hidden p-3 rounded-control mt-3'></div>
   </div>
 
   <!-- Global Legend -->
@@ -72,16 +73,32 @@
   </div>
 </div>
 
-<script is:inline>
-  document.addEventListener('astro:page-load', () => {
-    const timezoneSelect = document.getElementById('timezone-select');
-    const addBtn = document.getElementById('add-timezone-btn');
-    const cardsContainer = document.getElementById('timezone-cards');
-    const emptyState = document.getElementById('empty-state');
-    const globalLegend = document.getElementById('global-legend');
+<script>
+  import { registerToolInit } from '../../scripts/tools-registry';
+  import { createStatusHelpers } from '../../scripts/status';
 
-    let timezones = [];
-    let updateInterval;
+  interface TimezoneEntry {
+    id: number;
+    timezone: string;
+    city: string;
+  }
+
+  function initTimezoneConverter() {
+    const timezoneSelect = document.getElementById('timezone-select') as HTMLSelectElement | null;
+    const addBtn = document.getElementById('add-timezone-btn') as HTMLButtonElement | null;
+    const cardsContainer = document.getElementById('timezone-cards') as HTMLElement | null;
+    const emptyState = document.getElementById('empty-state') as HTMLElement | null;
+    const globalLegend = document.getElementById('global-legend') as HTMLElement | null;
+    const timezoneStatusMessage = document.getElementById('timezoneStatusMessage');
+
+    if (!timezoneSelect || !addBtn || !cardsContainer || !emptyState || !globalLegend || !timezoneStatusMessage) {
+      return;
+    }
+
+    const status = createStatusHelpers(timezoneStatusMessage);
+
+    let timezones: TimezoneEntry[] = [];
+    let updateInterval: ReturnType<typeof setInterval> | undefined;
 
     // Comprehensive timezone list with GMT offsets
     const timezoneList = [
@@ -138,14 +155,13 @@
       { tz: 'Pacific/Tongatapu', name: 'Tongatapu', offset: 13 },
     ];
 
-    // City name mapping (for backwards compatibility)
-    const cityNames = {};
+    const cityNames: Record<string, string> = {};
     timezoneList.forEach((tz) => {
       cityNames[tz.tz] = tz.name;
     });
 
     // Populate timezone selector
-    function populateTimezoneSelector() {
+    const populateTimezoneSelector = () => {
       // Sort by GMT offset
       const sortedTimezones = [...timezoneList].sort((a, b) => a.offset - b.offset);
 
@@ -159,19 +175,17 @@
         option.textContent = `${tz.name} (GMT${offsetStr})`;
         timezoneSelect.appendChild(option);
       });
-    }
+    };
 
-    // Get user's current timezone
-    function getCurrentTimezone() {
+    const getCurrentTimezone = () => {
       try {
         return Intl.DateTimeFormat().resolvedOptions().timeZone;
       } catch (e) {
-        return 'UTC'; // Fallback
+        return 'UTC';
       }
-    }
+    };
 
-    // Add current timezone automatically
-    function addCurrentTimezone() {
+    const addCurrentTimezone = () => {
       const currentTz = getCurrentTimezone();
       const currentTzInfo = timezoneList.find((tz) => tz.tz === currentTz);
 
@@ -184,10 +198,9 @@
         updateTimezoneCards();
         toggleEmptyState();
       }
-    }
+    };
 
-    // Get hour color based on time of day
-    function getHourColor(hour) {
+    const getHourColor = (hour: number) => {
       if (hour >= 22 || hour < 6) {
         // Night time (10 PM - 6 AM)
         return 'time-night';
@@ -198,10 +211,9 @@
         // Day time non-working hours (6 AM - 8 AM, 6 PM - 10 PM)
         return 'time-day';
       }
-    }
+    };
 
-    // Create 24-hour activity tracker
-    function create24HourTracker(timezoneData) {
+    const create24HourTracker = (timezoneData: TimezoneEntry) => {
       const now = new Date();
 
       // Calculate exact start and end times (12 hours ago and 12 hours later)
@@ -281,22 +293,23 @@
       trackerContainer.appendChild(trackerContainer_inner);
 
       return trackerContainer;
-    }
+    };
 
-    // Add timezone function
-    function addTimezone() {
+    const addTimezone = () => {
       const selectedTimezone = timezoneSelect.value;
 
       if (!selectedTimezone) {
-        alert('Please select a timezone');
+        status.show('Please select a timezone.', 'error');
         return;
       }
 
       // Check if timezone already exists
       if (timezones.find((tz) => tz.timezone === selectedTimezone)) {
-        alert('This timezone is already added');
+        status.show('This timezone is already added.', 'error');
         return;
       }
+
+      status.hide();
 
       // Add to timezones array
       timezones.push({
@@ -311,21 +324,18 @@
       // Update display
       updateTimezoneCards();
       toggleEmptyState();
-    }
+    };
 
-    // Remove timezone function
-    function removeTimezone(id) {
+    const removeTimezone = (id: number) => {
       timezones = timezones.filter((tz) => tz.id !== id);
       updateTimezoneCards();
       toggleEmptyState();
-    }
+    };
 
-    // Create timezone card with proper styling
-    function createTimezoneCard(timezoneData) {
+    const createTimezoneCard = (timezoneData: TimezoneEntry) => {
       const now = new Date();
 
-      // Get time in the specific timezone
-      const timeOptions = {
+      const timeOptions: Intl.DateTimeFormatOptions = {
         timeZone: timezoneData.timezone,
         hour12: true,
         hour: '2-digit',
@@ -333,7 +343,7 @@
         second: '2-digit',
       };
 
-      const dateOptions = {
+      const dateOptions: Intl.DateTimeFormatOptions = {
         timeZone: timezoneData.timezone,
         weekday: 'long',
         year: 'numeric',
@@ -362,7 +372,7 @@
 
       // Create the card element
       const cardDiv = document.createElement('div');
-      cardDiv.setAttribute('data-id', timezoneData.id);
+      cardDiv.setAttribute('data-id', String(timezoneData.id));
       cardDiv.className = 'w-full surface-card p-6';
 
       cardDiv.innerHTML = `
@@ -392,10 +402,9 @@
       cardDiv.appendChild(tracker);
 
       return cardDiv;
-    }
+    };
 
-    // Update all timezone cards
-    function updateTimezoneCards() {
+    const updateTimezoneCards = () => {
       // Clear existing cards
       cardsContainer.innerHTML = '';
 
@@ -404,10 +413,9 @@
         const cardElement = createTimezoneCard(tz);
         cardsContainer.appendChild(cardElement);
       });
-    }
+    };
 
-    // Toggle empty state visibility
-    function toggleEmptyState() {
+    const toggleEmptyState = () => {
       if (timezones.length === 0) {
         emptyState.style.display = 'block';
         cardsContainer.style.display = 'none';
@@ -417,9 +425,8 @@
         cardsContainer.style.display = 'block';
         globalLegend.classList.remove('hidden');
       }
-    }
+    };
 
-    // Make functions global so they can be called from HTML
     window.removeTimezone = removeTimezone;
 
     // Event listeners
@@ -432,20 +439,19 @@
     });
 
     // Update times every second
-    function startUpdating() {
+    const startUpdating = () => {
       updateInterval = setInterval(() => {
         if (timezones.length > 0) {
           updateTimezoneCards();
         }
       }, 1000);
-    }
+    };
 
-    // Stop updating when component is not visible
-    function stopUpdating() {
+    const stopUpdating = () => {
       if (updateInterval) {
         clearInterval(updateInterval);
       }
-    }
+    };
 
     // Initialize
     populateTimezoneSelector();
@@ -453,7 +459,9 @@
     toggleEmptyState();
     startUpdating();
 
-    // Cleanup on page unload
     window.addEventListener('beforeunload', stopUpdating);
-  });
+
+  }
+
+  registerToolInit('timezone-converter', initTimezoneConverter);
 </script>

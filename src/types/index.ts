@@ -1,3 +1,27 @@
+export interface ITechnology {
+  name: string;
+  icon: string;
+}
+
+export interface ISocialMedia {
+  github: string;
+  email: string;
+  linkedin: string;
+}
+
+export interface IInfo {
+  baseUrl: string;
+  name: string;
+  jobDescription: string;
+  about: string;
+  resumeUrl: string;
+  experience: IExperience[];
+  education: IExperience[];
+  socialMedia: ISocialMedia;
+  projects: IProject[];
+  technologies: ITechnology[];
+}
+
 export interface IMetaHead {
   title: string;
   description: string;
@@ -27,6 +51,7 @@ export interface IExperiences {
 }
 
 export interface IProject {
+  id: string;
   title: string;
   isFeatured: boolean;
   thumbnail: string;

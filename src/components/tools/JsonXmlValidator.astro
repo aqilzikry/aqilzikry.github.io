@@ -116,22 +116,26 @@
   </div>
 </div>
 
-<script is:inline>
+<script>
+  import { copyWithButtonFeedback } from '../../scripts/clipboard';
+  import { createStatusHelpers } from '../../scripts/status';
+  import { createTreeNode } from '../../scripts/tree';
+
   function initJsonXmlValidator() {
-    const inputData = document.getElementById('inputData');
-    const outputData = document.getElementById('outputData');
-    const treeContainer = document.getElementById('treeContainer');
-    const normalOutput = document.getElementById('normalOutput');
-    const treeOutput = document.getElementById('treeOutput');
+    const inputData = document.getElementById('inputData') as HTMLTextAreaElement | null;
+    const outputData = document.getElementById('outputData') as HTMLTextAreaElement | null;
+    const treeContainer = document.getElementById('treeContainer') as HTMLElement | null;
+    const normalOutput = document.getElementById('normalOutput') as HTMLElement | null;
+    const treeOutput = document.getElementById('treeOutput') as HTMLElement | null;
     const statusMessage = document.getElementById('statusMessage');
-    const validateBtn = document.getElementById('validateBtn');
-    const formatBtn = document.getElementById('formatBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const copyBtn = document.getElementById('copyBtn');
-    const jsonFormat = document.getElementById('jsonFormat');
-    const xmlFormat = document.getElementById('xmlFormat');
-    const normalMode = document.getElementById('normalMode');
-    const treeMode = document.getElementById('treeMode');
+    const validateBtn = document.getElementById('validateBtn') as HTMLButtonElement | null;
+    const formatBtn = document.getElementById('formatBtn') as HTMLButtonElement | null;
+    const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement | null;
+    const copyBtn = document.getElementById('copyBtn') as HTMLButtonElement | null;
+    const jsonFormat = document.getElementById('jsonFormat') as HTMLInputElement | null;
+    const xmlFormat = document.getElementById('xmlFormat') as HTMLInputElement | null;
+    const normalMode = document.getElementById('normalMode') as HTMLInputElement | null;
+    const treeMode = document.getElementById('treeMode') as HTMLInputElement | null;
 
     if (
       !inputData ||
@@ -152,22 +156,9 @@
       return;
     }
 
-    function showStatus(message, type = 'info') {
-      statusMessage.textContent = message;
-      statusMessage.className = `p-3 rounded-control ${
-        type === 'error'
-          ? 'status-error'
-          : type === 'success'
-            ? 'status-success'
-            : 'status-info'
-      }`;
-    }
+    const status = createStatusHelpers(statusMessage);
 
-    function hideStatus() {
-      statusMessage.className = 'hidden p-3 rounded-control';
-    }
-
-    function updateViewMode() {
+    const updateViewMode = () => {
       if (treeMode.checked) {
         normalOutput.classList.add('hidden');
         treeOutput.classList.remove('hidden');
@@ -175,18 +166,21 @@
         normalOutput.classList.remove('hidden');
         treeOutput.classList.add('hidden');
       }
-    }
+    };
 
-    function validateJson(jsonString) {
+    const getErrorMessage = (error: unknown): string =>
+      error instanceof Error ? error.message : String(error);
+
+    function validateJson(jsonString: string) {
       try {
         JSON.parse(jsonString);
-        return { valid: true, error: null };
+        return { valid: true, error: null as string | null };
       } catch (error) {
-        return { valid: false, error: error.message };
+        return { valid: false, error: getErrorMessage(error) };
       }
     }
 
-    function validateXml(xmlString) {
+    function validateXml(xmlString: string) {
       try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(xmlString, 'application/xml');
@@ -194,22 +188,22 @@
         if (parserError) {
           return { valid: false, error: parserError.textContent };
         }
-        return { valid: true, error: null };
+        return { valid: true, error: null as string | null };
       } catch (error) {
-        return { valid: false, error: error.message };
+        return { valid: false, error: getErrorMessage(error) };
       }
     }
 
-    function formatJson(jsonString) {
+    function formatJson(jsonString: string) {
       try {
         const parsed = JSON.parse(jsonString);
         return JSON.stringify(parsed, null, 2);
       } catch (error) {
-        throw new Error(`JSON formatting error: ${error.message}`);
+        throw new Error(`JSON formatting error: ${getErrorMessage(error)}`);
       }
     }
 
-    function formatXml(xmlString) {
+    function formatXml(xmlString: string) {
       try {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
@@ -238,49 +232,27 @@
 
         return indentedLines.join('\n');
       } catch (error) {
-        throw new Error(`XML formatting error: ${error.message}`);
+        throw new Error(`XML formatting error: ${getErrorMessage(error)}`);
       }
     }
 
-    function createCollapsibleJsonTree(obj, level = 0) {
-      const createNode = (content, isExpandable = false, isExpanded = true) => {
-        const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
-        const toggleIcon = isExpandable
-          ? `<span class="tree-toggle cursor-pointer mr-1 syntax-muted hover:text-accent" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
-          : '<span class="ml-3"></span>';
-
-        const nodeDiv = document.createElement('div');
-        nodeDiv.className = 'tree-node';
-        nodeDiv.style.marginLeft = `${level * 20}px`;
-        nodeDiv.innerHTML = `${toggleIcon}${content}`;
-
-        if (isExpandable) {
-          const childrenDiv = document.createElement('div');
-          childrenDiv.className = 'tree-children';
-          childrenDiv.id = nodeId;
-          childrenDiv.style.display = isExpanded ? 'block' : 'none';
-          nodeDiv.appendChild(childrenDiv);
-          return { nodeDiv, childrenDiv };
-        }
-
-        return { nodeDiv };
-      };
-
+    const createCollapsibleJsonTree = (obj: unknown, level = 0): HTMLDivElement => {
       if (obj === null) {
-        const { nodeDiv } = createNode('<span class="syntax-muted">null</span>');
+        const { nodeDiv } = createTreeNode('<span class="syntax-muted">null</span>', level);
         return nodeDiv;
       } else if (typeof obj === 'boolean') {
-        const { nodeDiv } = createNode(`<span class="syntax-value">${obj}</span>`);
+        const { nodeDiv } = createTreeNode(`<span class="syntax-value">${obj}</span>`, level);
         return nodeDiv;
       } else if (typeof obj === 'number') {
-        const { nodeDiv } = createNode(`<span class="syntax-success">${obj}</span>`);
+        const { nodeDiv } = createTreeNode(`<span class="syntax-success">${obj}</span>`, level);
         return nodeDiv;
       } else if (typeof obj === 'string') {
-        const { nodeDiv } = createNode(`<span class="syntax-error">"${obj}"</span>`);
+        const { nodeDiv } = createTreeNode(`<span class="syntax-error">"${obj}"</span>`, level);
         return nodeDiv;
       } else if (Array.isArray(obj)) {
-        const { nodeDiv, childrenDiv } = createNode(
+        const { nodeDiv, childrenDiv } = createTreeNode(
           `<span class="syntax-muted">Array (${obj.length} items)</span>`,
+          level,
           true,
           level < 2
         );
@@ -297,15 +269,16 @@
           const itemNode = createCollapsibleJsonTree(item, level + 1);
 
           itemContainer.appendChild(indexLabel);
-          itemContainer.appendChild(itemNode);
-          childrenDiv.appendChild(itemContainer);
+          if (itemNode) itemContainer.appendChild(itemNode);
+          childrenDiv?.appendChild(itemContainer);
         });
 
         return nodeDiv;
       } else if (typeof obj === 'object') {
         const keys = Object.keys(obj);
-        const { nodeDiv, childrenDiv } = createNode(
+        const { nodeDiv, childrenDiv } = createTreeNode(
           `<span class="syntax-muted">Object (${keys.length} properties)</span>`,
+          level,
           true,
           level < 2
         );
@@ -319,42 +292,21 @@
           keyLabel.className = 'syntax-key mr-2 font-semibold';
           keyLabel.textContent = `"${key}":`;
 
-          const valueNode = createCollapsibleJsonTree(obj[key], level + 1);
+          const valueNode = createCollapsibleJsonTree((obj as Record<string, unknown>)[key], level + 1);
 
           propertyContainer.appendChild(keyLabel);
           propertyContainer.appendChild(valueNode);
-          childrenDiv.appendChild(propertyContainer);
+          childrenDiv?.appendChild(propertyContainer);
         });
 
         return nodeDiv;
       }
-    }
 
-    function createCollapsibleXmlTree(node, level = 0) {
-      const createNode = (content, isExpandable = false, isExpanded = true) => {
-        const nodeId = `node-${Math.random().toString(36).substr(2, 9)}`;
-        const toggleIcon = isExpandable
-          ? `<span class="tree-toggle cursor-pointer mr-1 syntax-muted hover:text-accent" data-node="${nodeId}">${isExpanded ? '▼' : '▶'}</span>`
-          : '<span class="ml-3"></span>';
+      const { nodeDiv } = createTreeNode('<span class="syntax-muted">undefined</span>', level);
+      return nodeDiv;
+    };
 
-        const nodeDiv = document.createElement('div');
-        nodeDiv.className = 'tree-node';
-        nodeDiv.style.marginLeft = `${level * 20}px`;
-        nodeDiv.innerHTML = `${toggleIcon}${content}`;
-
-        if (isExpandable) {
-          const childrenDiv = document.createElement('div');
-          childrenDiv.className = 'tree-children';
-          childrenDiv.id = nodeId;
-          childrenDiv.style.display = isExpanded ? 'block' : 'none';
-          nodeDiv.appendChild(childrenDiv);
-          return { nodeDiv, childrenDiv };
-        }
-
-        return { nodeDiv };
-      };
-
-      if (node.nodeType === Node.ELEMENT_NODE) {
+    const createCollapsibleXmlTree = (node: Element, level = 0): HTMLDivElement => {
         const tagName = node.tagName.toLowerCase();
         let content = `<span class="syntax-value">&lt;${tagName}</span>`;
 
@@ -369,45 +321,44 @@
 
         const hasChildren = node.childNodes.length > 0;
         const textContent = Array.from(node.childNodes)
-          .filter((child) => child.nodeType === Node.TEXT_NODE)
-          .map((child) => child.textContent.trim())
+          .filter((child): child is ChildNode => child.nodeType === Node.TEXT_NODE)
+          .map((child) => child.textContent?.trim() ?? '')
           .filter((text) => text)
           .join(' ');
 
-        if (!hasChildren || (hasChildren && !textContent && node.children.length === 0)) {
+        if (!hasChildren || (hasChildren && !textContent && node.childElementCount === 0)) {
           content = content.replace('&gt;', '/&gt;');
-          const { nodeDiv } = createNode(content);
+          const { nodeDiv } = createTreeNode(content, level);
           return nodeDiv;
         }
 
-        const { nodeDiv, childrenDiv } = createNode(content, true, level < 3);
+        const { nodeDiv, childrenDiv } = createTreeNode(content, level, true, level < 3);
 
         // Add text content if any
         if (textContent) {
           const textNode = document.createElement('div');
           textNode.style.marginLeft = '20px';
           textNode.innerHTML = `<span class="ml-3"></span><span class="syntax-muted">${textContent}</span>`;
-          childrenDiv.appendChild(textNode);
+          childrenDiv?.appendChild(textNode);
         }
 
         // Add child elements
-        Array.from(node.children).forEach((child) => {
-          const childNode = createCollapsibleXmlTree(child, level + 1);
-          childrenDiv.appendChild(childNode);
-        });
+        Array.from(node.childNodes)
+          .filter((child): child is Element => child.nodeType === Node.ELEMENT_NODE)
+          .forEach((child) => {
+            const childNode = createCollapsibleXmlTree(child, level + 1);
+            childrenDiv?.appendChild(childNode);
+          });
 
         // Add closing tag
         const closingDiv = document.createElement('div');
         closingDiv.innerHTML = `<span class="ml-3"></span><span class="syntax-value">&lt;/${tagName}&gt;</span>`;
-        childrenDiv.appendChild(closingDiv);
+        childrenDiv?.appendChild(closingDiv);
 
         return nodeDiv;
-      }
+    };
 
-      return document.createElement('div');
-    }
-
-    function generateTreeView(data, format) {
+    const generateTreeView = (data: string, format: 'json' | 'xml') => {
       treeContainer.innerHTML = '';
 
       try {
@@ -420,25 +371,25 @@
           const xmlDoc = parser.parseFromString(data, 'application/xml');
           const parserError = xmlDoc.querySelector('parsererror');
           if (parserError) {
-            throw new Error(parserError.textContent);
+            throw new Error(parserError.textContent ?? 'Invalid XML');
           }
           const treeNode = createCollapsibleXmlTree(xmlDoc.documentElement);
           treeContainer.appendChild(treeNode);
         }
 
-        // Add click handlers for tree toggles
         addTreeToggleHandlers();
       } catch (error) {
-        treeContainer.innerHTML = `<span class="syntax-error">Error generating tree view: ${error.message}</span>`;
+        treeContainer.innerHTML = `<span class="syntax-error">Error generating tree view: ${getErrorMessage(error)}</span>`;
       }
-    }
+    };
 
-    function addTreeToggleHandlers() {
+    const addTreeToggleHandlers = () => {
       const toggles = treeContainer.querySelectorAll('.tree-toggle');
       toggles.forEach((toggle) => {
         toggle.addEventListener('click', (e) => {
           e.stopPropagation();
           const nodeId = toggle.getAttribute('data-node');
+          if (!nodeId) return;
           const childrenDiv = document.getElementById(nodeId);
 
           if (childrenDiv) {
@@ -448,13 +399,13 @@
           }
         });
       });
-    }
+    };
 
     // Event listeners
     validateBtn.addEventListener('click', () => {
       const data = inputData.value.trim();
       if (!data) {
-        showStatus('Please enter some data to validate.', 'error');
+        status.show('Please enter some data to validate.', 'error');
         return;
       }
 
@@ -468,13 +419,13 @@
       }
 
       if (result.valid) {
-        showStatus(`Valid ${format.toUpperCase()}!`, 'success');
+        status.show(`Valid ${format.toUpperCase()}!`, 'success');
         outputData.value = data;
         if (treeMode.checked) {
           generateTreeView(data, format);
         }
       } else {
-        showStatus(`Invalid ${format.toUpperCase()}: ${result.error}`, 'error');
+        status.show(`Invalid ${format.toUpperCase()}: ${result.error}`, 'error');
         outputData.value = '';
         treeContainer.innerHTML = '';
       }
@@ -483,7 +434,7 @@
     formatBtn.addEventListener('click', () => {
       const data = inputData.value.trim();
       if (!data) {
-        showStatus('Please enter some data to format.', 'error');
+        status.show('Please enter some data to format.', 'error');
         return;
       }
 
@@ -498,13 +449,13 @@
         }
 
         outputData.value = formatted;
-        showStatus(`${format.toUpperCase()} formatted successfully!`, 'success');
+        status.show(`${format.toUpperCase()} formatted successfully!`, 'success');
 
         if (treeMode.checked) {
           generateTreeView(formatted, format);
         }
       } catch (error) {
-        showStatus(error.message, 'error');
+        status.show((error as Error).message, 'error');
         outputData.value = '';
         treeContainer.innerHTML = '';
       }
@@ -514,29 +465,19 @@
       inputData.value = '';
       outputData.value = '';
       treeContainer.innerHTML = '';
-      hideStatus();
+      status.hide();
     });
 
     copyBtn.addEventListener('click', async () => {
       const textToCopy = treeMode.checked ? treeContainer.textContent : outputData.value;
 
-      if (!textToCopy.trim()) {
-        showStatus('No output to copy.', 'error');
+      if (!textToCopy?.trim()) {
+        status.show('No output to copy.', 'error');
         return;
       }
 
-      try {
-        await navigator.clipboard.writeText(textToCopy);
-        showStatus('Output copied to clipboard!', 'success');
-
-        // Visual feedback
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy Output';
-        }, 1000);
-      } catch (err) {
-        showStatus('Failed to copy to clipboard.', 'error');
-      }
+      const copied = await copyWithButtonFeedback(textToCopy, copyBtn, 'Copy Output');
+      status.show(copied ? 'Output copied to clipboard!' : 'Failed to copy to clipboard.', copied ? 'success' : 'error');
     });
 
     // View mode change listeners
@@ -553,7 +494,7 @@
     // Format change listener
     document.querySelectorAll('input[name="format"]').forEach((radio) => {
       radio.addEventListener('change', () => {
-        hideStatus();
+        status.hide();
         outputData.value = '';
         treeContainer.innerHTML = '';
       });
@@ -564,8 +505,6 @@
   }
 
   // Initialize on page load
-  document.addEventListener('DOMContentLoaded', initJsonXmlValidator);
-
-  // Initialize on view transitions
-  document.addEventListener('astro:page-load', initJsonXmlValidator);
+  import { registerToolInit } from '../../scripts/tools-registry';
+  registerToolInit('json-xml-validator', initJsonXmlValidator);
 </script>

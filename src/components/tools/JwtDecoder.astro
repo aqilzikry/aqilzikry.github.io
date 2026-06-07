@@ -59,17 +59,21 @@
   </div>
 </div>
 
-<script is:inline>
+<script>
+  import { copyWithButtonFeedback } from '../../scripts/clipboard';
+  import { base64UrlDecode } from '../../scripts/encoding';
+  import { createStatusHelpers } from '../../scripts/status';
+
   function initJwtDecoder() {
-    const jwtInput = document.getElementById('jwtInput');
-    const jwtHeaderOutput = document.getElementById('jwtHeaderOutput');
-    const jwtPayloadOutput = document.getElementById('jwtPayloadOutput');
-    const jwtSignatureOutput = document.getElementById('jwtSignatureOutput');
+    const jwtInput = document.getElementById('jwtInput') as HTMLTextAreaElement | null;
+    const jwtHeaderOutput = document.getElementById('jwtHeaderOutput') as HTMLTextAreaElement | null;
+    const jwtPayloadOutput = document.getElementById('jwtPayloadOutput') as HTMLTextAreaElement | null;
+    const jwtSignatureOutput = document.getElementById('jwtSignatureOutput') as HTMLTextAreaElement | null;
     const jwtStatusMessage = document.getElementById('jwtStatusMessage');
     const jwtExpirationBanner = document.getElementById('jwtExpirationBanner');
-    const jwtDecodeBtn = document.getElementById('jwtDecodeBtn');
-    const jwtClearBtn = document.getElementById('jwtClearBtn');
-    const jwtCopyBtn = document.getElementById('jwtCopyBtn');
+    const jwtDecodeBtn = document.getElementById('jwtDecodeBtn') as HTMLButtonElement | null;
+    const jwtClearBtn = document.getElementById('jwtClearBtn') as HTMLButtonElement | null;
+    const jwtCopyBtn = document.getElementById('jwtCopyBtn') as HTMLButtonElement | null;
 
     if (
       !jwtInput ||
@@ -85,33 +89,13 @@
       return;
     }
 
-    function showStatus(message, type = 'info') {
-      jwtStatusMessage.textContent = message;
-      jwtStatusMessage.className = `p-3 rounded-control ${
-        type === 'error' ? 'status-error' : type === 'success' ? 'status-success' : 'status-info'
-      }`;
-    }
+    const status = createStatusHelpers(jwtStatusMessage);
 
-    function hideStatus() {
-      jwtStatusMessage.className = 'hidden p-3 rounded-control';
-    }
-
-    function hideExpirationBanner() {
+    const hideExpirationBanner = () => {
       jwtExpirationBanner.className = 'hidden p-3 rounded-control';
-    }
+    };
 
-    function base64UrlDecode(str) {
-      let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-      const padding = base64.length % 4;
-      if (padding) {
-        base64 += '='.repeat(4 - padding);
-      }
-      const binary = atob(base64);
-      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-      return new TextDecoder().decode(bytes);
-    }
-
-    function decodeJwt(token) {
+    function decodeJwt(token: string) {
       const parts = token.split('.');
       if (parts.length !== 3) {
         throw new Error('Invalid JWT format. Expected 3 parts separated by dots.');
@@ -135,8 +119,8 @@
       return { header, payload, signature: signaturePart };
     }
 
-    function checkExpiration(payload) {
-      if (!payload.exp) return null;
+    function checkExpiration(payload: Record<string, unknown>) {
+      if (typeof payload.exp !== 'number') return null;
 
       const expDate = new Date(payload.exp * 1000);
       const now = new Date();
@@ -147,11 +131,11 @@
 
     jwtDecodeBtn.addEventListener('click', () => {
       const token = jwtInput.value.trim();
-      hideStatus();
+      status.hide();
       hideExpirationBanner();
 
       if (!token) {
-        showStatus('Please enter a JWT token to decode.', 'error');
+        status.show('Please enter a JWT token to decode.', 'error');
         return;
       }
 
@@ -175,12 +159,12 @@
         }
 
         const alg = header.alg || 'unknown';
-        showStatus(`Decoded successfully (algorithm: ${alg})`, 'success');
+        status.show(`Decoded successfully (algorithm: ${alg})`, 'success');
       } catch (error) {
         jwtHeaderOutput.value = '';
         jwtPayloadOutput.value = '';
         jwtSignatureOutput.value = '';
-        showStatus(error.message, 'error');
+        status.show((error as Error).message, 'error');
       }
     });
 
@@ -189,30 +173,22 @@
       jwtHeaderOutput.value = '';
       jwtPayloadOutput.value = '';
       jwtSignatureOutput.value = '';
-      hideStatus();
+      status.hide();
       hideExpirationBanner();
     });
 
     jwtCopyBtn.addEventListener('click', async () => {
       const payload = jwtPayloadOutput.value.trim();
       if (!payload) {
-        showStatus('No payload to copy.', 'error');
+        status.show('No payload to copy.', 'error');
         return;
       }
 
-      try {
-        await navigator.clipboard.writeText(payload);
-        showStatus('Payload copied to clipboard!', 'success');
-        jwtCopyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          jwtCopyBtn.textContent = 'Copy Payload';
-        }, 1000);
-      } catch {
-        showStatus('Failed to copy to clipboard.', 'error');
-      }
+      const copied = await copyWithButtonFeedback(payload, jwtCopyBtn, 'Copy Payload');
+      status.show(copied ? 'Payload copied to clipboard!' : 'Failed to copy to clipboard.', copied ? 'success' : 'error');
     });
   }
 
-  document.addEventListener('DOMContentLoaded', initJwtDecoder);
-  document.addEventListener('astro:page-load', initJwtDecoder);
+  import { registerToolInit } from '../../scripts/tools-registry';
+  registerToolInit('jwt-decoder', initJwtDecoder);
 </script>

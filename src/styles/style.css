@@ -13,7 +13,13 @@
   body {
     @apply bg-surface text-text-body dark:text-light;
     background-image: var(--gradient-page);
-    background-attachment: fixed;
+    background-attachment: scroll;
+  }
+
+  @media (min-width: 768px) {
+    body {
+      background-attachment: fixed;
+    }
   }
   .container {
     @apply max-w-[1112px] mx-auto px-4;

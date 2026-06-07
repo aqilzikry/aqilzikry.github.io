@@ -1,8 +1,10 @@
 ---
 import SectionHeader from '@components/general/SectionHeader.astro';
-import { IExperiences } from '@types';
+import type { IExperiences } from '@types';
 
-const { title, subtitle, details, variant = 'experience', id } = Astro.props as IExperiences;
+interface Props extends IExperiences {}
+
+const { title, subtitle, details, variant = 'experience', id } = Astro.props;
 
 const isEducation = variant === 'education';
 ---
@@ -17,7 +19,7 @@ const isEducation = variant === 'education';
       >
       </div>
       {
-        details.map((entry, index) => {
+        details.map((entry) => {
           const isCurrent = entry.endDate.toLowerCase() === 'present';
 
           return (

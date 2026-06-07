@@ -1,0 +1,70 @@
+---
+import MetaHead from '@components/general/MetaHead.astro';
+import Layout from './Layout.astro';
+import type { IMetaHead } from '@types';
+
+interface Props extends IMetaHead {
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description, ogImageUrl, jsonLd } = Astro.props as Props;
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <MetaHead title={title} description={description} ogImageUrl={ogImageUrl} jsonLd={jsonLd} />
+  </head>
+
+  <body>
+    <!-- Must run before any other inline scripts that call onPageLoad / ensureToolInit -->
+    <script is:inline>
+      (function () {
+        if (window.onPageLoad) return;
+
+        const cleanups = new Map();
+
+        window.onPageLoad = function (key, fn) {
+          const run = function () {
+            const prev = cleanups.get(key);
+            if (prev) prev();
+            const result = fn();
+            if (typeof result === 'function') cleanups.set(key, result);
+            else cleanups.delete(key);
+          };
+
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', run);
+          } else {
+            run();
+          }
+
+          document.addEventListener('astro:page-load', run);
+        };
+
+        window.toolInits = window.toolInits || {};
+        window.__mountedTools = window.__mountedTools || new Set();
+        window.__pendingToolInits = window.__pendingToolInits || [];
+
+        window.ensureToolInit = function (toolId) {
+          if (window.__mountedTools.has(toolId)) return;
+
+          if (!window.toolInits[toolId]) {
+            if (!window.__pendingToolInits.includes(toolId)) {
+              window.__pendingToolInits.push(toolId);
+            }
+            return;
+          }
+
+          window.__mountedTools.add(toolId);
+          window.toolInits[toolId]();
+        };
+      })();
+    </script>
+
+    <Layout>
+      <slot />
+    </Layout>
+    <slot name='scripts' />
+  </body>
+</html>

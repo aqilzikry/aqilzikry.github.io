@@ -61,16 +61,19 @@
   </div>
 </div>
 
-<script is:inline>
+<script>
+  import { copyWithButtonFeedback } from '../../scripts/clipboard';
+  import { createStatusHelpers } from '../../scripts/status';
+
   function initUrlConverter() {
-    const urlInput = document.getElementById('urlInput');
-    const urlOutput = document.getElementById('urlOutput');
+    const urlInput = document.getElementById('urlInput') as HTMLTextAreaElement | null;
+    const urlOutput = document.getElementById('urlOutput') as HTMLTextAreaElement | null;
     const urlStatusMessage = document.getElementById('urlStatusMessage');
-    const urlConvertBtn = document.getElementById('urlConvertBtn');
-    const urlClearBtn = document.getElementById('urlClearBtn');
-    const urlCopyBtn = document.getElementById('urlCopyBtn');
-    const urlEncodeMode = document.getElementById('urlEncodeMode');
-    const urlDecodeMode = document.getElementById('urlDecodeMode');
+    const urlConvertBtn = document.getElementById('urlConvertBtn') as HTMLButtonElement | null;
+    const urlClearBtn = document.getElementById('urlClearBtn') as HTMLButtonElement | null;
+    const urlCopyBtn = document.getElementById('urlCopyBtn') as HTMLButtonElement | null;
+    const urlEncodeMode = document.getElementById('urlEncodeMode') as HTMLInputElement | null;
+    const urlDecodeMode = document.getElementById('urlDecodeMode') as HTMLInputElement | null;
 
     if (
       !urlInput ||
@@ -85,84 +88,67 @@
       return;
     }
 
-    function showStatus(message, type = 'info') {
-      urlStatusMessage.textContent = message;
-      urlStatusMessage.className = `p-3 rounded-control ${
-        type === 'error' ? 'status-error' : type === 'success' ? 'status-success' : 'status-info'
-      }`;
-    }
+    const status = createStatusHelpers(urlStatusMessage);
 
-    function hideStatus() {
-      urlStatusMessage.className = 'hidden p-3 rounded-control';
-    }
-
-    function updateConvertButtonLabel() {
+    const updateConvertButtonLabel = () => {
       urlConvertBtn.textContent = urlEncodeMode.checked ? 'Encode' : 'Decode';
-    }
+    };
 
     urlConvertBtn.addEventListener('click', () => {
       const input = urlInput.value;
-      hideStatus();
+      status.hide();
 
       if (!input) {
-        showStatus('Please enter some text to convert.', 'error');
+        status.show('Please enter some text to convert.', 'error');
         return;
       }
 
       try {
         if (urlEncodeMode.checked) {
           urlOutput.value = encodeURIComponent(input);
-          showStatus('URL encoded successfully!', 'success');
+          status.show('URL encoded successfully!', 'success');
         } else {
           urlOutput.value = decodeURIComponent(input);
-          showStatus('URL decoded successfully!', 'success');
+          status.show('URL decoded successfully!', 'success');
         }
       } catch {
         urlOutput.value = '';
-        showStatus('Decoding failed: invalid URL-encoded input.', 'error');
+        status.show('Decoding failed: invalid URL-encoded input.', 'error');
       }
     });
 
     urlClearBtn.addEventListener('click', () => {
       urlInput.value = '';
       urlOutput.value = '';
-      hideStatus();
+      status.hide();
     });
 
     urlCopyBtn.addEventListener('click', async () => {
       const output = urlOutput.value;
       if (!output) {
-        showStatus('No output to copy.', 'error');
+        status.show('No output to copy.', 'error');
         return;
       }
 
-      try {
-        await navigator.clipboard.writeText(output);
-        showStatus('Output copied to clipboard!', 'success');
-        urlCopyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          urlCopyBtn.textContent = 'Copy Output';
-        }, 1000);
-      } catch {
-        showStatus('Failed to copy to clipboard.', 'error');
-      }
+      const copied = await copyWithButtonFeedback(output, urlCopyBtn, 'Copy Output');
+      status.show(copied ? 'Output copied to clipboard!' : 'Failed to copy to clipboard.', copied ? 'success' : 'error');
     });
 
     urlEncodeMode.addEventListener('change', () => {
       updateConvertButtonLabel();
       urlOutput.value = '';
-      hideStatus();
+      status.hide();
     });
 
     urlDecodeMode.addEventListener('change', () => {
       updateConvertButtonLabel();
       urlOutput.value = '';
-      hideStatus();
+      status.hide();
     });
 
     updateConvertButtonLabel();
   }
 
-  document.addEventListener('DOMContentLoaded', initUrlConverter);
-  document.addEventListener('astro:page-load', initUrlConverter);
+  import { registerToolInit } from '../../scripts/tools-registry';
+  registerToolInit('url-converter', initUrlConverter);
 </script>
