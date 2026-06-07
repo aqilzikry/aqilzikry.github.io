@@ -20,6 +20,57 @@ const { title, description, ogImageUrl, jsonLd } = Astro.props as Props;
     <!-- Must run before any other inline scripts that call onPageLoad / ensureToolInit -->
     <script is:inline>
       (function () {
+        const getPreferredTheme = () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          if (currentTheme === 'light' || currentTheme === 'dark') return currentTheme;
+
+          try {
+            const storedTheme = window.localStorage.getItem('theme');
+            if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme;
+          } catch {
+            // Ignore storage errors and fall back to the system preference.
+          }
+
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        const applyThemeToDocument = (doc, theme) => {
+          doc.documentElement.setAttribute('data-theme', theme);
+          const themeColor = theme === 'dark' ? '#080b14' : '#f8fafc';
+          doc.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
+        };
+
+        if (!window.__themeTransitionBound) {
+          window.__themeTransitionBound = true;
+          window.__navTransitionActive = false;
+
+          document.addEventListener('astro:before-swap', (event) => {
+            window.__navTransitionActive = true;
+            const theme = getPreferredTheme();
+            applyThemeToDocument(event.newDocument, theme);
+          });
+
+          document.addEventListener('astro:after-swap', () => {
+            const theme = getPreferredTheme();
+            applyThemeToDocument(document, theme);
+
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+              navbar.classList.add('navbar-skip-transition');
+              navbar.classList.toggle('is-scrolled', window.scrollY > 0);
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => navbar.classList.remove('navbar-skip-transition'));
+              });
+            }
+
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                window.__navTransitionActive = false;
+              });
+            });
+          });
+        }
+
         if (window.onPageLoad) return;
 
         const cleanups = new Map();

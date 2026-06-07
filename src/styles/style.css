@@ -68,10 +68,17 @@
     @apply text-base p-1.5 md:p-2;
   }
   .navbar-header .navbar-theme-btn {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-[box-shadow,color] duration-300 ease-in-out;
+  }
+  .navbar-header .navbar-theme-btn:hover {
+    @apply shadow-glow;
   }
   .navbar-header.is-scrolled .navbar-theme-btn {
     @apply p-1.5 sm:p-2;
+  }
+  .navbar-header.navbar-skip-transition,
+  .navbar-header.navbar-skip-transition * {
+    transition: none !important;
   }
   .surface-card {
     @apply bg-surface-elevated/90 dark:bg-surface-elevated/80 border border-border-soft/80 dark:border-border-soft/70 rounded-brand shadow-card transition-all duration-300 ease-in-out;

@@ -6,6 +6,7 @@ import { createLogo } from '@utils';
 <header
   id='navbar'
   class='navbar-header sticky top-4 z-50 glass-surface rounded-brand container flex items-center justify-between'
+  transition:persist
 >
   <a class='navbar-logo text-2xl dark:text-light font-semibold dark:font-semibold font-outfit' href='/'>{createLogo(info.name)}.</a>
   <nav>
@@ -29,7 +30,7 @@ import { createLogo } from '@utils';
         <button
           aria-label='theme-button'
           id='theme-button'
-          class='navbar-theme-btn dark:text-light rounded-control p-2 sm:p-4 ml-2 surface-muted interactive-glow'></button>
+          class='navbar-theme-btn dark:text-light rounded-control p-2 sm:p-4 ml-2 surface-muted'></button>
       </li>
     </ul>
   </nav>
@@ -45,63 +46,88 @@ import { createLogo } from '@utils';
     const navbar = document.getElementById('navbar');
     if (!themeButton || !navbar) return;
 
-    let isDark;
-
     const getThemeColor = () => {
       const rgb = getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim();
       return rgb ? `rgb(${rgb})` : '#f8fafc';
     };
 
-    const theme = (() => {
-      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-        return localStorage.getItem('theme');
-      }
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
-      return 'light';
-    })();
+    const getTheme = () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light' || currentTheme === 'dark') return currentTheme;
 
-    if (theme === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      isDark = true;
-      themeButton.innerHTML = moon;
+      try {
+        const storedTheme = window.localStorage.getItem('theme');
+        if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme;
+      } catch {
+        // Ignore storage errors and fall back to the system preference.
+      }
+
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    let lastAppliedTheme = null;
+
+    const applyTheme = (theme) => {
+      const prevDocTheme = document.documentElement.getAttribute('data-theme');
+      const prevBtnHtml = themeButton.innerHTML;
+      const btnHasIcon = Boolean(prevBtnHtml.trim());
+      const docThemeChanged = prevDocTheme !== theme;
+      const iconForTheme = theme === 'dark' ? sun : moon;
+      const iconNeedsUpdate = !btnHasIcon || prevBtnHtml !== iconForTheme;
+
+      if (!docThemeChanged && !iconNeedsUpdate) {
+        lastAppliedTheme = theme;
+        return;
+      }
+
+      if (docThemeChanged) {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+
+      if (iconNeedsUpdate) {
+        themeButton.innerHTML = iconForTheme;
+      }
+
+      themeButton.setAttribute('aria-pressed', String(theme === 'dark'));
+      themeButton.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
       if (browserTheme) browserTheme.content = getThemeColor();
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      isDark = false;
-      themeButton.innerHTML = sun;
-      if (browserTheme) browserTheme.content = getThemeColor();
-    }
-    window.localStorage.setItem('theme', theme);
+
+      lastAppliedTheme = theme;
+    };
+
+    applyTheme(getTheme());
 
     const darkModeHandler = () => {
-      if (isDark) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.theme = 'dark';
-        isDark = false;
-        themeButton.innerHTML = sun;
-        if (browserTheme) browserTheme.content = getThemeColor();
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.theme = 'light';
-        isDark = true;
-        themeButton.innerHTML = moon;
-        if (browserTheme) browserTheme.content = getThemeColor();
+      const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+
+      try {
+        window.localStorage.setItem('theme', nextTheme);
+      } catch {
+        // Theme still applies for this page even if persistence is unavailable.
       }
     };
 
-    const toggleNavbarShrink = () => {
-      navbar.classList.toggle('is-scrolled', window.scrollY > 0);
+    const toggleNavbarShrink = (instant = false) => {
+      const shouldScroll = window.scrollY > 0;
+
+      if (instant) navbar.classList.add('navbar-skip-transition');
+      navbar.classList.toggle('is-scrolled', shouldScroll);
+      if (instant) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => navbar.classList.remove('navbar-skip-transition'));
+        });
+      }
     };
 
     themeButton.addEventListener('click', darkModeHandler);
-    window.addEventListener('scroll', toggleNavbarShrink, { passive: true });
-    toggleNavbarShrink();
+    const onScroll = () => toggleNavbarShrink(Boolean(window.__navTransitionActive));
+    window.addEventListener('scroll', onScroll, { passive: true });
+    toggleNavbarShrink(true);
 
     return () => {
       themeButton.removeEventListener('click', darkModeHandler);
-      window.removeEventListener('scroll', toggleNavbarShrink);
+      window.removeEventListener('scroll', onScroll);
     };
   });
 </script>

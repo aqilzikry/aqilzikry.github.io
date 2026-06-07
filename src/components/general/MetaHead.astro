@@ -23,6 +23,26 @@ const { title, description, ogImageUrl, jsonLd } = Astro.props as Props;
 <link rel='mask-icon' href='/safari-pinned-tab.svg' color='#5bbad5' />
 <meta name='msapplication-TileColor' content='#da532c' />
 <meta name='theme-color' content='#f8fafc' />
+<script is:inline>
+  (() => {
+    const getPreferredTheme = () => {
+      try {
+        const storedTheme = window.localStorage.getItem('theme');
+        if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme;
+      } catch {
+        // Ignore storage errors and fall back to the system preference.
+      }
+
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const theme = getPreferredTheme();
+    document.documentElement.setAttribute('data-theme', theme);
+
+    const themeColor = theme === 'dark' ? '#080b14' : '#f8fafc';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
+  })();
+</script>
 
 <meta name='generator' content={Astro.generator} />
 
