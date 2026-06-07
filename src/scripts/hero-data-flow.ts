@@ -16,6 +16,8 @@ type BranchResult = {
   nodes: BranchNode[];
   primaryAnchor: THREE.Vector3;
   dynamicMaterials: THREE.MeshBasicMaterial[];
+  borderMaterial: THREE.LineBasicMaterial;
+  baseBorderOpacity: number;
 };
 
 type SceneColors = {
@@ -29,14 +31,20 @@ type SceneColors = {
 
 type Packet = {
   mesh: THREE.Mesh;
-  curve: THREE.CatmullRomCurve3;
+  curve: THREE.Curve<THREE.Vector3>;
   speed: number;
   offset: number;
+  lastProgress: number;
+  startPulse?: BranchId;
+  arrivalPulse: BranchId;
 };
 
 const SQL_ANCHOR = new THREE.Vector3(-1.35, -0.48, 0.08);
 const API_ANCHOR = new THREE.Vector3(1.68, 1.02, -0.14);
 const OPS_ANCHOR = new THREE.Vector3(1.78, -0.82, -0.34);
+const SQL_SOCKET = new THREE.Vector3(0, 0.04, 0.35);
+const API_SOCKET = new THREE.Vector3(0, 0, 0.12);
+const OPS_SOCKET = new THREE.Vector3(0, 0.12, 0.08);
 
 function readColor(token: string, fallback: string): THREE.Color {
   const rawValue = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -359,20 +367,41 @@ function makeLineGeometry(points: THREE.Vector3[]): THREE.BufferGeometry {
   return new THREE.BufferGeometry().setFromPoints(points);
 }
 
+function applyBorderPulse(
+  material: THREE.LineBasicMaterial,
+  baseColor: THREE.Color,
+  pulseColor: THREE.Color,
+  baseOpacity: number,
+  amount: number
+) {
+  material.color.copy(baseColor).lerp(pulseColor, amount);
+  material.opacity = baseOpacity + amount * (0.92 - baseOpacity);
+}
+
 function addPathLine(
   group: THREE.Group,
-  curve: THREE.CatmullRomCurve3,
+  curve: THREE.Curve<THREE.Vector3>,
   material: THREE.LineBasicMaterial,
   segments = 52
-): { curve: THREE.CatmullRomCurve3; line: THREE.Line; segments: number } {
+): { curve: THREE.Curve<THREE.Vector3>; line: THREE.Line; segments: number } {
   const line = new THREE.Line(makeLineGeometry(curve.getPoints(segments)), material);
   group.add(line);
   return { curve, line, segments };
 }
 
-function refreshPathLine(line: THREE.Line, curve: THREE.CatmullRomCurve3, segments: number) {
+function refreshPathLine(line: THREE.Line, curve: THREE.Curve<THREE.Vector3>, segments: number) {
   line.geometry.dispose();
   line.geometry = makeLineGeometry(curve.getPoints(segments));
+}
+
+function buildPipelineCurve(start: THREE.Vector3, end: THREE.Vector3): THREE.CubicBezierCurve3 {
+  const control1 = start.clone().lerp(end, 0.28).add(new THREE.Vector3(0, 0.1, -0.03));
+  const control2 = start.clone().lerp(end, 0.72).add(new THREE.Vector3(0, -0.05, -0.02));
+  return new THREE.CubicBezierCurve3(start, control1, control2, end.clone());
+}
+
+function socketPoint(anchor: THREE.Vector3, offset: THREE.Vector3): THREE.Vector3 {
+  return anchor.clone().add(offset);
 }
 
 function addBranchSpoke(
@@ -431,6 +460,18 @@ function createSqlBranch(
   badge.position.set(0, 0.04, 0.58);
   group.add(badge);
 
+  const badgeBorderMaterial = new THREE.LineBasicMaterial({
+    color: colors.bright,
+    opacity: 0.34,
+    transparent: true,
+  });
+  const badgeEdge = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.76, 0.5)),
+    badgeBorderMaterial
+  );
+  badgeEdge.position.copy(badge.position);
+  group.add(badgeEdge);
+
   const sqlChips = [
     {
       position: new THREE.Vector3(-0.5, 0.16, 0.3),
@@ -472,7 +513,15 @@ function createSqlBranch(
     addBranchSpoke(group, dbSpokeOrigin, chipConfig.position, spokeMaterial);
   });
 
-  return { id: 'sql', group, nodes, primaryAnchor: SQL_ANCHOR.clone(), dynamicMaterials };
+  return {
+    id: 'sql',
+    group,
+    nodes,
+    primaryAnchor: SQL_ANCHOR.clone(),
+    dynamicMaterials,
+    borderMaterial: badgeBorderMaterial,
+    baseBorderOpacity: 0.34,
+  };
 }
 
 function createApiBranch(
@@ -490,9 +539,14 @@ function createApiBranch(
   gateway.position.set(0, 0, 0.12);
   group.add(gateway);
 
+  const gatewayBorderMaterial = new THREE.LineBasicMaterial({
+    color: colors.bright,
+    opacity: 0.34,
+    transparent: true,
+  });
   const gatewayEdge = new THREE.LineSegments(
     new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.12, 0.72)),
-    new THREE.LineBasicMaterial({ color: colors.bright, opacity: 0.34, transparent: true })
+    gatewayBorderMaterial
   );
   gatewayEdge.rotation.copy(gateway.rotation);
   gatewayEdge.position.copy(gateway.position);
@@ -536,7 +590,15 @@ function createApiBranch(
     addBranchSpoke(group, gatewayOrigin, endpoint.position, spokeMaterial);
   });
 
-  return { id: 'api', group, nodes, primaryAnchor: API_ANCHOR.clone(), dynamicMaterials };
+  return {
+    id: 'api',
+    group,
+    nodes,
+    primaryAnchor: API_ANCHOR.clone(),
+    dynamicMaterials,
+    borderMaterial: gatewayBorderMaterial,
+    baseBorderOpacity: 0.34,
+  };
 }
 
 function createOpsBranch(
@@ -556,9 +618,14 @@ function createOpsBranch(
   dashboard.position.set(0, 0.12, 0.08);
   group.add(dashboard);
 
+  const dashboardBorderMaterial = new THREE.LineBasicMaterial({
+    color: colors.bright,
+    opacity: 0.32,
+    transparent: true,
+  });
   const dashboardEdge = new THREE.LineSegments(
     new THREE.EdgesGeometry(panelGeometry),
-    new THREE.LineBasicMaterial({ color: colors.bright, opacity: 0.32, transparent: true })
+    dashboardBorderMaterial
   );
   dashboardEdge.rotation.copy(dashboard.rotation);
   dashboardEdge.position.copy(dashboard.position);
@@ -605,7 +672,15 @@ function createOpsBranch(
     addBranchSpoke(group, dashboardOrigin, chipConfig.position, spokeMaterial);
   });
 
-  return { id: 'ops', group, nodes, primaryAnchor: OPS_ANCHOR.clone(), dynamicMaterials };
+  return {
+    id: 'ops',
+    group,
+    nodes,
+    primaryAnchor: OPS_ANCHOR.clone(),
+    dynamicMaterials,
+    borderMaterial: dashboardBorderMaterial,
+    baseBorderOpacity: 0.32,
+  };
 }
 
 export function initHeroDataFlow(): CleanupFn | void {
@@ -755,46 +830,65 @@ export function initHeroDataFlow(): CleanupFn | void {
   halo.position.copy(SQL_ANCHOR).add(new THREE.Vector3(0, 0.02, -0.38));
   mainGroup.add(halo);
 
-  const sqlToApiCurve = new THREE.CatmullRomCurve3([
-    SQL_ANCHOR.clone(),
-    new THREE.Vector3(0.08, 0.58, -0.04),
-    API_ANCHOR.clone(),
-  ]);
-
-  const apiToOpsCurve = new THREE.CatmullRomCurve3([
-    API_ANCHOR.clone(),
-    new THREE.Vector3(1.78, 0.06, -0.28),
-    OPS_ANCHOR.clone(),
-  ]);
+  let sqlToApiCurve = buildPipelineCurve(
+    socketPoint(SQL_ANCHOR, SQL_SOCKET),
+    socketPoint(API_ANCHOR, API_SOCKET)
+  );
+  let apiToOpsCurve = buildPipelineCurve(
+    socketPoint(API_ANCHOR, API_SOCKET),
+    socketPoint(OPS_ANCHOR, OPS_SOCKET)
+  );
 
   const sqlToApiPath = addPathLine(mainGroup, sqlToApiCurve, lineMaterial);
   const apiToOpsPath = addPathLine(mainGroup, apiToOpsCurve, outputLineMaterial);
 
-  const packetGeometry = new THREE.SphereGeometry(0.035, 16, 12);
+  const branchPulse: Record<BranchId, { amount: number }> = {
+    sql: { amount: 0 },
+    api: { amount: 0 },
+    ops: { amount: 0 },
+  };
+
+  const triggerBranchPulse = (branch: BranchId, strength = 1) => {
+    branchPulse[branch].amount = Math.max(branchPulse[branch].amount, strength);
+  };
+
+  const packetGeometry = new THREE.SphereGeometry(0.032, 16, 12);
   const packets: Packet[] = [
     {
+      arrivalPulse: 'api',
       curve: sqlToApiCurve,
+      lastProgress: 0,
       mesh: new THREE.Mesh(packetGeometry, accentPacketMaterial.clone()),
       offset: reducedStaticOffset % 1,
-      speed: 0.1,
+      speed: 0.17,
+      startPulse: 'sql',
     },
     {
+      arrivalPulse: 'api',
       curve: sqlToApiCurve,
+      lastProgress: 0.45,
       mesh: new THREE.Mesh(packetGeometry, accentPacketMaterial.clone()),
       offset: (0.45 + reducedStaticOffset) % 1,
-      speed: 0.1,
+      speed: 0.17,
+      startPulse: 'sql',
     },
     {
+      arrivalPulse: 'ops',
       curve: apiToOpsCurve,
+      lastProgress: 0,
       mesh: new THREE.Mesh(packetGeometry, packetMaterial.clone()),
       offset: (0.2 + reducedStaticOffset) % 1,
-      speed: 0.11,
+      speed: 0.18,
+      startPulse: 'api',
     },
     {
+      arrivalPulse: 'ops',
       curve: apiToOpsCurve,
+      lastProgress: 0.62,
       mesh: new THREE.Mesh(packetGeometry, packetMaterial.clone()),
       offset: (0.62 + reducedStaticOffset) % 1,
-      speed: 0.11,
+      speed: 0.18,
+      startPulse: 'api',
     },
   ];
 
@@ -892,28 +986,33 @@ export function initHeroDataFlow(): CleanupFn | void {
     rimLight.color.copy(violet);
     (starField.material as THREE.PointsMaterial).color.copy(strong);
 
+    sqlBranch.borderMaterial.color.copy(bright);
+    apiBranch.borderMaterial.color.copy(bright);
+    opsBranch.borderMaterial.color.copy(bright);
+    sqlBranch.borderMaterial.opacity = sqlBranch.baseBorderOpacity;
+    apiBranch.borderMaterial.opacity = apiBranch.baseBorderOpacity;
+    opsBranch.borderMaterial.opacity = opsBranch.baseBorderOpacity;
+
     refreshTextures();
   }
 
-  function updatePipelineCurves(apiAnchor: THREE.Vector3, opsAnchor: THREE.Vector3) {
-    sqlToApiCurve.points[0].copy(SQL_ANCHOR);
-    sqlToApiCurve.points[1].set(
-      (SQL_ANCHOR.x + apiAnchor.x) * 0.28,
-      (SQL_ANCHOR.y + apiAnchor.y) * 0.52 + 0.06,
-      -0.03
-    );
-    sqlToApiCurve.points[2].copy(apiAnchor);
+  function syncPacketCurves() {
+    packets.forEach((packet) => {
+      packet.curve = packet.arrivalPulse === 'api' ? sqlToApiCurve : apiToOpsCurve;
+    });
+  }
 
-    apiToOpsCurve.points[0].copy(apiAnchor);
-    apiToOpsCurve.points[1].set(
-      (apiAnchor.x + opsAnchor.x) * 0.52,
-      (apiAnchor.y + opsAnchor.y) * 0.48,
-      (apiAnchor.z + opsAnchor.z) * 0.5
-    );
-    apiToOpsCurve.points[2].copy(opsAnchor);
+  function updatePipelineCurves(apiAnchor: THREE.Vector3, opsAnchor: THREE.Vector3) {
+    const sqlStart = socketPoint(SQL_ANCHOR, SQL_SOCKET);
+    const apiPoint = socketPoint(apiAnchor, API_SOCKET);
+    const opsPoint = socketPoint(opsAnchor, OPS_SOCKET);
+
+    sqlToApiCurve = buildPipelineCurve(sqlStart, apiPoint);
+    apiToOpsCurve = buildPipelineCurve(apiPoint, opsPoint);
 
     refreshPathLine(sqlToApiPath.line, sqlToApiCurve, sqlToApiPath.segments);
     refreshPathLine(apiToOpsPath.line, apiToOpsCurve, apiToOpsPath.segments);
+    syncPacketCurves();
   }
 
   let opsBaseY = OPS_ANCHOR.y;
@@ -1072,12 +1171,39 @@ export function initHeroDataFlow(): CleanupFn | void {
       node.mesh.position.y = node.base.y + Math.sin(elapsed * 1.1 + node.phase) * 0.06;
     });
 
+    branchPulse.sql.amount *= 0.88;
+    branchPulse.api.amount *= 0.88;
+    branchPulse.ops.amount *= 0.88;
+
+    const sqlPulse = branchPulse.sql.amount;
+    const apiPulse = branchPulse.api.amount;
+    const opsPulse = branchPulse.ops.amount;
+
+    applyBorderPulse(sqlBranch.borderMaterial, bright, success, sqlBranch.baseBorderOpacity, sqlPulse);
+    applyBorderPulse(apiBranch.borderMaterial, bright, success, apiBranch.baseBorderOpacity, apiPulse);
+    applyBorderPulse(opsBranch.borderMaterial, bright, success, opsBranch.baseBorderOpacity, opsPulse);
+
     packets.forEach((packet) => {
       const progress = prefersReducedMotion
         ? packet.offset
         : (elapsed * packet.speed + packet.offset) % 1;
+
+      if (!prefersReducedMotion) {
+        if (packet.startPulse && packet.lastProgress < 0.06 && progress >= 0.06) {
+          triggerBranchPulse(packet.startPulse, 0.85);
+        }
+
+        const arrived = packet.lastProgress < 0.94 && progress >= 0.94;
+        const wrappedPastEnd = packet.lastProgress > progress && packet.lastProgress >= 0.94;
+
+        if (arrived || wrappedPastEnd) {
+          triggerBranchPulse(packet.arrivalPulse);
+        }
+      }
+
+      packet.lastProgress = progress;
       packet.mesh.position.copy(packet.curve.getPointAt(progress));
-      const scale = 0.86 + Math.sin(progress * Math.PI) * 0.75;
+      const scale = 0.82 + Math.sin(progress * Math.PI) * 0.55;
       packet.mesh.scale.setScalar(scale);
     });
 
