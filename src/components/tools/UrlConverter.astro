@@ -1,0 +1,168 @@
+---
+// src/components/tools/UrlConverter.astro
+---
+
+<div class='space-y-6'>
+  <div>
+    <label class='block text-lg font-medium text-dark dark:text-light mb-3'>Mode:</label>
+    <div class='flex space-x-4'>
+      <label class='flex items-center'>
+        <input
+          type='radio'
+          name='urlMode'
+          value='encode'
+          id='urlEncodeMode'
+          checked
+          class='mr-2 text-accent focus:ring-accent'
+        />
+        <span class='text-dark dark:text-light'>Encode</span>
+      </label>
+      <label class='flex items-center'>
+        <input
+          type='radio'
+          name='urlMode'
+          value='decode'
+          id='urlDecodeMode'
+          class='mr-2 text-accent focus:ring-accent'
+        />
+        <span class='text-dark dark:text-light'>Decode</span>
+      </label>
+    </div>
+  </div>
+
+  <div>
+    <label for='urlInput' class='block text-lg font-medium text-dark dark:text-light'>Input:</label>
+    <textarea
+      id='urlInput'
+      name='urlInput'
+      rows='6'
+      placeholder='Enter text to encode or URL-encoded text to decode...'
+      class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
+    ></textarea>
+  </div>
+
+  <div class='grid grid-cols-2 md:grid-cols-3 gap-4'>
+    <button type='button' id='urlConvertBtn' class='px-4 py-2 btn-primary'>Convert</button>
+    <button type='button' id='urlClearBtn' class='px-4 py-2 btn-danger'>Clear</button>
+    <button type='button' id='urlCopyBtn' class='px-4 py-2 btn-violet'>Copy Output</button>
+  </div>
+
+  <div id='urlStatusMessage' class='hidden p-3 rounded-control'></div>
+
+  <div>
+    <label for='urlOutput' class='block text-lg font-medium text-dark dark:text-light'>Output:</label>
+    <textarea
+      id='urlOutput'
+      name='urlOutput'
+      rows='6'
+      readonly
+      class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
+    ></textarea>
+  </div>
+</div>
+
+<script is:inline>
+  function initUrlConverter() {
+    const urlInput = document.getElementById('urlInput');
+    const urlOutput = document.getElementById('urlOutput');
+    const urlStatusMessage = document.getElementById('urlStatusMessage');
+    const urlConvertBtn = document.getElementById('urlConvertBtn');
+    const urlClearBtn = document.getElementById('urlClearBtn');
+    const urlCopyBtn = document.getElementById('urlCopyBtn');
+    const urlEncodeMode = document.getElementById('urlEncodeMode');
+    const urlDecodeMode = document.getElementById('urlDecodeMode');
+
+    if (
+      !urlInput ||
+      !urlOutput ||
+      !urlStatusMessage ||
+      !urlConvertBtn ||
+      !urlClearBtn ||
+      !urlCopyBtn ||
+      !urlEncodeMode ||
+      !urlDecodeMode
+    ) {
+      return;
+    }
+
+    function showStatus(message, type = 'info') {
+      urlStatusMessage.textContent = message;
+      urlStatusMessage.className = `p-3 rounded-control ${
+        type === 'error' ? 'status-error' : type === 'success' ? 'status-success' : 'status-info'
+      }`;
+    }
+
+    function hideStatus() {
+      urlStatusMessage.className = 'hidden p-3 rounded-control';
+    }
+
+    function updateConvertButtonLabel() {
+      urlConvertBtn.textContent = urlEncodeMode.checked ? 'Encode' : 'Decode';
+    }
+
+    urlConvertBtn.addEventListener('click', () => {
+      const input = urlInput.value;
+      hideStatus();
+
+      if (!input) {
+        showStatus('Please enter some text to convert.', 'error');
+        return;
+      }
+
+      try {
+        if (urlEncodeMode.checked) {
+          urlOutput.value = encodeURIComponent(input);
+          showStatus('URL encoded successfully!', 'success');
+        } else {
+          urlOutput.value = decodeURIComponent(input);
+          showStatus('URL decoded successfully!', 'success');
+        }
+      } catch {
+        urlOutput.value = '';
+        showStatus('Decoding failed: invalid URL-encoded input.', 'error');
+      }
+    });
+
+    urlClearBtn.addEventListener('click', () => {
+      urlInput.value = '';
+      urlOutput.value = '';
+      hideStatus();
+    });
+
+    urlCopyBtn.addEventListener('click', async () => {
+      const output = urlOutput.value;
+      if (!output) {
+        showStatus('No output to copy.', 'error');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output);
+        showStatus('Output copied to clipboard!', 'success');
+        urlCopyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          urlCopyBtn.textContent = 'Copy Output';
+        }, 1000);
+      } catch {
+        showStatus('Failed to copy to clipboard.', 'error');
+      }
+    });
+
+    urlEncodeMode.addEventListener('change', () => {
+      updateConvertButtonLabel();
+      urlOutput.value = '';
+      hideStatus();
+    });
+
+    urlDecodeMode.addEventListener('change', () => {
+      updateConvertButtonLabel();
+      urlOutput.value = '';
+      hideStatus();
+    });
+
+    updateConvertButtonLabel();
+  }
+
+  document.addEventListener('DOMContentLoaded', initUrlConverter);
+  document.addEventListener('astro:page-load', initUrlConverter);
+</script>

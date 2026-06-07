@@ -1,0 +1,218 @@
+---
+// src/components/tools/JwtDecoder.astro
+---
+
+<div class='space-y-6'>
+  <div>
+    <label for='jwtInput' class='block text-lg font-medium text-dark dark:text-light'>JWT Token:</label>
+    <textarea
+      id='jwtInput'
+      name='jwtInput'
+      rows='4'
+      placeholder='Paste your JWT token here (eyJhbGciOiJ...)'
+      class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
+    ></textarea>
+  </div>
+
+  <div class='grid grid-cols-2 md:grid-cols-3 gap-4'>
+    <button type='button' id='jwtDecodeBtn' class='px-4 py-2 btn-primary'>Decode</button>
+    <button type='button' id='jwtClearBtn' class='px-4 py-2 btn-danger'>Clear</button>
+    <button type='button' id='jwtCopyBtn' class='px-4 py-2 btn-violet'>Copy Payload</button>
+  </div>
+
+  <div id='jwtStatusMessage' class='hidden p-3 rounded-control'></div>
+
+  <div id='jwtExpirationBanner' class='hidden p-3 rounded-control'></div>
+
+  <div class='grid gap-6 md:grid-cols-2'>
+    <div>
+      <label for='jwtHeaderOutput' class='block text-lg font-medium text-dark dark:text-light'>Header:</label>
+      <textarea
+        id='jwtHeaderOutput'
+        name='jwtHeaderOutput'
+        rows='6'
+        readonly
+        class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
+      ></textarea>
+    </div>
+    <div>
+      <label for='jwtPayloadOutput' class='block text-lg font-medium text-dark dark:text-light'>Payload:</label>
+      <textarea
+        id='jwtPayloadOutput'
+        name='jwtPayloadOutput'
+        rows='6'
+        readonly
+        class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
+      ></textarea>
+    </div>
+  </div>
+
+  <div>
+    <label for='jwtSignatureOutput' class='block text-lg font-medium text-dark dark:text-light'>Signature:</label>
+    <textarea
+      id='jwtSignatureOutput'
+      name='jwtSignatureOutput'
+      rows='2'
+      readonly
+      class='mt-1 block w-full px-3 py-2 form-control sm:text-sm font-mono resize-y'
+    ></textarea>
+  </div>
+</div>
+
+<script is:inline>
+  function initJwtDecoder() {
+    const jwtInput = document.getElementById('jwtInput');
+    const jwtHeaderOutput = document.getElementById('jwtHeaderOutput');
+    const jwtPayloadOutput = document.getElementById('jwtPayloadOutput');
+    const jwtSignatureOutput = document.getElementById('jwtSignatureOutput');
+    const jwtStatusMessage = document.getElementById('jwtStatusMessage');
+    const jwtExpirationBanner = document.getElementById('jwtExpirationBanner');
+    const jwtDecodeBtn = document.getElementById('jwtDecodeBtn');
+    const jwtClearBtn = document.getElementById('jwtClearBtn');
+    const jwtCopyBtn = document.getElementById('jwtCopyBtn');
+
+    if (
+      !jwtInput ||
+      !jwtHeaderOutput ||
+      !jwtPayloadOutput ||
+      !jwtSignatureOutput ||
+      !jwtStatusMessage ||
+      !jwtExpirationBanner ||
+      !jwtDecodeBtn ||
+      !jwtClearBtn ||
+      !jwtCopyBtn
+    ) {
+      return;
+    }
+
+    function showStatus(message, type = 'info') {
+      jwtStatusMessage.textContent = message;
+      jwtStatusMessage.className = `p-3 rounded-control ${
+        type === 'error' ? 'status-error' : type === 'success' ? 'status-success' : 'status-info'
+      }`;
+    }
+
+    function hideStatus() {
+      jwtStatusMessage.className = 'hidden p-3 rounded-control';
+    }
+
+    function hideExpirationBanner() {
+      jwtExpirationBanner.className = 'hidden p-3 rounded-control';
+    }
+
+    function base64UrlDecode(str) {
+      let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      const padding = base64.length % 4;
+      if (padding) {
+        base64 += '='.repeat(4 - padding);
+      }
+      const binary = atob(base64);
+      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
+    function decodeJwt(token) {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Invalid JWT format. Expected 3 parts separated by dots.');
+      }
+
+      const [headerPart, payloadPart, signaturePart] = parts;
+
+      let header, payload;
+      try {
+        header = JSON.parse(base64UrlDecode(headerPart));
+      } catch {
+        throw new Error('Failed to decode JWT header.');
+      }
+
+      try {
+        payload = JSON.parse(base64UrlDecode(payloadPart));
+      } catch {
+        throw new Error('Failed to decode JWT payload.');
+      }
+
+      return { header, payload, signature: signaturePart };
+    }
+
+    function checkExpiration(payload) {
+      if (!payload.exp) return null;
+
+      const expDate = new Date(payload.exp * 1000);
+      const now = new Date();
+      const isExpired = expDate < now;
+
+      return { expDate, isExpired };
+    }
+
+    jwtDecodeBtn.addEventListener('click', () => {
+      const token = jwtInput.value.trim();
+      hideStatus();
+      hideExpirationBanner();
+
+      if (!token) {
+        showStatus('Please enter a JWT token to decode.', 'error');
+        return;
+      }
+
+      try {
+        const { header, payload, signature } = decodeJwt(token);
+
+        jwtHeaderOutput.value = JSON.stringify(header, null, 2);
+        jwtPayloadOutput.value = JSON.stringify(payload, null, 2);
+        jwtSignatureOutput.value = signature;
+
+        const expiration = checkExpiration(payload);
+        if (expiration) {
+          const formatted = expiration.expDate.toLocaleString();
+          if (expiration.isExpired) {
+            jwtExpirationBanner.textContent = `Token expired on ${formatted}`;
+            jwtExpirationBanner.className = 'p-3 rounded-control status-error';
+          } else {
+            jwtExpirationBanner.textContent = `Token expires on ${formatted}`;
+            jwtExpirationBanner.className = 'p-3 rounded-control status-info';
+          }
+        }
+
+        const alg = header.alg || 'unknown';
+        showStatus(`Decoded successfully (algorithm: ${alg})`, 'success');
+      } catch (error) {
+        jwtHeaderOutput.value = '';
+        jwtPayloadOutput.value = '';
+        jwtSignatureOutput.value = '';
+        showStatus(error.message, 'error');
+      }
+    });
+
+    jwtClearBtn.addEventListener('click', () => {
+      jwtInput.value = '';
+      jwtHeaderOutput.value = '';
+      jwtPayloadOutput.value = '';
+      jwtSignatureOutput.value = '';
+      hideStatus();
+      hideExpirationBanner();
+    });
+
+    jwtCopyBtn.addEventListener('click', async () => {
+      const payload = jwtPayloadOutput.value.trim();
+      if (!payload) {
+        showStatus('No payload to copy.', 'error');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(payload);
+        showStatus('Payload copied to clipboard!', 'success');
+        jwtCopyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          jwtCopyBtn.textContent = 'Copy Payload';
+        }, 1000);
+      } catch {
+        showStatus('Failed to copy to clipboard.', 'error');
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initJwtDecoder);
+  document.addEventListener('astro:page-load', initJwtDecoder);
+</script>

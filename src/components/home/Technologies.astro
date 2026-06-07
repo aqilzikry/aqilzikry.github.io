@@ -4,12 +4,14 @@ import { info } from '@data';
 
 const technologies = info.technologies || [];
 const sortedTechnologies = [...technologies].sort((a, b) => a.name.localeCompare(b.name));
-const targetTechForDarkFill = ['.NET', 'SQL', 'MongoDB', 'GitHub', 'NextJS', 'Tailwind CSS'];
+const targetTechForDarkFill = ['.NET', 'SQL Server', 'MongoDB', 'GitHub', 'NextJS', 'Tailwind CSS'];
 
 const techCategories: Record<string, string> = {
   '.NET': 'backend',
   React: 'frontend',
-  SQL: 'database',
+  'SQL Server': 'database',
+  MySQL: 'database',
+  PostgreSQL: 'database',
   'Azure DevOps': 'devops',
   'Node.js': 'backend',
   Angular: 'frontend',

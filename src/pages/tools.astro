@@ -1,10 +1,13 @@
 ---
 import MetaHead from '@components/general/MetaHead.astro';
 import SectionHeader from '@components/general/SectionHeader.astro';
+import Base64Converter from '@components/tools/Base64Converter.astro';
 import BudgetCalculator from '@components/tools/BudgetCalculator.astro';
 import ColorConverter from '@components/tools/ColorConverter.astro';
 import JsonXmlValidator from '@components/tools/JsonXmlValidator.astro';
+import JwtDecoder from '@components/tools/JwtDecoder.astro';
 import TimezoneConverter from '@components/tools/TimezoneConverter.astro';
+import UrlConverter from '@components/tools/UrlConverter.astro';
 import Layout from '@layouts/Layout.astro';
 ---
 
@@ -86,6 +89,15 @@ import Layout from '@layouts/Layout.astro';
               <button class='pill-button' data-tool='json-xml-validator' data-category='development'>
                 <span class='flex items-center gap-2'> JSON & XML Validator </span>
               </button>
+              <button class='pill-button' data-tool='jwt-decoder' data-category='development'>
+                <span class='flex items-center gap-2'> JWT Decoder </span>
+              </button>
+              <button class='pill-button' data-tool='base64-converter' data-category='development'>
+                <span class='flex items-center gap-2'> Base64 Encode/Decode </span>
+              </button>
+              <button class='pill-button' data-tool='url-converter' data-category='development'>
+                <span class='flex items-center gap-2'> URL Encode/Decode </span>
+              </button>
             </nav>
           </div>
 
@@ -152,6 +164,81 @@ import Layout from '@layouts/Layout.astro';
                   </div>
                 </div>
                 <JsonXmlValidator />
+              </div>
+            </div>
+
+            <!-- JWT Decoder Tool -->
+            <div id='tool-jwt-decoder' class='tool-panel hidden' data-category='development'>
+              <div class='surface-card p-6'>
+                <div class='flex items-center gap-3 mb-4'>
+                  <div class='p-2 icon-badge-violet'>
+                    <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2'
+                        d='M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z'
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class='text-2xl font-outfit text-dark dark:text-light'>JWT Decoder</h2>
+                    <p class='text-text-muted dark:text-custom-gray-300 text-sm'>
+                      Paste a token, see what's inside
+                    </p>
+                  </div>
+                </div>
+                <JwtDecoder />
+              </div>
+            </div>
+
+            <!-- Base64 Encode/Decode Tool -->
+            <div id='tool-base64-converter' class='tool-panel hidden' data-category='development'>
+              <div class='surface-card p-6 max-w-2xl'>
+                <div class='flex items-center gap-3 mb-4'>
+                  <div class='p-2 icon-badge-indigo'>
+                    <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2'
+                        d='M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4'
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class='text-2xl font-outfit text-dark dark:text-light'>Base64 Encode/Decode</h2>
+                    <p class='text-text-muted dark:text-custom-gray-300 text-sm'>
+                      Flip between plain text and Base64
+                    </p>
+                  </div>
+                </div>
+                <Base64Converter />
+              </div>
+            </div>
+
+            <!-- URL Encode/Decode Tool -->
+            <div id='tool-url-converter' class='tool-panel hidden' data-category='development'>
+              <div class='surface-card p-6 max-w-2xl'>
+                <div class='flex items-center gap-3 mb-4'>
+                  <div class='p-2 icon-badge-success'>
+                    <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2'
+                        d='M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1'
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class='text-2xl font-outfit text-dark dark:text-light'>URL Encode/Decode</h2>
+                    <p class='text-text-muted dark:text-custom-gray-300 text-sm'>
+                      Percent-encode or decode URL strings
+                    </p>
+                  </div>
+                </div>
+                <UrlConverter />
               </div>
             </div>
           </div>
