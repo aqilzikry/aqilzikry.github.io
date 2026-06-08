@@ -953,6 +953,7 @@ h3 {
 .field select {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   outline: none;
@@ -961,6 +962,12 @@ h3 {
   font: 500 0.94rem Archivo, sans-serif;
   text-transform: none;
   transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.field input[type="datetime-local"] {
+  min-width: 0;
+  appearance: textfield;
+  -webkit-appearance: none;
 }
 
 .field input,

@@ -6,6 +6,25 @@ const selectTool = async (page: import("@playwright/test").Page, id: string) => 
 };
 
 test.describe("Tools page", () => {
+  test("keeps datetime fields inside the mobile viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/tools");
+
+    for (const tool of ["timezone", "deadline"]) {
+      await selectTool(page, tool);
+
+      const input = page.locator(tool === "timezone" ? "#timezone-date" : "#deadline-input");
+      const inputBox = await input.boundingBox();
+      const workspaceBox = await page.locator("[data-tools-workspace]").boundingBox();
+
+      expect(inputBox).not.toBeNull();
+      expect(workspaceBox).not.toBeNull();
+      expect(inputBox!.x).toBeGreaterThanOrEqual(workspaceBox!.x);
+      expect(inputBox!.x + inputBox!.width).toBeLessThanOrEqual(workspaceBox!.x + workspaceBox!.width);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    }
+  });
+
   test("runs the browser-based utilities", async ({ page }) => {
     await page.goto("/tools");
 
