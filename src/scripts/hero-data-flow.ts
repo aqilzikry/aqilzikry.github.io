@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 type CleanupFn = () => void;
 
-type BranchId = 'sql' | 'api' | 'ops';
+type BranchId = 'sql' | 'api' | 'insights';
 
 type BranchNode = {
   mesh: THREE.Object3D;
@@ -41,10 +41,10 @@ type Packet = {
 
 const SQL_ANCHOR = new THREE.Vector3(-1.35, -0.48, 0.08);
 const API_ANCHOR = new THREE.Vector3(1.68, 1.02, -0.14);
-const OPS_ANCHOR = new THREE.Vector3(1.78, -0.82, -0.34);
+const INSIGHTS_ANCHOR = new THREE.Vector3(1.78, -0.82, -0.34);
 const SQL_SOCKET = new THREE.Vector3(0, 0.04, 0.35);
 const API_SOCKET = new THREE.Vector3(0, 0, 0.12);
-const OPS_SOCKET = new THREE.Vector3(0, 0.12, 0.08);
+const INSIGHTS_SOCKET = new THREE.Vector3(0, 0.12, 0.08);
 
 function readColor(token: string, fallback: string): THREE.Color {
   const rawValue = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -142,11 +142,11 @@ function makeDatabaseTexture(accent: THREE.Color, bright: THREE.Color): THREE.Ca
 
     context.fillStyle = palette.strong;
     context.font = '700 28px Inter, sans-serif';
-    context.fillText('SQL', 36, 52);
+    context.fillText('DATA', 36, 52);
 
     context.font = '500 16px ui-monospace, monospace';
     context.fillStyle = colorRgb(bright, 0.62);
-    context.fillText('SELECT … tuned', 36, 228);
+    context.fillText('records · indexed', 36, 228);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -207,11 +207,11 @@ function makeApiServiceTexture(violet: THREE.Color, bright: THREE.Color): THREE.
 
     context.fillStyle = palette.strong;
     context.font = '700 24px Inter, sans-serif';
-    context.fillText('REST  ·  .NET', 36, 52);
+    context.fillText('Service Layer', 36, 52);
 
     context.font = '600 18px ui-monospace, monospace';
     context.fillStyle = colorRgb(bright, 0.75);
-    context.fillText('GET /api/payroll', 36, 92);
+    context.fillText('GET /records', 36, 92);
 
     context.font = '500 16px ui-monospace, monospace';
     context.fillStyle = colorRgb(violet, 0.85);
@@ -224,7 +224,7 @@ function makeApiServiceTexture(violet: THREE.Color, bright: THREE.Color): THREE.
     context.stroke();
     context.fillStyle = palette.subtle;
     context.font = '500 14px Inter, sans-serif';
-    context.fillText('Entity Framework · services', 36, 188);
+    context.fillText('Validation · workflows', 36, 188);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -288,7 +288,7 @@ function makeMetricChipTexture(
     context.fillText(value, 14, 58);
     context.font = '500 11px Inter, sans-serif';
     context.fillStyle = colorRgb(accent, 0.62);
-    context.fillText('ops metric', 14, 82);
+    context.fillText('system metric', 14, 82);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -353,10 +353,10 @@ function makeDashboardTexture(
 
     context.fillStyle = palette.strong;
     context.font = '700 30px Inter, sans-serif';
-    context.fillText('OPS', 36, 48);
+    context.fillText('Insights', 36, 48);
     context.font = '600 20px Inter, sans-serif';
     context.fillStyle = colorRgb(success, 0.9);
-    context.fillText('latency  ·  throughput', 36, 78);
+    context.fillText('signals  ·  outcomes', 36, 78);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -379,13 +379,13 @@ function makeKpiTexture(success: THREE.Color, accent: THREE.Color): THREE.Canvas
     context.strokeRect(8, 8, 240, 144);
     context.fillStyle = palette.muted;
     context.font = '600 18px Inter, sans-serif';
-    context.fillText('uptime', 20, 36);
+    context.fillText('health', 20, 36);
     context.font = '700 36px Outfit, sans-serif';
     context.fillStyle = colorRgb(success, 0.95);
     context.fillText('99.9%', 20, 82);
     context.font = '500 14px Inter, sans-serif';
     context.fillStyle = colorRgb(accent, 0.7);
-    context.fillText('supervisory view', 20, 118);
+    context.fillText('decision view', 20, 118);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -588,14 +588,14 @@ function createApiBranch(
       position: new THREE.Vector3(0.54, 0.2, 0.06),
       rotation: [-0.08, -0.46, 0.04] as const,
       method: 'GET',
-      path: '/payroll',
+      path: '/records',
       phase: 0.95,
     },
     {
       position: new THREE.Vector3(0.62, -0.22, 0.1),
       rotation: [-0.1, -0.52, 0.05] as const,
       method: 'POST',
-      path: '/reports',
+      path: '/events',
       phase: 1.55,
     },
   ];
@@ -632,14 +632,14 @@ function createApiBranch(
   };
 }
 
-function createOpsBranch(
+function createInsightsBranch(
   colors: SceneColors,
   dashboardMaterial: THREE.MeshBasicMaterial,
   kpiMaterial: THREE.MeshBasicMaterial,
   spokeMaterial: THREE.LineBasicMaterial
 ): BranchResult {
   const group = new THREE.Group();
-  group.position.copy(OPS_ANCHOR);
+  group.position.copy(INSIGHTS_ANCHOR);
   const nodes: BranchNode[] = [];
   const dynamicMaterials: THREE.MeshBasicMaterial[] = [];
 
@@ -663,7 +663,7 @@ function createOpsBranch(
   group.add(dashboardEdge);
 
   const dashboardOrigin = new THREE.Vector3(0, 0.12, 0.08);
-  const opsChips = [
+  const insightChips = [
     {
       position: new THREE.Vector3(-0.52, -0.3, 0.2),
       rotation: [-0.08, -0.36, 0.04] as const,
@@ -677,7 +677,7 @@ function createOpsBranch(
       size: [0.44, 0.28] as const,
       material: new THREE.MeshBasicMaterial({
         color: 0xffffff,
-        map: makeMetricChipTexture(colors.success, colors.accent, 'throughput', '12.4k/s'),
+        map: makeMetricChipTexture(colors.success, colors.accent, 'activity', '12.4k/s'),
         opacity: 0.68,
         side: THREE.DoubleSide,
         transparent: true,
@@ -686,7 +686,7 @@ function createOpsBranch(
     },
   ];
 
-  opsChips.forEach((chipConfig) => {
+  insightChips.forEach((chipConfig) => {
     const chip = new THREE.Mesh(
       new THREE.PlaneGeometry(chipConfig.size[0], chipConfig.size[1]),
       chipConfig.material
@@ -704,10 +704,10 @@ function createOpsBranch(
   });
 
   return {
-    id: 'ops',
+    id: 'insights',
     group,
     nodes,
-    primaryAnchor: OPS_ANCHOR.clone(),
+    primaryAnchor: INSIGHTS_ANCHOR.clone(),
     dynamicMaterials,
     borderMaterial: dashboardBorderMaterial,
     baseBorderOpacity: 0.32,
@@ -852,9 +852,9 @@ export function initHeroDataFlow(): CleanupFn | void {
 
   const sqlBranch = createSqlBranch(getColors(), databaseMaterial, sqlBadgeMaterial, spokeMaterial);
   const apiBranch = createApiBranch(getColors(), apiServiceMaterial, spokeMaterial);
-  const opsBranch = createOpsBranch(getColors(), dashboardMaterial, kpiMaterial, spokeMaterial);
+  const insightsBranch = createInsightsBranch(getColors(), dashboardMaterial, kpiMaterial, spokeMaterial);
 
-  mainGroup.add(sqlBranch.group, apiBranch.group, opsBranch.group);
+  mainGroup.add(sqlBranch.group, apiBranch.group, insightsBranch.group);
 
   const halo = new THREE.Sprite(haloMaterial);
   halo.scale.set(2.8, 2.8, 1);
@@ -865,18 +865,18 @@ export function initHeroDataFlow(): CleanupFn | void {
     socketPoint(SQL_ANCHOR, SQL_SOCKET),
     socketPoint(API_ANCHOR, API_SOCKET)
   );
-  let apiToOpsCurve = buildPipelineCurve(
+  let apiToInsightsCurve = buildPipelineCurve(
     socketPoint(API_ANCHOR, API_SOCKET),
-    socketPoint(OPS_ANCHOR, OPS_SOCKET)
+    socketPoint(INSIGHTS_ANCHOR, INSIGHTS_SOCKET)
   );
 
   const sqlToApiPath = addPathLine(mainGroup, sqlToApiCurve, lineMaterial);
-  const apiToOpsPath = addPathLine(mainGroup, apiToOpsCurve, outputLineMaterial);
+  const apiToInsightsPath = addPathLine(mainGroup, apiToInsightsCurve, outputLineMaterial);
 
   const branchPulse: Record<BranchId, { amount: number }> = {
     sql: { amount: 0 },
     api: { amount: 0 },
-    ops: { amount: 0 },
+    insights: { amount: 0 },
   };
 
   const triggerBranchPulse = (branch: BranchId, strength = 1) => {
@@ -904,8 +904,8 @@ export function initHeroDataFlow(): CleanupFn | void {
       startPulse: 'sql',
     },
     {
-      arrivalPulse: 'ops',
-      curve: apiToOpsCurve,
+      arrivalPulse: 'insights',
+      curve: apiToInsightsCurve,
       lastProgress: 0,
       mesh: new THREE.Mesh(packetGeometry, packetMaterial.clone()),
       offset: (0.2 + reducedStaticOffset) % 1,
@@ -913,8 +913,8 @@ export function initHeroDataFlow(): CleanupFn | void {
       startPulse: 'api',
     },
     {
-      arrivalPulse: 'ops',
-      curve: apiToOpsCurve,
+      arrivalPulse: 'insights',
+      curve: apiToInsightsCurve,
       lastProgress: 0.62,
       mesh: new THREE.Mesh(packetGeometry, packetMaterial.clone()),
       offset: (0.62 + reducedStaticOffset) % 1,
@@ -925,7 +925,7 @@ export function initHeroDataFlow(): CleanupFn | void {
 
   packets.forEach((packet) => mainGroup.add(packet.mesh));
 
-  const branchNodes = [...sqlBranch.nodes, ...apiBranch.nodes, ...opsBranch.nodes];
+  const branchNodes = [...sqlBranch.nodes, ...apiBranch.nodes, ...insightsBranch.nodes];
 
   const starGeometry = new THREE.BufferGeometry();
   const starPositions: number[] = [];
@@ -958,7 +958,7 @@ export function initHeroDataFlow(): CleanupFn | void {
     kpiMaterial,
     ...sqlBranch.dynamicMaterials,
     ...apiBranch.dynamicMaterials,
-    ...opsBranch.dynamicMaterials,
+    ...insightsBranch.dynamicMaterials,
   ];
 
   function refreshTextures() {
@@ -988,13 +988,13 @@ export function initHeroDataFlow(): CleanupFn | void {
         makeApiEndpointTexture(
           colors.violet,
           index === 0 ? 'GET' : 'POST',
-          index === 0 ? '/payroll' : '/reports'
+          index === 0 ? '/records' : '/events'
         )
       );
     });
 
-    opsBranch.dynamicMaterials.forEach((material) => {
-      replaceMap(material, makeMetricChipTexture(colors.success, colors.accent, 'throughput', '12.4k/s'));
+    insightsBranch.dynamicMaterials.forEach((material) => {
+      replaceMap(material, makeMetricChipTexture(colors.success, colors.accent, 'activity', '12.4k/s'));
     });
   }
 
@@ -1019,34 +1019,38 @@ export function initHeroDataFlow(): CleanupFn | void {
 
     sqlBranch.borderMaterial.color.copy(bright);
     apiBranch.borderMaterial.color.copy(bright);
-    opsBranch.borderMaterial.color.copy(bright);
+    insightsBranch.borderMaterial.color.copy(bright);
     sqlBranch.borderMaterial.opacity = sqlBranch.baseBorderOpacity;
     apiBranch.borderMaterial.opacity = apiBranch.baseBorderOpacity;
-    opsBranch.borderMaterial.opacity = opsBranch.baseBorderOpacity;
+    insightsBranch.borderMaterial.opacity = insightsBranch.baseBorderOpacity;
 
     refreshTextures();
   }
 
   function syncPacketCurves() {
     packets.forEach((packet) => {
-      packet.curve = packet.arrivalPulse === 'api' ? sqlToApiCurve : apiToOpsCurve;
+      packet.curve = packet.arrivalPulse === 'api' ? sqlToApiCurve : apiToInsightsCurve;
     });
   }
 
-  function updatePipelineCurves(apiAnchor: THREE.Vector3, opsAnchor: THREE.Vector3) {
+  function updatePipelineCurves(apiAnchor: THREE.Vector3, insightsAnchor: THREE.Vector3) {
     const sqlStart = socketPoint(SQL_ANCHOR, SQL_SOCKET);
     const apiPoint = socketPoint(apiAnchor, API_SOCKET);
-    const opsPoint = socketPoint(opsAnchor, OPS_SOCKET);
+    const insightsPoint = socketPoint(insightsAnchor, INSIGHTS_SOCKET);
 
     sqlToApiCurve = buildPipelineCurve(sqlStart, apiPoint);
-    apiToOpsCurve = buildPipelineCurve(apiPoint, opsPoint);
+    apiToInsightsCurve = buildPipelineCurve(apiPoint, insightsPoint);
 
     refreshPathLine(sqlToApiPath.line, sqlToApiCurve, sqlToApiPath.segments);
-    refreshPathLine(apiToOpsPath.line, apiToOpsCurve, apiToOpsPath.segments);
+    refreshPathLine(
+      apiToInsightsPath.line,
+      apiToInsightsCurve,
+      apiToInsightsPath.segments
+    );
     syncPacketCurves();
   }
 
-  let opsBaseY = OPS_ANCHOR.y;
+  let insightsBaseY = INSIGHTS_ANCHOR.y;
 
   function projectAnchorToScreen(anchor: THREE.Vector3): { x: number; y: number } {
     const stageRect = stageElement.getBoundingClientRect();
@@ -1104,17 +1108,17 @@ export function initHeroDataFlow(): CleanupFn | void {
     mainGroup.updateMatrixWorld(true);
 
     const apiAnchor = API_ANCHOR.clone();
-    const opsAnchor = OPS_ANCHOR.clone();
+    const insightsAnchor = INSIGHTS_ANCHOR.clone();
 
     apiBranch.group.position.copy(apiAnchor);
-    opsBranch.group.position.copy(opsAnchor);
+    insightsBranch.group.position.copy(insightsAnchor);
 
     if (containerWidth < 520) {
       alignBranchToLabel(apiBranch.group, apiAnchor, '.flow-orbit-label--api', {
         x: -58,
         y: 48,
       });
-      alignBranchToLabel(opsBranch.group, opsAnchor, '.flow-orbit-label--dash', {
+      alignBranchToLabel(insightsBranch.group, insightsAnchor, '.flow-orbit-label--insights', {
         x: -52,
         y: -14,
       });
@@ -1123,7 +1127,7 @@ export function initHeroDataFlow(): CleanupFn | void {
         x: -62,
         y: 50,
       });
-      alignBranchToLabel(opsBranch.group, opsAnchor, '.flow-orbit-label--dash', {
+      alignBranchToLabel(insightsBranch.group, insightsAnchor, '.flow-orbit-label--insights', {
         x: -50,
         y: -12,
       });
@@ -1132,14 +1136,14 @@ export function initHeroDataFlow(): CleanupFn | void {
         x: -74,
         y: 58,
       });
-      alignBranchToLabel(opsBranch.group, opsAnchor, '.flow-orbit-label--dash', {
+      alignBranchToLabel(insightsBranch.group, insightsAnchor, '.flow-orbit-label--insights', {
         x: -60,
         y: -10,
       });
     }
 
-    updatePipelineCurves(apiAnchor, opsAnchor);
-    opsBaseY = opsAnchor.y;
+    updatePipelineCurves(apiAnchor, insightsAnchor);
+    insightsBaseY = insightsAnchor.y;
 
     mainGroup.rotation.copy(savedRotation);
     mainGroup.updateMatrixWorld(true);
@@ -1195,7 +1199,7 @@ export function initHeroDataFlow(): CleanupFn | void {
     mainGroup.rotation.y = pointer.x * 0.26 + Math.sin(elapsed * 0.16) * 0.08;
     mainGroup.rotation.x = pointer.y * 0.16 + Math.sin(elapsed * 0.2) * 0.045;
     sqlBranch.group.rotation.y = elapsed * 0.28;
-    opsBranch.group.position.y = opsBaseY + Math.sin(elapsed * 0.78) * 0.035;
+    insightsBranch.group.position.y = insightsBaseY + Math.sin(elapsed * 0.78) * 0.035;
     halo.material.opacity = 0.24 + Math.sin(elapsed * 1.4) * 0.05;
 
     branchNodes.forEach((node) => {
@@ -1204,15 +1208,21 @@ export function initHeroDataFlow(): CleanupFn | void {
 
     branchPulse.sql.amount *= 0.88;
     branchPulse.api.amount *= 0.88;
-    branchPulse.ops.amount *= 0.88;
+    branchPulse.insights.amount *= 0.88;
 
     const sqlPulse = branchPulse.sql.amount;
     const apiPulse = branchPulse.api.amount;
-    const opsPulse = branchPulse.ops.amount;
+    const insightsPulse = branchPulse.insights.amount;
 
     applyBorderPulse(sqlBranch.borderMaterial, bright, success, sqlBranch.baseBorderOpacity, sqlPulse);
     applyBorderPulse(apiBranch.borderMaterial, bright, success, apiBranch.baseBorderOpacity, apiPulse);
-    applyBorderPulse(opsBranch.borderMaterial, bright, success, opsBranch.baseBorderOpacity, opsPulse);
+    applyBorderPulse(
+      insightsBranch.borderMaterial,
+      bright,
+      success,
+      insightsBranch.baseBorderOpacity,
+      insightsPulse
+    );
 
     packets.forEach((packet) => {
       const progress = prefersReducedMotion
