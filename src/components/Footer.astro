@@ -1,0 +1,26 @@
+---
+import Icon from "./Icon.astro";
+import { profile } from "@content/portfolio";
+---
+
+<footer class="site-footer">
+  <div>
+    <p class="eyebrow">Open to the right next build</p>
+    <h2>Need someone who can make the system behave?</h2>
+    <p>
+      I’m strongest where APIs, databases, dashboards, and business workflows meet.
+    </p>
+  </div>
+  <div class="footer-actions">
+    <a class="button button-primary" href={`mailto:${profile.email}`}>
+      <Icon name="mail" />
+      {profile.email}
+    </a>
+    <a class="icon-link" href={profile.github} aria-label="GitHub profile">
+      <Icon name="github" />
+    </a>
+    <a class="icon-link" href={profile.linkedin} aria-label="LinkedIn profile">
+      <Icon name="linkedin" />
+    </a>
+  </div>
+</footer>

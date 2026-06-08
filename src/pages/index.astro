@@ -1,0 +1,26 @@
+---
+import ExperienceTimeline from "@components/ExperienceTimeline.astro";
+import Footer from "@components/Footer.astro";
+import Hero from "@components/Hero.astro";
+import Nav from "@components/Nav.astro";
+import ProjectGrid from "@components/ProjectGrid.astro";
+import TechStack from "@components/TechStack.astro";
+import ToolsPreview from "@components/ToolsPreview.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { profile } from "@content/portfolio";
+---
+
+<BaseLayout
+  title={`${profile.name} - Enterprise Software Engineer`}
+  description={profile.summary}
+>
+  <Nav />
+  <main>
+    <Hero />
+    <ExperienceTimeline />
+    <ProjectGrid />
+    <TechStack />
+    <ToolsPreview />
+  </main>
+  <Footer />
+</BaseLayout>

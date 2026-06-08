@@ -1,0 +1,27 @@
+---
+import SectionHeader from "./SectionHeader.astro";
+import { tools } from "@content/portfolio";
+---
+
+<section class="section-shell tools-section" id="tools">
+  <SectionHeader
+    eyebrow="Tools"
+    title="Small utilities, built because useful things should be within reach."
+    copy="The tools page is staying part of the story: it shows the practical developer instinct behind the portfolio."
+  />
+
+  <div class="tools-panel">
+    <div>
+      <p class="panel-kicker">Current tool bench</p>
+      <h3>Developer utilities and everyday calculators</h3>
+      <p>
+        A set of focused tools including encoders, validators, converters, and planning helpers. In this revamp,
+        they become proof of craft instead of sitting off to the side.
+      </p>
+      <a class="button button-secondary" href="/tools/">View tools</a>
+    </div>
+    <div class="tool-list" aria-label="Available tools">
+      {tools.map((tool) => <span>{tool}</span>)}
+    </div>
+  </div>
+</section>

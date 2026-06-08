@@ -1,0 +1,32 @@
+---
+import Icon from "./Icon.astro";
+import { profile } from "@content/portfolio";
+
+const links = [
+  { label: "Experience", href: "/#experience" },
+  { label: "Projects", href: "/#projects" },
+  { label: "Stack", href: "/#stack" },
+  { label: "Tools", href: "/tools/" },
+];
+---
+
+<header class="site-header">
+  <a class="brand" href="/#top" aria-label="Aqilzikry Arman home">
+    <span>AA.</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    {
+      links.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))
+    }
+  </nav>
+  <div class="nav-actions">
+    <a class="icon-link" href={profile.github} aria-label="GitHub profile">
+      <Icon name="github" />
+    </a>
+    <a class="icon-link" href={profile.linkedin} aria-label="LinkedIn profile">
+      <Icon name="linkedin" />
+    </a>
+  </div>
+</header>

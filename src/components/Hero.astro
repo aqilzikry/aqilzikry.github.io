@@ -1,0 +1,44 @@
+---
+import Icon from "./Icon.astro";
+import HeroDataFlow from "./HeroDataFlow.astro";
+import { profile } from "@content/portfolio";
+---
+
+<section class="hero section-shell" id="top">
+  <div class="hero-copy">
+    <p class="eyebrow">Developer Workbench / Portfolio v2</p>
+    <h1>{profile.name}</h1>
+    <p class="hero-role">{profile.role}</p>
+    <p class="hero-summary">{profile.headline}</p>
+    <div class="hero-actions" aria-label="Primary actions">
+      <a class="button button-primary" href={`mailto:${profile.email}`}>
+        <Icon name="mail" />
+        Contact me
+      </a>
+      <a class="button button-secondary" href={profile.resume}>
+        <Icon name="download" />
+        Download CV
+      </a>
+    </div>
+    <div class="signal-grid" aria-label="Career highlights">
+      {profile.signals.map((signal) => <span>{signal}</span>)}
+    </div>
+  </div>
+  <div class="hero-visual" aria-label="Profile placeholder">
+    <div class="terminal-card workbench-window">
+      <div class="terminal-bar" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="flow-frame">
+        <HeroDataFlow />
+      </div>
+      <div class="terminal-lines" aria-hidden="true">
+        <span><b>$</b> dotnet build enterprise-dashboard</span>
+        <span><b>&gt;</b> optimized SQL query: 15m -> &lt;1s</span>
+        <span><b>&gt;</b> shipped internal tools with clean interfaces</span>
+      </div>
+    </div>
+  </div>
+</section>

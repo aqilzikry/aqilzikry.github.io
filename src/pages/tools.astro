@@ -1,0 +1,30 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Nav from "@components/Nav.astro";
+import Footer from "@components/Footer.astro";
+import ToolsWorkspace from "@components/ToolsWorkspace.astro";
+---
+
+<BaseLayout
+  title="Tools - Aqilzikry Arman"
+  description="A practical bench of developer utilities and everyday calculators built by Aqilzikry Arman."
+>
+  <Nav />
+  <main class="tools-page">
+    <section class="tools-hero">
+      <div class="tools-hero-copy">
+        <p class="eyebrow">Utility bench / 08 tools</p>
+        <h1>Useful, without the detour.</h1>
+        <p>
+          Fast developer utilities and everyday calculators. No accounts, no uploads, no clutter.
+        </p>
+      </div>
+      <div class="tools-hero-meta" aria-label="Tool characteristics">
+        <span><b>100%</b> browser-based</span>
+        <span><b>0</b> data retained</span>
+      </div>
+    </section>
+    <ToolsWorkspace />
+  </main>
+  <Footer />
+</BaseLayout>

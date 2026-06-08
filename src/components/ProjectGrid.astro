@@ -1,0 +1,48 @@
+---
+import Icon from "./Icon.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { projects } from "@content/portfolio";
+---
+
+<section class="section-shell" id="projects">
+  <SectionHeader
+    eyebrow="Projects"
+    title="Useful software with a product-minded edge."
+    copy="A selected mix of education products, dashboards, and tooling that shows how I think through systems and interfaces."
+  />
+
+  <div class="project-grid">
+    {
+      projects.map((project) => (
+        <article class="project-card">
+          <div class="project-image">
+            <img src={project.image} alt={`${project.name} placeholder preview`} width="960" height="640" loading="lazy" />
+            <!--
+              Replace the placeholder after adding your asset:
+              <img src={`/assets/${project.replacementFile}`} alt={`${project.name} preview`} width="960" height="640" loading="lazy" />
+            -->
+          </div>
+          <div class="project-body">
+            <p class="eyebrow">{project.type}</p>
+            <h3>{project.name}</h3>
+            <p>{project.summary}</p>
+            <p class="project-impact">{project.impact}</p>
+            <div class="tag-row">
+              {project.stack.map((tag) => <span>{tag}</span>)}
+            </div>
+            {project.links?.length && (
+              <div class="project-links">
+                {project.links.map((link) => (
+                  <a href={link.href}>
+                    {link.label}
+                    <Icon name="arrow" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,25 @@
+---
+import SectionHeader from "./SectionHeader.astro";
+import { techGroups } from "@content/portfolio";
+---
+
+<section class="section-shell" id="stack">
+  <SectionHeader
+    eyebrow="Stack"
+    title="Tools chosen for reliability, delivery, and maintainability."
+    copy="Grouped by the kind of work they support, because a stack list should explain capability instead of just collecting logos."
+  />
+
+  <div class="stack-grid">
+    {
+      techGroups.map((group) => (
+        <article class="stack-card">
+          <h3>{group.label}</h3>
+          <div class="tag-row">
+            {group.items.map((item) => <span>{item}</span>)}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>

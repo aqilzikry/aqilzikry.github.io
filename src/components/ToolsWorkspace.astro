@@ -1,0 +1,415 @@
+---
+const toolItems = [
+  { id: "color", name: "Color converter", category: "Design", icon: "palette", description: "Convert HEX colors to RGB and HSL." },
+  { id: "validator", name: "JSON / XML validator", category: "Data", icon: "braces", description: "Validate and format structured payloads." },
+  { id: "jwt", name: "JWT decoder", category: "Security", icon: "key", description: "Inspect token headers and payloads locally." },
+  { id: "base64", name: "Base64 encoder", category: "Encoding", icon: "binary", description: "Encode or decode UTF-8 text." },
+  { id: "url", name: "URL encoder", category: "Encoding", icon: "link", description: "Encode and decode URL components." },
+  { id: "timezone", name: "Timezone converter", category: "Time", icon: "clock", description: "Compare a moment across timezones." },
+  { id: "budget", name: "Budget calculator", category: "Planning", icon: "calculator", description: "Break income into a practical monthly plan." },
+  { id: "deadline", name: "Deadline countdown", category: "Planning", icon: "calendar", description: "See the exact time remaining to a deadline." },
+] as const;
+
+const iconPaths: Record<string, string[]> = {
+  palette: ["M12 22a10 10 0 1 1 10-10c0 2.76-2.24 5-5 5h-1.79a2 2 0 0 0-1.79 2.89l.18.36A1.2 1.2 0 0 1 12.52 22Z", "M7.5 10.5h.01", "M10.5 7.5h.01", "M14.5 7.5h.01", "M17 11h.01"],
+  braces: ["M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1", "M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1"],
+  key: ["M21 2l-2 2", "M7.61 13.71a5.5 5.5 0 1 1 2.68 2.68L5 21.68 2.32 19l5.29-5.29Z", "m15.5 7.5 2 2L21 6l-2-2Z"],
+  binary: ["M6 20h4", "M8 16V4", "M14 4h4v16h-4z"],
+  link: ["M10 13a5 5 0 0 0 7.07.07l2-2a5 5 0 0 0-7.07-7.07l-1.15 1.15", "M14 11a5 5 0 0 0-7.07-.07l-2 2A5 5 0 0 0 12 20l1.15-1.15"],
+  clock: ["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "M12 6v6l4 2"],
+  calculator: ["M4 2h16v20H4z", "M8 6h8", "M8 11h.01", "M12 11h.01", "M16 11h.01", "M8 15h.01", "M12 15h.01", "M16 15h.01", "M8 19h.01", "M12 19h.01", "M16 19h.01"],
+  calendar: ["M3 5h18v16H3z", "M16 3v4", "M8 3v4", "M3 10h18"],
+};
+---
+
+<section class="tools-workspace" data-tools-workspace>
+  <aside class="tools-sidebar">
+    <div class="tool-search">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+      <label class="sr-only" for="tool-search">Find a tool</label>
+      <input id="tool-search" type="search" placeholder="Find a tool" autocomplete="off" />
+      <kbd>/</kbd>
+    </div>
+
+    <div class="tool-nav" role="tablist" aria-label="Developer tools">
+      {
+        toolItems.map((tool, index) => (
+          <button
+            class:list={["tool-nav-item", { active: index === 0 }]}
+            type="button"
+            role="tab"
+            aria-selected={index === 0 ? "true" : "false"}
+            aria-controls={`panel-${tool.id}`}
+            data-tool={tool.id}
+            data-search={`${tool.name} ${tool.category} ${tool.description}`.toLowerCase()}
+          >
+            <span class="tool-nav-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                {iconPaths[tool.icon].map((path) => <path d={path}></path>)}
+              </svg>
+            </span>
+            <span>
+              <strong>{tool.name}</strong>
+              <small>{tool.category}</small>
+            </span>
+            <svg class="tool-nav-arrow" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+          </button>
+        ))
+      }
+      <p class="tool-empty" hidden>No matches. Try “encode”, “time”, or “data”.</p>
+    </div>
+
+    <p class="local-note">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+      Everything runs in your browser. Nothing is uploaded.
+    </p>
+  </aside>
+
+  <div class="tool-stage">
+    <header class="tool-stage-header">
+      <div>
+        <p class="panel-kicker">Active utility</p>
+        <h2 data-active-title>Color converter</h2>
+      </div>
+      <span class="tool-status"><i></i> Client-side</span>
+    </header>
+
+    <div class="tool-panels">
+      <section class="tool-panel active" id="panel-color" role="tabpanel" data-panel="color">
+        <div class="tool-intro">
+          <h3>Color converter</h3>
+          <p>Enter a HEX value to generate matching RGB and HSL values.</p>
+        </div>
+        <div class="color-workbench">
+          <label class="color-preview" for="color-picker" data-color-preview>
+            <input id="color-picker" type="color" value="#22c55e" aria-label="Choose a color" />
+            <span>Click to pick</span>
+          </label>
+          <div class="field-stack">
+            <label class="field">
+              <span>HEX</span>
+              <div class="field-action"><input id="hex-input" value="#22C55E" spellcheck="false" /><button type="button" data-copy-target="hex-input" aria-label="Copy HEX value">Copy</button></div>
+            </label>
+            <label class="field">
+              <span>RGB</span>
+              <div class="field-action"><input id="rgb-output" value="rgb(34, 197, 94)" readonly /><button type="button" data-copy-target="rgb-output" aria-label="Copy RGB value">Copy</button></div>
+            </label>
+            <label class="field">
+              <span>HSL</span>
+              <div class="field-action"><input id="hsl-output" value="hsl(142, 71%, 45%)" readonly /><button type="button" data-copy-target="hsl-output" aria-label="Copy HSL value">Copy</button></div>
+            </label>
+          </div>
+        </div>
+        <p class="inline-feedback" id="color-feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="tool-panel" id="panel-validator" role="tabpanel" data-panel="validator" hidden>
+        <div class="tool-intro"><h3>JSON / XML validator</h3><p>Check syntax and format structured data for easier reading.</p></div>
+        <div class="segmented-control" aria-label="Data format">
+          <button type="button" class="active" data-format="json">JSON</button>
+          <button type="button" data-format="xml">XML</button>
+        </div>
+        <label class="field"><span>Payload</span><textarea id="validator-input" rows="10" spellcheck="false" placeholder='{"status":"ready"}'></textarea></label>
+        <div class="tool-actions"><button class="button button-primary" type="button" id="validate-button">Validate & format</button><button class="button button-secondary" type="button" data-clear="validator-input">Clear</button></div>
+        <p class="inline-feedback" id="validator-feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="tool-panel" id="panel-jwt" role="tabpanel" data-panel="jwt" hidden>
+        <div class="tool-intro"><h3>JWT decoder</h3><p>Decode a JSON Web Token without sending it to a server. Signatures are not verified.</p></div>
+        <label class="field"><span>Encoded token</span><textarea id="jwt-input" rows="5" spellcheck="false" placeholder="eyJhbGciOi..."></textarea></label>
+        <div class="tool-actions"><button class="button button-primary" type="button" id="jwt-button">Decode token</button><button class="button button-secondary" type="button" data-clear="jwt-input">Clear</button></div>
+        <div class="output-grid">
+          <label class="field"><span>Header</span><textarea id="jwt-header" rows="7" readonly></textarea></label>
+          <label class="field"><span>Payload</span><textarea id="jwt-payload" rows="7" readonly></textarea></label>
+        </div>
+        <p class="inline-feedback" id="jwt-feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="tool-panel" id="panel-base64" role="tabpanel" data-panel="base64" hidden>
+        <div class="tool-intro"><h3>Base64 encoder</h3><p>Encode readable UTF-8 text or decode a Base64 string.</p></div>
+        <label class="field"><span>Input</span><textarea id="base64-input" rows="7" spellcheck="false" placeholder="Paste text here"></textarea></label>
+        <div class="tool-actions"><button class="button button-primary" type="button" id="base64-encode">Encode</button><button class="button button-secondary" type="button" id="base64-decode">Decode</button></div>
+        <label class="field"><span>Result</span><div class="field-action text-action"><textarea id="base64-output" rows="7" readonly></textarea><button type="button" data-copy-target="base64-output">Copy</button></div></label>
+        <p class="inline-feedback" id="base64-feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="tool-panel" id="panel-url" role="tabpanel" data-panel="url" hidden>
+        <div class="tool-intro"><h3>URL encoder</h3><p>Safely encode query values and decode percent-encoded text.</p></div>
+        <label class="field"><span>Input</span><textarea id="url-input" rows="7" spellcheck="false" placeholder="hello world & status=ready"></textarea></label>
+        <div class="tool-actions"><button class="button button-primary" type="button" id="url-encode">Encode component</button><button class="button button-secondary" type="button" id="url-decode">Decode</button></div>
+        <label class="field"><span>Result</span><div class="field-action text-action"><textarea id="url-output" rows="7" readonly></textarea><button type="button" data-copy-target="url-output">Copy</button></div></label>
+        <p class="inline-feedback" id="url-feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="tool-panel" id="panel-timezone" role="tabpanel" data-panel="timezone" hidden>
+        <div class="tool-intro"><h3>Timezone converter</h3><p>Choose a local date and compare it in another timezone.</p></div>
+        <div class="output-grid">
+          <label class="field"><span>Date and time</span><input id="timezone-date" type="datetime-local" /></label>
+          <label class="field"><span>Destination timezone</span><select id="timezone-select"><option value="Asia/Kuala_Lumpur">Kuala Lumpur</option><option value="UTC">UTC</option><option value="America/New_York">New York</option><option value="Europe/London">London</option><option value="Asia/Tokyo">Tokyo</option><option value="Australia/Sydney">Sydney</option></select></label>
+        </div>
+        <div class="result-display"><span>Converted time</span><strong id="timezone-output">Select a date and time</strong><small id="timezone-zone">Your current timezone → Kuala Lumpur</small></div>
+      </section>
+
+      <section class="tool-panel" id="panel-budget" role="tabpanel" data-panel="budget" hidden>
+        <div class="tool-intro"><h3>Budget calculator</h3><p>Use the 50 / 30 / 20 framework as a quick planning baseline.</p></div>
+        <label class="field"><span>Monthly take-home income</span><div class="money-input"><span>RM</span><input id="budget-income" type="number" min="0" step="100" value="5000" /></div></label>
+        <div class="budget-results">
+          <article><span>Needs · 50%</span><strong id="budget-needs">RM 2,500.00</strong><i style="--share: 50%"></i></article>
+          <article><span>Wants · 30%</span><strong id="budget-wants">RM 1,500.00</strong><i style="--share: 30%"></i></article>
+          <article><span>Savings · 20%</span><strong id="budget-savings">RM 1,000.00</strong><i style="--share: 20%"></i></article>
+        </div>
+      </section>
+
+      <section class="tool-panel" id="panel-deadline" role="tabpanel" data-panel="deadline" hidden>
+        <div class="tool-intro"><h3>Deadline countdown</h3><p>Turn a target date into a clear, live countdown.</p></div>
+        <label class="field"><span>Deadline</span><input id="deadline-input" type="datetime-local" /></label>
+        <div class="countdown-grid" aria-live="polite">
+          <article><strong id="countdown-days">00</strong><span>Days</span></article>
+          <article><strong id="countdown-hours">00</strong><span>Hours</span></article>
+          <article><strong id="countdown-minutes">00</strong><span>Minutes</span></article>
+          <article><strong id="countdown-seconds">00</strong><span>Seconds</span></article>
+        </div>
+        <p class="inline-feedback" id="deadline-feedback">Choose a future date to begin.</p>
+      </section>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-tools-workspace]");
+
+  if (root) {
+    const navItems = [...root.querySelectorAll<HTMLButtonElement>("[data-tool]")];
+    const panels = [...root.querySelectorAll<HTMLElement>("[data-panel]")];
+    const activeTitle = root.querySelector<HTMLElement>("[data-active-title]");
+    const search = root.querySelector<HTMLInputElement>("#tool-search");
+    const empty = root.querySelector<HTMLElement>(".tool-empty");
+
+    const activateTool = (id: string) => {
+      navItems.forEach((item) => {
+        const active = item.dataset.tool === id;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-selected", String(active));
+      });
+      panels.forEach((panel) => {
+        const active = panel.dataset.panel === id;
+        panel.hidden = !active;
+        panel.classList.toggle("active", active);
+      });
+      const selected = navItems.find((item) => item.dataset.tool === id);
+      const title = selected?.querySelector("strong")?.textContent;
+      if (activeTitle && title) activeTitle.textContent = title;
+      history.replaceState(null, "", `#${id}`);
+    };
+
+    navItems.forEach((item) => item.addEventListener("click", () => activateTool(item.dataset.tool ?? "color")));
+    const hashTool = location.hash.slice(1);
+    if (navItems.some((item) => item.dataset.tool === hashTool)) activateTool(hashTool);
+
+    search?.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      let visible = 0;
+      navItems.forEach((item) => {
+        const matches = !query || item.dataset.search?.includes(query);
+        item.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      if (empty) empty.hidden = visible > 0;
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+        event.preventDefault();
+        search?.focus();
+      }
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-copy-target]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = root.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${button.dataset.copyTarget}`);
+        if (!target) return;
+        await navigator.clipboard.writeText(target.value);
+        const original = button.textContent;
+        button.textContent = "Copied";
+        window.setTimeout(() => (button.textContent = original), 1200);
+      });
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-clear]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = root.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${button.dataset.clear}`);
+        if (target) {
+          target.value = "";
+          target.focus();
+        }
+      });
+    });
+
+    const hexInput = root.querySelector<HTMLInputElement>("#hex-input");
+    const colorPicker = root.querySelector<HTMLInputElement>("#color-picker");
+    const rgbOutput = root.querySelector<HTMLInputElement>("#rgb-output");
+    const hslOutput = root.querySelector<HTMLInputElement>("#hsl-output");
+    const colorPreview = root.querySelector<HTMLElement>("[data-color-preview]");
+    const colorFeedback = root.querySelector<HTMLElement>("#color-feedback");
+
+    const updateColor = (raw: string) => {
+      const value = raw.trim().replace(/^#/, "");
+      const normalized = value.length === 3 ? value.split("").map((char) => char + char).join("") : value;
+      if (!/^[0-9a-fA-F]{6}$/.test(normalized)) {
+        if (colorFeedback) colorFeedback.textContent = "Enter a valid 3 or 6 digit HEX color.";
+        return;
+      }
+      const [r, g, b] = [0, 2, 4].map((index) => parseInt(normalized.slice(index, index + 2), 16));
+      const [rn, gn, bn] = [r / 255, g / 255, b / 255];
+      const max = Math.max(rn, gn, bn);
+      const min = Math.min(rn, gn, bn);
+      const light = (max + min) / 2;
+      const delta = max - min;
+      let hue = 0;
+      if (delta) {
+        if (max === rn) hue = ((gn - bn) / delta) % 6;
+        else if (max === gn) hue = (bn - rn) / delta + 2;
+        else hue = (rn - gn) / delta + 4;
+        hue = Math.round(hue * 60);
+        if (hue < 0) hue += 360;
+      }
+      const saturation = delta ? delta / (1 - Math.abs(2 * light - 1)) : 0;
+      const hex = `#${normalized.toUpperCase()}`;
+      if (hexInput) hexInput.value = hex;
+      if (colorPicker) colorPicker.value = hex;
+      if (rgbOutput) rgbOutput.value = `rgb(${r}, ${g}, ${b})`;
+      if (hslOutput) hslOutput.value = `hsl(${hue}, ${Math.round(saturation * 100)}%, ${Math.round(light * 100)}%)`;
+      if (colorPreview) colorPreview.style.setProperty("--preview-color", hex);
+      if (colorFeedback) colorFeedback.textContent = "Color values updated.";
+    };
+    hexInput?.addEventListener("input", () => updateColor(hexInput.value));
+    colorPicker?.addEventListener("input", () => updateColor(colorPicker.value));
+    updateColor("#22C55E");
+
+    let validatorFormat = "json";
+    root.querySelectorAll<HTMLButtonElement>("[data-format]").forEach((button) => {
+      button.addEventListener("click", () => {
+        validatorFormat = button.dataset.format ?? "json";
+        root.querySelectorAll("[data-format]").forEach((item) => item.classList.toggle("active", item === button));
+      });
+    });
+    root.querySelector("#validate-button")?.addEventListener("click", () => {
+      const input = root.querySelector<HTMLTextAreaElement>("#validator-input");
+      const feedback = root.querySelector<HTMLElement>("#validator-feedback");
+      if (!input || !feedback) return;
+      try {
+        if (validatorFormat === "json") input.value = JSON.stringify(JSON.parse(input.value), null, 2);
+        else {
+          const doc = new DOMParser().parseFromString(input.value, "application/xml");
+          const error = doc.querySelector("parsererror");
+          if (error) throw new Error(error.textContent ?? "Invalid XML");
+          const serializer = new XMLSerializer().serializeToString(doc);
+          input.value = serializer.replace(/(>)(<)(\/*)/g, "$1\n$2$3");
+        }
+        feedback.textContent = `Valid ${validatorFormat.toUpperCase()} — formatted successfully.`;
+        feedback.dataset.state = "success";
+      } catch (error) {
+        feedback.textContent = error instanceof Error ? error.message.split("\n")[0] : "Invalid input.";
+        feedback.dataset.state = "error";
+      }
+    });
+
+    const decodeBase64Url = (value: string) => {
+      const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+      return decodeURIComponent([...atob(base64)].map((char) => `%${char.charCodeAt(0).toString(16).padStart(2, "0")}`).join(""));
+    };
+    root.querySelector("#jwt-button")?.addEventListener("click", () => {
+      const input = root.querySelector<HTMLTextAreaElement>("#jwt-input");
+      const header = root.querySelector<HTMLTextAreaElement>("#jwt-header");
+      const payload = root.querySelector<HTMLTextAreaElement>("#jwt-payload");
+      const feedback = root.querySelector<HTMLElement>("#jwt-feedback");
+      try {
+        const parts = input?.value.trim().split(".") ?? [];
+        if (parts.length < 2) throw new Error("A JWT must contain at least a header and payload.");
+        if (header) header.value = JSON.stringify(JSON.parse(decodeBase64Url(parts[0])), null, 2);
+        if (payload) payload.value = JSON.stringify(JSON.parse(decodeBase64Url(parts[1])), null, 2);
+        if (feedback) feedback.textContent = "Token decoded. Signature has not been verified.";
+      } catch (error) {
+        if (feedback) feedback.textContent = error instanceof Error ? error.message : "Unable to decode token.";
+      }
+    });
+
+    const base64Input = root.querySelector<HTMLTextAreaElement>("#base64-input");
+    const base64Output = root.querySelector<HTMLTextAreaElement>("#base64-output");
+    const base64Feedback = root.querySelector<HTMLElement>("#base64-feedback");
+    root.querySelector("#base64-encode")?.addEventListener("click", () => {
+      if (!base64Input || !base64Output) return;
+      const bytes = new TextEncoder().encode(base64Input.value);
+      base64Output.value = btoa(String.fromCharCode(...bytes));
+      if (base64Feedback) base64Feedback.textContent = "Text encoded successfully.";
+    });
+    root.querySelector("#base64-decode")?.addEventListener("click", () => {
+      try {
+        if (!base64Input || !base64Output) return;
+        const bytes = Uint8Array.from(atob(base64Input.value.trim()), (char) => char.charCodeAt(0));
+        base64Output.value = new TextDecoder().decode(bytes);
+        if (base64Feedback) base64Feedback.textContent = "Base64 decoded successfully.";
+      } catch {
+        if (base64Feedback) base64Feedback.textContent = "That is not valid Base64.";
+      }
+    });
+
+    const urlInput = root.querySelector<HTMLTextAreaElement>("#url-input");
+    const urlOutput = root.querySelector<HTMLTextAreaElement>("#url-output");
+    const urlFeedback = root.querySelector<HTMLElement>("#url-feedback");
+    root.querySelector("#url-encode")?.addEventListener("click", () => {
+      if (urlInput && urlOutput) urlOutput.value = encodeURIComponent(urlInput.value);
+      if (urlFeedback) urlFeedback.textContent = "URL component encoded.";
+    });
+    root.querySelector("#url-decode")?.addEventListener("click", () => {
+      try {
+        if (urlInput && urlOutput) urlOutput.value = decodeURIComponent(urlInput.value);
+        if (urlFeedback) urlFeedback.textContent = "URL component decoded.";
+      } catch {
+        if (urlFeedback) urlFeedback.textContent = "The input contains an invalid encoded sequence.";
+      }
+    });
+
+    const timezoneDate = root.querySelector<HTMLInputElement>("#timezone-date");
+    const timezoneSelect = root.querySelector<HTMLSelectElement>("#timezone-select");
+    const timezoneOutput = root.querySelector<HTMLElement>("#timezone-output");
+    const timezoneZone = root.querySelector<HTMLElement>("#timezone-zone");
+    const updateTimezone = () => {
+      if (!timezoneDate?.value || !timezoneOutput || !timezoneSelect) return;
+      const date = new Date(timezoneDate.value);
+      timezoneOutput.textContent = new Intl.DateTimeFormat("en-MY", { dateStyle: "full", timeStyle: "short", timeZone: timezoneSelect.value }).format(date);
+      if (timezoneZone) timezoneZone.textContent = `${Intl.DateTimeFormat().resolvedOptions().timeZone} → ${timezoneSelect.options[timezoneSelect.selectedIndex].text}`;
+    };
+    timezoneDate?.addEventListener("input", updateTimezone);
+    timezoneSelect?.addEventListener("change", updateTimezone);
+
+    const budgetInput = root.querySelector<HTMLInputElement>("#budget-income");
+    const currency = new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR" });
+    const updateBudget = () => {
+      const income = Math.max(0, Number(budgetInput?.value) || 0);
+      const values = { needs: income * 0.5, wants: income * 0.3, savings: income * 0.2 };
+      Object.entries(values).forEach(([key, value]) => {
+        const target = root.querySelector<HTMLElement>(`#budget-${key}`);
+        if (target) target.textContent = currency.format(value);
+      });
+    };
+    budgetInput?.addEventListener("input", updateBudget);
+
+    const deadlineInput = root.querySelector<HTMLInputElement>("#deadline-input");
+    const countdown = () => {
+      const target = deadlineInput?.value ? new Date(deadlineInput.value).getTime() : 0;
+      const remaining = target - Date.now();
+      const feedback = root.querySelector<HTMLElement>("#deadline-feedback");
+      const units = remaining > 0
+        ? [Math.floor(remaining / 86400000), Math.floor((remaining / 3600000) % 24), Math.floor((remaining / 60000) % 60), Math.floor((remaining / 1000) % 60)]
+        : [0, 0, 0, 0];
+      ["days", "hours", "minutes", "seconds"].forEach((unit, index) => {
+        const element = root.querySelector<HTMLElement>(`#countdown-${unit}`);
+        if (element) element.textContent = String(units[index]).padStart(2, "0");
+      });
+      if (feedback && target) feedback.textContent = remaining > 0 ? "Countdown is live." : "This deadline has passed.";
+    };
+    deadlineInput?.addEventListener("input", countdown);
+    window.setInterval(countdown, 1000);
+  }
+</script>
