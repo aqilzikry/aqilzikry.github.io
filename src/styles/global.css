@@ -28,6 +28,7 @@
   --color-text-muted: 148 163 184;
   --color-border-soft: 148 163 184;
   --color-surface-glass: 15 23 42;
+  --color-surface-elevated: 15 23 42;
 }
 
 * {

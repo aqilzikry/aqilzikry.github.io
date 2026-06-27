@@ -772,9 +772,9 @@ export function initHeroDataFlow(): CleanupFn | void {
   const databaseMaterial = new THREE.MeshPhysicalMaterial({
     color: accent,
     emissive: accent,
-    emissiveIntensity: 0.09,
+    emissiveIntensity: 0.06,
     metalness: 0.18,
-    opacity: 0.58,
+    opacity: 0.5,
     roughness: 0.36,
     transparent: true,
   });
@@ -846,7 +846,7 @@ export function initHeroDataFlow(): CleanupFn | void {
     color: accent,
     depthWrite: false,
     map: makeGlowTexture(accent),
-    opacity: 0.34,
+    opacity: 0.24,
     transparent: true,
   });
 
