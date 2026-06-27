@@ -6,6 +6,60 @@ const selectTool = async (page: import("@playwright/test").Page, id: string) => 
 };
 
 test.describe("Tools page", () => {
+  test("links homepage tool pills to their tools", async ({ page }) => {
+    await page.goto("/");
+
+    const deadlinePill = page.getByRole("link", { name: "Deadline countdown" });
+    await expect(deadlinePill).toHaveAttribute("href", /\/tools\/#deadline$/);
+    await deadlinePill.click();
+
+    await expect(page).toHaveURL(/\/tools\/#deadline$/);
+    await expect(page.locator("[data-active-title]")).toHaveText("Deadline countdown");
+    await expect(page.locator('[data-panel="deadline"]')).toBeVisible();
+  });
+
+  for (const viewport of [
+    { name: "desktop", width: 1280, height: 900 },
+    { name: "mobile", width: 390, height: 844 },
+  ]) {
+    test(`scrolls a referenced tool into view on ${viewport.name}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/tools/#deadline");
+
+      await expect(page.locator("[data-active-title]")).toHaveText("Deadline countdown");
+      await expect(page.locator('[data-tool="deadline"]')).toHaveClass(/active/);
+      await page.waitForFunction(() => {
+        const workspace = document.querySelector("[data-tools-workspace]");
+        const nav = document.querySelector(".tool-nav");
+        const active = document.querySelector('[data-tool="deadline"]');
+        if (!workspace || !nav || !active) return false;
+        const { y } = workspace.getBoundingClientRect();
+        const navBox = nav.getBoundingClientRect();
+        const activeBox = active.getBoundingClientRect();
+        return (
+          y >= 80 &&
+          y <= 160 &&
+          activeBox.x >= navBox.x &&
+          activeBox.x + activeBox.width <= navBox.x + navBox.width + 1
+        );
+      });
+
+      const workspaceBox = await page.locator("[data-tools-workspace]").boundingBox();
+      const navBox = await page.locator(".tool-nav").boundingBox();
+      const activeBox = await page.locator('[data-tool="deadline"]').boundingBox();
+
+      expect(workspaceBox).not.toBeNull();
+      expect(navBox).not.toBeNull();
+      expect(activeBox).not.toBeNull();
+      expect(workspaceBox!.y).toBeGreaterThanOrEqual(80);
+      expect(workspaceBox!.y).toBeLessThanOrEqual(160);
+      expect(activeBox!.x).toBeGreaterThanOrEqual(navBox!.x);
+      expect(activeBox!.x + activeBox!.width).toBeLessThanOrEqual(navBox!.x + navBox!.width + 1);
+      expect(activeBox!.y + activeBox!.height).toBeGreaterThanOrEqual(0);
+      expect(activeBox!.y).toBeLessThanOrEqual(viewport.height);
+    });
+  }
+
   test("keeps datetime fields inside the mobile viewport", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/tools");

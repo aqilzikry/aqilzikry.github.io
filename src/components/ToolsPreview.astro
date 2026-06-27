@@ -1,6 +1,17 @@
 ---
 import SectionHeader from "./SectionHeader.astro";
 import { tools } from "@content/portfolio";
+
+const toolRefs: Record<string, string> = {
+  "Color converter": "color",
+  "JSON/XML validator": "validator",
+  "JWT decoder": "jwt",
+  "Base64 encoder": "base64",
+  "URL encoder": "url",
+  "Timezone converter": "timezone",
+  "Budget calculator": "budget",
+  "Deadline countdown": "deadline",
+};
 ---
 
 <section class="section-shell tools-section" id="tools">
@@ -21,7 +32,7 @@ import { tools } from "@content/portfolio";
       <a class="button button-secondary" href="/tools/">View tools</a>
     </div>
     <div class="tool-list" aria-label="Available tools">
-      {tools.map((tool) => <span>{tool}</span>)}
+      {tools.map((tool) => <a href={`/tools/#${toolRefs[tool]}`}>{tool}</a>)}
     </div>
   </div>
 </section>

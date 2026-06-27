@@ -185,7 +185,24 @@ const iconPaths: Record<string, string[]> = {
     const search = root.querySelector<HTMLInputElement>("#tool-search");
     const empty = root.querySelector<HTMLElement>(".tool-empty");
 
-    const activateTool = (id: string) => {
+    const getReferencedTool = () => decodeURIComponent(location.hash.slice(1));
+    const scrollToolIntoView = (selected: HTMLButtonElement) => {
+      requestAnimationFrame(() => {
+        const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+        const scrollMargin = parseFloat(getComputedStyle(root).scrollMarginTop) || 0;
+        const top = root.getBoundingClientRect().top + window.scrollY - scrollMargin;
+        window.scrollTo({ top: Math.max(0, top), behavior });
+
+        const nav = selected.closest<HTMLElement>(".tool-nav");
+        if (!nav) return;
+        nav.scrollTo({
+          left: Math.max(0, selected.offsetLeft - (nav.clientWidth - selected.offsetWidth) / 2),
+          top: Math.max(0, selected.offsetTop - (nav.clientHeight - selected.offsetHeight) / 2),
+          behavior,
+        });
+      });
+    };
+    const activateTool = (id: string, options: { scroll?: boolean } = {}) => {
       navItems.forEach((item) => {
         const active = item.dataset.tool === id;
         item.classList.toggle("active", active);
@@ -200,11 +217,16 @@ const iconPaths: Record<string, string[]> = {
       const title = selected?.querySelector("strong")?.textContent;
       if (activeTitle && title) activeTitle.textContent = title;
       history.replaceState(null, "", `#${id}`);
+      if (options.scroll && selected) scrollToolIntoView(selected);
     };
 
     navItems.forEach((item) => item.addEventListener("click", () => activateTool(item.dataset.tool ?? "color")));
-    const hashTool = location.hash.slice(1);
-    if (navItems.some((item) => item.dataset.tool === hashTool)) activateTool(hashTool);
+    const activateReferencedTool = () => {
+      const hashTool = getReferencedTool();
+      if (navItems.some((item) => item.dataset.tool === hashTool)) activateTool(hashTool, { scroll: true });
+    };
+    activateReferencedTool();
+    window.addEventListener("hashchange", activateReferencedTool);
 
     search?.addEventListener("input", () => {
       const query = search.value.trim().toLowerCase();
