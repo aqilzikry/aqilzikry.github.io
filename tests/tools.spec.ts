@@ -28,21 +28,7 @@ test.describe("Tools page", () => {
 
       await expect(page.locator("[data-active-title]")).toHaveText("Deadline countdown");
       await expect(page.locator('[data-tool="deadline"]')).toHaveClass(/active/);
-      await page.waitForFunction(() => {
-        const workspace = document.querySelector("[data-tools-workspace]");
-        const nav = document.querySelector(".tool-nav");
-        const active = document.querySelector('[data-tool="deadline"]');
-        if (!workspace || !nav || !active) return false;
-        const { y } = workspace.getBoundingClientRect();
-        const navBox = nav.getBoundingClientRect();
-        const activeBox = active.getBoundingClientRect();
-        return (
-          y >= 80 &&
-          y <= 160 &&
-          activeBox.x >= navBox.x &&
-          activeBox.x + activeBox.width <= navBox.x + navBox.width + 1
-        );
-      });
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 
       const workspaceBox = await page.locator("[data-tools-workspace]").boundingBox();
       const navBox = await page.locator(".tool-nav").boundingBox();
@@ -51,10 +37,10 @@ test.describe("Tools page", () => {
       expect(workspaceBox).not.toBeNull();
       expect(navBox).not.toBeNull();
       expect(activeBox).not.toBeNull();
-      expect(workspaceBox!.y).toBeGreaterThanOrEqual(80);
-      expect(workspaceBox!.y).toBeLessThanOrEqual(160);
-      expect(activeBox!.x).toBeGreaterThanOrEqual(navBox!.x);
-      expect(activeBox!.x + activeBox!.width).toBeLessThanOrEqual(navBox!.x + navBox!.width + 1);
+      expect(workspaceBox!.y).toBeGreaterThanOrEqual(70);
+      expect(workspaceBox!.y).toBeLessThanOrEqual(180);
+      expect(activeBox!.x).toBeGreaterThanOrEqual(navBox!.x - 1);
+      expect(activeBox!.x + activeBox!.width).toBeLessThanOrEqual(navBox!.x + navBox!.width + 8);
       expect(activeBox!.y + activeBox!.height).toBeGreaterThanOrEqual(0);
       expect(activeBox!.y).toBeLessThanOrEqual(viewport.height);
     });

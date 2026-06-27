@@ -188,18 +188,14 @@ const iconPaths: Record<string, string[]> = {
     const getReferencedTool = () => decodeURIComponent(location.hash.slice(1));
     const scrollToolIntoView = (selected: HTMLButtonElement) => {
       requestAnimationFrame(() => {
-        const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
         const scrollMargin = parseFloat(getComputedStyle(root).scrollMarginTop) || 0;
         const top = root.getBoundingClientRect().top + window.scrollY - scrollMargin;
-        window.scrollTo({ top: Math.max(0, top), behavior });
+        window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
 
         const nav = selected.closest<HTMLElement>(".tool-nav");
         if (!nav) return;
-        nav.scrollTo({
-          left: Math.max(0, selected.offsetLeft - (nav.clientWidth - selected.offsetWidth) / 2),
-          top: Math.max(0, selected.offsetTop - (nav.clientHeight - selected.offsetHeight) / 2),
-          behavior,
-        });
+        nav.scrollLeft = Math.max(0, selected.offsetLeft - (nav.clientWidth - selected.offsetWidth) / 2);
+        nav.scrollTop = Math.max(0, selected.offsetTop - (nav.clientHeight - selected.offsetHeight) / 2);
       });
     };
     const activateTool = (id: string, options: { scroll?: boolean } = {}) => {
