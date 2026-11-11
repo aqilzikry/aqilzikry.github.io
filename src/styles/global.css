@@ -1500,8 +1500,46 @@ h3 {
   .tools-panel,
   .about-card,
   .site-footer {
-    padding: 22px;
-    border-radius: 24px;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .project-body {
+    padding: 18px;
+  }
+
+  .timeline-card ul {
+    gap: 12px;
+    padding-left: 16px;
+    line-height: 1.6;
+  }
+
+  .timeline-result {
+    padding: 10px 12px;
+  }
+
+  .hero-role {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+
+  .signal-grid {
+    gap: 10px;
+    margin-top: 32px;
+  }
+
+  .signal-grid span {
+    min-height: 0;
+    padding: 14px 16px;
+  }
+
+  .footer-actions {
+    flex-wrap: wrap;
+  }
+
+  .footer-actions .button {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   h1 {
