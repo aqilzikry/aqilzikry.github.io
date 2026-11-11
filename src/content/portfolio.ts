@@ -26,7 +26,8 @@ export type Project = {
 
 export const profile = {
   name: "Aqilzikry Arman",
-  role: "Software engineer · AI-augmented systems design",
+  role: "Software engineer",
+  roleFocus: "AI-augmented systems design",
   location: "Cyberjaya, Selangor",
   email: "aqilzikry97@gmail.com",
   github: "https://github.com/aqilzikry",
@@ -40,7 +41,7 @@ export const profile = {
   summary:
     "Software engineer focused on system design and architecture for enterprise platforms, using AI agents to accelerate delivery across .NET, SQL Server, and full-stack web development. Experience spans banking dashboards, payroll platforms, government portals, DevOps workflows, and machine-learning enabled products.",
   about: [
-    "I'm a backend-leaning full-stack engineer whose focus has shifted from writing every line by hand to designing the system around it. Most of my work sits where APIs, databases, and business workflows meet: payroll engines, banking dashboards, government portals, and the internal tools people use every day.",
+    "I'm a full-stack engineer whose focus has shifted from writing every line by hand to designing the system around it. My work spans the whole stack, from APIs and databases to the interfaces people use every day: payroll engines, banking dashboards, government portals, and internal tools.",
     "Today I treat AI coding agents as part of the team. I set the architecture, define the contracts and constraints, and delegate implementation, test generation, and refactoring to agents, then review the output with the same rigor I'd apply to any pull request. The result is more time on the decisions that matter (data models, service boundaries, security, and performance) and faster, higher-quality delivery.",
     "Before that shift, I spent years in the details: tuning SQL Server queries, building CI/CD pipelines on Azure and AWS, and shipping production code across five teams. That hands-on depth is what lets me steer agents well and catch what they miss. I'm working toward a senior, architecture-focused role.",
   ],

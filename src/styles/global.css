@@ -245,15 +245,43 @@ h3 {
   font-size: clamp(1.35rem, 2.5vw, 2rem);
 }
 
-.hero-role {
-  width: fit-content;
+.hero-roles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
   margin: 20px 0 0;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
+}
+
+.hero-role,
+.hero-focus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
   border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hero-role {
+  border: 1px solid var(--border);
   color: var(--cyan);
   background: rgba(56, 189, 248, 0.08);
-  font-weight: 700;
+}
+
+.hero-focus {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: var(--primary);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.hero-focus-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
 }
 
 .hero-summary {
@@ -1500,8 +1528,47 @@ h3 {
   .tools-panel,
   .about-card,
   .site-footer {
-    padding: 22px;
-    border-radius: 24px;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .project-body {
+    padding: 18px;
+  }
+
+  .timeline-card ul {
+    gap: 12px;
+    padding-left: 16px;
+    line-height: 1.6;
+  }
+
+  .timeline-result {
+    padding: 10px 12px;
+  }
+
+  .hero-role,
+  .hero-focus {
+    padding: 6px 12px;
+    font-size: 0.88rem;
+  }
+
+  .signal-grid {
+    gap: 10px;
+    margin-top: 32px;
+  }
+
+  .signal-grid span {
+    min-height: 0;
+    padding: 14px 16px;
+  }
+
+  .footer-actions {
+    flex-wrap: wrap;
+  }
+
+  .footer-actions .button {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   h1 {
