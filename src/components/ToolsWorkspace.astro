@@ -186,11 +186,15 @@ const iconPaths: Record<string, string[]> = {
     const empty = root.querySelector<HTMLElement>(".tool-empty");
 
     const getReferencedTool = () => decodeURIComponent(location.hash.slice(1));
-    const scrollToolIntoView = (selected: HTMLButtonElement) => {
+    const scrollToolIntoView = async (selected: HTMLButtonElement) => {
+      // Web fonts swapping in after this runs would resize the hero above and shift the workspace,
+      // so measure only once they are ready.
+      await document.fonts.ready;
       requestAnimationFrame(() => {
         const scrollMargin = parseFloat(getComputedStyle(root).scrollMarginTop) || 0;
         const top = root.getBoundingClientRect().top + window.scrollY - scrollMargin;
-        window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+        // "instant" bypasses the global smooth scroll-behavior so the jump lands immediately.
+        window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
 
         const nav = selected.closest<HTMLElement>(".tool-nav");
         if (!nav) return;
