@@ -26,7 +26,7 @@ export type Project = {
 
 export const profile = {
   name: "Aqilzikry Arman",
-  role: "Enterprise software engineer",
+  role: "Software engineer · AI-augmented systems design",
   location: "Cyberjaya, Selangor",
   email: "aqilzikry97@gmail.com",
   github: "https://github.com/aqilzikry",
@@ -35,16 +35,18 @@ export const profile = {
   // Optional: drop a square photo in /public (e.g. /profile.jpg) and set its path here.
   photo: "" as string,
   startedYear: 2021,
-  currently: "Building internal dashboards for supervisors, workforce planning, and access control at RBC.",
-  headline: "I build reliable internal systems, APIs, and dashboards that turn messy operations into clean software.",
+  currently: "Architecting internal platforms for supervisors, workforce planning, and access control at RBC, delivered with agentic AI workflows.",
+  headline: "I design and ship reliable enterprise systems, orchestrating AI coding agents to move from idea to production faster, without trading off quality.",
   summary:
-    "Mid-level software engineer specializing in .NET, SQL Server, and full-stack web development, with experience across payroll platforms, banking dashboards, government portals, DevOps workflows, testing, and machine-learning enabled products.",
+    "Software engineer focused on system design and architecture for enterprise platforms, using AI agents to accelerate delivery across .NET, SQL Server, and full-stack web development. Experience spans banking dashboards, payroll platforms, government portals, DevOps workflows, and machine-learning enabled products.",
   about: [
-    "I'm a backend-leaning full-stack engineer. Most of my work sits where APIs, databases, and business workflows meet: payroll engines, banking dashboards, government portals, and the internal tools people use every day.",
-    "Outside of feature work, I've handled testing, deployment, and DevOps pipelines on Azure and AWS, plus mobile and machine-learning side projects. I work well on a team and on my own, and I'm working toward a senior role.",
+    "I'm a backend-leaning full-stack engineer whose focus has shifted from writing every line by hand to designing the system around it. Most of my work sits where APIs, databases, and business workflows meet: payroll engines, banking dashboards, government portals, and the internal tools people use every day.",
+    "Today I treat AI coding agents as part of the team. I set the architecture, define the contracts and constraints, and delegate implementation, test generation, and refactoring to agents, then review the output with the same rigor I'd apply to any pull request. The result is more time on the decisions that matter (data models, service boundaries, security, and performance) and faster, higher-quality delivery.",
+    "Before that shift, I spent years in the details: tuning SQL Server queries, building CI/CD pipelines on Azure and AWS, and shipping production code across five teams. That hands-on depth is what lets me steer agents well and catch what they miss. I'm working toward a senior, architecture-focused role.",
   ],
   domains: ["Banking", "Payroll", "Government", "Education"],
   signals: [
+    "AI agent-driven development workflows",
     "Payroll processing cut from hours to minutes",
     "15+ minute SQL queries tuned to sub-second response",
     "Banking and government systems experience",
@@ -58,15 +60,17 @@ export const experience: Experience[] = [
     period: "Nov 2025 - Present",
     location: "Putrajaya, Malaysia",
     status: "Current",
-    keyResult: "Supervisory dashboard unifying absence platforms and Workday for managers",
+    keyResult: "Supervisory dashboard unifying absence platforms and Workday, delivered with an AI-augmented workflow",
     summary:
-      "Building internal enterprise web applications for employees across the banking organization.",
+      "Designing and delivering internal enterprise web applications for employees across the banking organization, pairing hands-on architecture with agentic AI development.",
     highlights: [
-      "Develop and maintain a supervisory dashboard integrating absence management platforms and Workday to track tasks, training, and leave.",
-      "Contribute to a capital management system for workforce deployment and cost tracking.",
+      "Architect and maintain a supervisory dashboard integrating absence management platforms and Workday to track tasks, training, and leave.",
+      "Contribute to the design of a capital management system for workforce deployment and cost tracking.",
       "Build an access control dashboard for user permissions across internal systems.",
+      "Lead with system design, defining service boundaries, data models, and integration contracts, while delegating implementation, test generation, and refactoring to AI coding agents.",
+      "Use AI agents to raise delivery velocity and code quality through broader test coverage, faster reviews, and quicker turnaround on features and fixes, with every change reviewed against architectural and security standards.",
     ],
-    stack: [".NET", "SQL Server", "Enterprise dashboards", "Access control"],
+    stack: [".NET", "SQL Server", "System design", "AI coding agents", "Enterprise dashboards", "Access control"],
   },
   {
     company: "activpayroll Sdn. Bhd.",
