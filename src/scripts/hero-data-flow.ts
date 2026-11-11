@@ -728,7 +728,7 @@ export function initHeroDataFlow(): CleanupFn | void {
     alpha: true,
     antialias: true,
     canvas,
-    powerPreference: 'high-performance',
+    powerPreference: 'default',
   });
   const startTime = performance.now();
   const pointer = new THREE.Vector2(0, 0);
@@ -739,10 +739,15 @@ export function initHeroDataFlow(): CleanupFn | void {
   const reducedStaticOffset = prefersReducedMotion ? 0.8 : 0;
   let animationFrame = 0;
   let disposed = false;
+  let isOnScreen = true;
+  let isPageVisible = document.visibilityState !== 'hidden';
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // Cap the pixel ratio harder on small or low-core devices to keep the hero cheap on budget phones.
+  const isConstrainedDevice =
+    window.matchMedia('(max-width: 920px)').matches || (navigator.hardwareConcurrency || 8) <= 4;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isConstrainedDevice ? 1.5 : 2));
   camera.position.set(0, 0.2, 8.6);
   scene.add(mainGroup);
 
@@ -1252,9 +1257,26 @@ export function initHeroDataFlow(): CleanupFn | void {
     animateLabels();
     renderer.render(scene, camera);
 
-    if (!prefersReducedMotion) {
+    animationFrame = 0;
+    if (shouldAnimate()) {
       animationFrame = window.requestAnimationFrame(render);
     }
+  }
+
+  function shouldAnimate() {
+    return !prefersReducedMotion && !disposed && isOnScreen && isPageVisible;
+  }
+
+  // Resume the loop if it was paused (scrolled away or tab hidden) and should run again.
+  function syncLoop() {
+    if (shouldAnimate() && animationFrame === 0) {
+      animationFrame = window.requestAnimationFrame(render);
+    }
+  }
+
+  function handleVisibilityChange() {
+    isPageVisible = document.visibilityState !== 'hidden';
+    syncLoop();
   }
 
   function handlePointerMove(event: PointerEvent) {
@@ -1269,6 +1291,10 @@ export function initHeroDataFlow(): CleanupFn | void {
 
   const resizeObserver = new ResizeObserver(resize);
   const themeObserver = new MutationObserver(syncColors);
+  const viewportObserver = new IntersectionObserver((entries) => {
+    isOnScreen = entries.some((entry) => entry.isIntersecting);
+    syncLoop();
+  });
 
   resizeObserver.observe(rootElement);
   themeObserver.observe(document.documentElement, {
@@ -1277,6 +1303,8 @@ export function initHeroDataFlow(): CleanupFn | void {
   });
   rootElement.addEventListener('pointermove', handlePointerMove);
   rootElement.addEventListener('pointerleave', handlePointerLeave);
+  viewportObserver.observe(rootElement);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
   resize();
   syncColors();
@@ -1288,6 +1316,8 @@ export function initHeroDataFlow(): CleanupFn | void {
     window.cancelAnimationFrame(animationFrame);
     resizeObserver.disconnect();
     themeObserver.disconnect();
+    viewportObserver.disconnect();
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
     rootElement.removeEventListener('pointermove', handlePointerMove);
     rootElement.removeEventListener('pointerleave', handlePointerLeave);
 

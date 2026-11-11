@@ -1,0 +1,46 @@
+---
+import SectionHeader from "./SectionHeader.astro";
+import { experience, profile } from "@content/portfolio";
+
+const initials = profile.name
+  .split(" ")
+  .map((part) => part[0])
+  .join("");
+const years = new Date().getFullYear() - profile.startedYear;
+const facts = [
+  { label: "Based in", value: profile.location },
+  { label: "Experience", value: `${years}+ years, ${experience.length} teams` },
+  { label: "Domains", value: profile.domains.join(", ") },
+];
+---
+
+<section class="section-shell about-section" id="about">
+  <SectionHeader eyebrow="About" title="Backend-leaning, full-stack by habit." />
+
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-portrait">
+        {
+          profile.photo ? (
+            <img src={profile.photo} alt={`Portrait of ${profile.name}`} width="160" height="160" loading="lazy" />
+          ) : (
+            <span aria-hidden="true">{initials}</span>
+          )
+        }
+      </div>
+      <dl class="about-facts">
+        {
+          facts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+    <div class="about-copy">
+      {profile.about.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </div>
+</section>

@@ -4,6 +4,7 @@ export type Experience = {
   period: string;
   location: string;
   status?: string;
+  keyResult: string;
   summary: string;
   highlights: string[];
   stack: string[];
@@ -31,9 +32,18 @@ export const profile = {
   github: "https://github.com/aqilzikry",
   linkedin: "https://www.linkedin.com/in/aqilzikry-arman",
   resume: "/resume.pdf",
+  // Optional: drop a square photo in /public (e.g. /profile.jpg) and set its path here.
+  photo: "" as string,
+  startedYear: 2021,
+  currently: "Building internal dashboards for supervisors, workforce planning, and access control at RBC.",
   headline: "I build reliable internal systems, APIs, and dashboards that turn messy operations into clean software.",
   summary:
     "Mid-level software engineer specializing in .NET, SQL Server, and full-stack web development, with experience across payroll platforms, banking dashboards, government portals, DevOps workflows, testing, and machine-learning enabled products.",
+  about: [
+    "I'm a backend-leaning full-stack engineer. Most of my work sits where APIs, databases, and business workflows meet: payroll engines, banking dashboards, government portals, and the internal tools people use every day.",
+    "Outside of feature work, I've handled testing, deployment, and DevOps pipelines on Azure and AWS, plus mobile and machine-learning side projects. I work well on a team and on my own, and I'm working toward a senior role.",
+  ],
+  domains: ["Banking", "Payroll", "Government", "Education"],
   signals: [
     "Payroll processing cut from hours to minutes",
     "15+ minute SQL queries tuned to sub-second response",
@@ -48,6 +58,7 @@ export const experience: Experience[] = [
     period: "Nov 2025 - Present",
     location: "Putrajaya, Malaysia",
     status: "Current",
+    keyResult: "Supervisory dashboard unifying absence platforms and Workday for managers",
     summary:
       "Building internal enterprise web applications for employees across the banking organization.",
     highlights: [
@@ -61,6 +72,7 @@ export const experience: Experience[] = [
     company: "activpayroll Sdn. Bhd.",
     role: "Software Engineer",
     period: "May 2024 - Nov 2025",
+    keyResult: "Month-end SQL queries cut from 15+ minutes to under a second",
     location: "Kuala Lumpur, Malaysia",
     summary:
       "Built payroll APIs, optimized database-heavy workflows, and improved delivery through Azure DevOps.",
@@ -76,6 +88,7 @@ export const experience: Experience[] = [
     company: "FPT Software Malaysia",
     role: "Software Developer",
     period: "Aug 2023 - May 2024",
+    keyResult: "Auth0 and custom JWT authentication across production APIs",
     location: "Kuala Lumpur, Malaysia",
     summary:
       "Delivered APIs, database integrations, and secure front-end connections for production systems.",
@@ -91,6 +104,7 @@ export const experience: Experience[] = [
     company: "WPH Digital Ltd",
     role: "Full Stack Developer",
     period: "May 2022 - Aug 2023",
+    keyResult: "Set up the DevOps workflow for the internal team's government projects",
     location: "Cyberjaya / Singapore HQ",
     summary:
       "Developed and maintained production systems for government agencies with security and delivery discipline.",
@@ -106,6 +120,7 @@ export const experience: Experience[] = [
     company: "Silverlake Axis",
     role: "Java Programmer",
     period: "Dec 2021 - Apr 2022",
+    keyResult: "Built features for a public-bank platform deployed in Brunei",
     location: "Malaysia",
     summary:
       "Contributed to the full software development life cycle of a public-bank solution in Brunei.",

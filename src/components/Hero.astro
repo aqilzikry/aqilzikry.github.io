@@ -6,10 +6,14 @@ import { profile } from "@content/portfolio";
 
 <section class="hero section-shell" id="top">
   <div class="hero-copy">
-    <p class="eyebrow">Developer Workbench / Portfolio v2</p>
+    <p class="eyebrow">{profile.location.split(",")[0]}, Malaysia · Shipping since {profile.startedYear}</p>
     <h1>{profile.name}</h1>
     <p class="hero-role">{profile.role}</p>
     <p class="hero-summary">{profile.headline}</p>
+    <p class="hero-currently">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span><b>Currently:</b> {profile.currently}</span>
+    </p>
     <div class="hero-actions" aria-label="Primary actions">
       <a class="button button-primary" href={`mailto:${profile.email}`}>
         <Icon name="mail" />

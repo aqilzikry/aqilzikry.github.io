@@ -1,5 +1,5 @@
 ---
-import SectionHeader from "./SectionHeader.astro";
+import Icon from "./Icon.astro";
 import { tools } from "@content/portfolio";
 
 const toolRefs: Record<string, string> = {
@@ -14,25 +14,21 @@ const toolRefs: Record<string, string> = {
 };
 ---
 
-<section class="section-shell tools-section" id="tools">
-  <SectionHeader
-    eyebrow="Tools"
-    title="Small utilities, built because useful things should be within reach."
-    copy="The tools page is staying part of the story: it shows the practical developer instinct behind the portfolio."
-  />
-
+<section class="section-shell tools-section" id="tools" aria-labelledby="tools-title">
   <div class="tools-panel">
-    <div>
-      <p class="panel-kicker">Current tool bench</p>
-      <h3>Developer utilities and everyday calculators</h3>
-      <p>
-        A set of focused tools including encoders, validators, converters, and planning helpers. In this revamp,
-        they become proof of craft instead of sitting off to the side.
-      </p>
-      <a class="button button-secondary" href="/tools/">View tools</a>
+    <div class="tools-panel-copy">
+      <p class="eyebrow">Tools</p>
+      <h2 id="tools-title">{tools.length} dev tools that run in your browser.</h2>
+      <p>Encoders, validators, converters, and calculators I built for daily use. Nothing is uploaded.</p>
     </div>
-    <div class="tool-list" aria-label="Available tools">
-      {tools.map((tool) => <a href={`/tools/#${toolRefs[tool]}`}>{tool}</a>)}
+    <div class="tools-panel-actions">
+      <div class="tool-list" aria-label="Available tools">
+        {tools.map((tool) => <a href={`/tools/#${toolRefs[tool]}`}>{tool}</a>)}
+      </div>
+      <a class="button button-primary" href="/tools/">
+        Open the tools
+        <Icon name="arrow" />
+      </a>
     </div>
   </div>
 </section>
