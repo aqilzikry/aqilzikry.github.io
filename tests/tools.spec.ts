@@ -28,7 +28,10 @@ test.describe("Tools page", () => {
 
       await expect(page.locator("[data-active-title]")).toHaveText("Deadline countdown");
       await expect(page.locator('[data-tool="deadline"]')).toHaveClass(/active/);
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
 
       const workspaceBox = await page.locator("[data-tools-workspace]").boundingBox();
       const navBox = await page.locator(".tool-nav").boundingBox();

@@ -6,8 +6,8 @@ import { experience } from "@content/portfolio";
 <section class="section-shell" id="experience">
   <SectionHeader
     eyebrow="Experience"
-    title="Enterprise systems, payroll platforms, and banking dashboards."
-    copy="A career path shaped by full-stack delivery, database performance, secure APIs, and practical internal products."
+    title="Where I've worked."
+    copy="Five teams across banking, payroll, and government, with the result I'd point to first at each one."
   />
 
   <div class="timeline">
@@ -25,6 +25,10 @@ import { experience } from "@content/portfolio";
                 <p>{item.role} / {item.location}</p>
               </div>
             </div>
+            <p class="timeline-result">
+              <span>Key result</span>
+              {item.keyResult}
+            </p>
             <p class="timeline-summary">{item.summary}</p>
             <ul>
               {item.highlights.map((highlight) => <li>{highlight}</li>)}
