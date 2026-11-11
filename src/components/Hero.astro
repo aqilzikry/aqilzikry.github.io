@@ -8,7 +8,13 @@ import { profile } from "@content/portfolio";
   <div class="hero-copy">
     <p class="eyebrow">{profile.location.split(",")[0]}, Malaysia · Shipping since {profile.startedYear}</p>
     <h1>{profile.name}</h1>
-    <p class="hero-role">{profile.role}</p>
+    <p class="hero-roles">
+      <span class="hero-role">{profile.role}</span>
+      <span class="hero-focus">
+        <span class="hero-focus-dot" aria-hidden="true"></span>
+        {profile.roleFocus}
+      </span>
+    </p>
     <p class="hero-summary">{profile.headline}</p>
     <p class="hero-currently">
       <span class="status-dot" aria-hidden="true"></span>

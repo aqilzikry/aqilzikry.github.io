@@ -26,7 +26,8 @@ export type Project = {
 
 export const profile = {
   name: "Aqilzikry Arman",
-  role: "Software engineer · AI-augmented systems design",
+  role: "Software engineer",
+  roleFocus: "AI-augmented systems design",
   location: "Cyberjaya, Selangor",
   email: "aqilzikry97@gmail.com",
   github: "https://github.com/aqilzikry",
