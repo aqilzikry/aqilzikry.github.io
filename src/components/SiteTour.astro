@@ -1,0 +1,628 @@
+<!--
+  Guided tour across the homepage and the tools page.
+  Steps are split into "basics" (enough to use the tools) and "more" (the rest of the portfolio).
+  After the basics, a checkpoint lets visitors skip straight to the tools or continue the full tour.
+  Progress survives page navigation through sessionStorage.
+-->
+<div class="tour" data-tour hidden>
+  <div class="tour-spotlight" data-tour-spotlight aria-hidden="true"></div>
+  <div
+    class="tour-card"
+    data-tour-card
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="tour-title"
+    aria-describedby="tour-body"
+    tabindex="-1"
+  >
+    <div class="tour-card-top">
+      <p class="tour-phase" data-tour-phase></p>
+      <button class="tour-close" type="button" data-tour-close aria-label="Close tour">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+      </button>
+    </div>
+    <h2 id="tour-title" data-tour-title></h2>
+    <p id="tour-body" data-tour-body></p>
+    <div class="tour-progress" data-tour-progress aria-hidden="true"></div>
+    <div class="tour-actions">
+      <button class="tour-link" type="button" data-tour-skip>Skip tour</button>
+      <div class="tour-actions-main">
+        <button class="button button-secondary tour-button" type="button" data-tour-back>Back</button>
+        <button class="button button-primary tour-button" type="button" data-tour-next>Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Page = "/" | "/tools" | "*";
+  type Step = {
+    id: string;
+    phase: "basics" | "more";
+    page: Page;
+    title: string;
+    body: string;
+    /** First visible match is highlighted; none visible means a centered card. */
+    targets?: string[];
+    /** Shown only when the visitor is already on this step's page, so the tour never detours for it. */
+    onlyWhenHere?: boolean;
+    checkpoint?: boolean;
+  };
+
+  const steps: Step[] = [
+    {
+      id: "welcome",
+      phase: "basics",
+      page: "*",
+      title: "Welcome! Here's a quick tour",
+      body: "The basics take under a minute and show you how to use the tools. After that you can jump straight in, or keep going for a tour of the whole site.",
+    },
+    {
+      id: "nav",
+      phase: "basics",
+      page: "*",
+      targets: [".site-nav", ".site-header"],
+      title: "Get around from anywhere",
+      body: "The header follows you on every page. Jump to About, Experience, Projects, Stack or Tools. The compass button restarts this tour any time.",
+    },
+    {
+      id: "tools-entry",
+      phase: "basics",
+      page: "/",
+      onlyWhenHere: true,
+      targets: ["#tools .tools-panel"],
+      title: "The tool bench",
+      body: "Eight browser-based utilities. Each pill opens that tool directly. Next stop: the tools page.",
+    },
+    {
+      id: "tool-search",
+      phase: "basics",
+      page: "/tools",
+      targets: [".tool-search"],
+      title: "Find a tool fast",
+      body: "Type to filter by name or category, like “encode” or “time”. Press / anywhere on this page to jump to search.",
+    },
+    {
+      id: "tool-nav",
+      phase: "basics",
+      page: "/tools",
+      targets: [".tool-nav"],
+      title: "Pick a utility",
+      body: "Converters, validators, decoders and calculators. Choosing one updates the address bar, so you can bookmark or share a link to that exact tool.",
+    },
+    {
+      id: "tool-stage",
+      phase: "basics",
+      page: "/tools",
+      targets: [".tool-stage"],
+      title: "Work in the stage",
+      body: "Results update as you type. Use the Copy buttons to grab output. Everything runs in your browser and nothing is uploaded.",
+    },
+    {
+      id: "checkpoint",
+      phase: "basics",
+      page: "/tools",
+      checkpoint: true,
+      title: "That's the basics",
+      body: "You know enough to use every tool. Start using them now, or continue the full tour of the rest of the site.",
+    },
+    {
+      id: "tools-privacy",
+      phase: "more",
+      page: "/tools",
+      targets: [".tools-hero-meta", ".local-note"],
+      title: "Private by design",
+      body: "No accounts, no uploads, no tracking of what you paste. Close the tab and it's gone.",
+    },
+    {
+      id: "hero",
+      phase: "more",
+      page: "/",
+      targets: [".hero-copy"],
+      title: "Who's behind this",
+      body: "Role, current focus and what I'm working on right now, plus quick buttons to get in touch or download my CV.",
+    },
+    {
+      id: "about",
+      phase: "more",
+      page: "/",
+      targets: ["#about"],
+      title: "About",
+      body: "How I approach systems: the domains I've worked in and the results I've shipped.",
+    },
+    {
+      id: "experience",
+      phase: "more",
+      page: "/",
+      targets: ["#experience"],
+      title: "Experience",
+      body: "A timeline of roles, with the impact each one had.",
+    },
+    {
+      id: "projects",
+      phase: "more",
+      page: "/",
+      targets: ["#projects"],
+      title: "Projects",
+      body: "Selected builds, with the problem, the approach and links where they're public.",
+    },
+    {
+      id: "stack",
+      phase: "more",
+      page: "/",
+      targets: ["#stack"],
+      title: "Tech stack",
+      body: "The languages, frameworks and platforms I use day to day.",
+    },
+    {
+      id: "contact",
+      phase: "more",
+      page: "/",
+      targets: [".site-footer"],
+      title: "Let's talk",
+      body: "Email me, or find me on GitHub and LinkedIn. That's the whole tour. Thanks for looking around!",
+    },
+  ];
+
+  const STORAGE_KEY = "site-tour";
+  const basicsCount = steps.filter((step) => step.phase === "basics").length;
+  const moreCount = steps.length - basicsCount;
+
+  const root = document.querySelector<HTMLElement>("[data-tour]");
+  const spotlight = root?.querySelector<HTMLElement>("[data-tour-spotlight]");
+  const card = root?.querySelector<HTMLElement>("[data-tour-card]");
+  const phaseEl = root?.querySelector<HTMLElement>("[data-tour-phase]");
+  const titleEl = root?.querySelector<HTMLElement>("[data-tour-title]");
+  const bodyEl = root?.querySelector<HTMLElement>("[data-tour-body]");
+  const progressEl = root?.querySelector<HTMLElement>("[data-tour-progress]");
+  const backButton = root?.querySelector<HTMLButtonElement>("[data-tour-back]");
+  const nextButton = root?.querySelector<HTMLButtonElement>("[data-tour-next]");
+  const skipButton = root?.querySelector<HTMLButtonElement>("[data-tour-skip]");
+  const closeButton = root?.querySelector<HTMLButtonElement>("[data-tour-close]");
+
+  const currentPage = (): Page => (location.pathname.replace(/\/+$/, "") === "/tools" ? "/tools" : "/");
+  const pageUrl = (page: Page) => (page === "/tools" ? "/tools/" : "/");
+  const isHere = (step: Step) => step.page === "*" || step.page === currentPage();
+  /** The page the tour was started on decides which optional steps are part of this run. */
+  let origin: Page = currentPage();
+  const isAvailable = (step: Step) => !step.onlyWhenHere || step.page === origin;
+
+  const saveStep = (index: number | null) => {
+    try {
+      if (index === null) sessionStorage.removeItem(STORAGE_KEY);
+      else sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ index, origin }));
+    } catch {
+      // Storage can be blocked; the tour then just won't resume across pages.
+    }
+  };
+  const readSaved = () => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null");
+      const index = Number(saved?.index);
+      if (!Number.isInteger(index) || index < 0 || index >= steps.length) return null;
+      return { index, origin: (saved.origin === "/tools" ? "/tools" : "/") as Page };
+    } catch {
+      return null;
+    }
+  };
+
+  const findTarget = (step: Step) => {
+    for (const selector of step.targets ?? []) {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (element && element.getClientRects().length && element.offsetWidth > 0) return element;
+    }
+    return null;
+  };
+
+  let index = -1;
+  let target: HTMLElement | null = null;
+  let frame = 0;
+  let returnFocus: HTMLElement | null = null;
+
+  const stepLabel = (step: Step) => {
+    const position = steps.indexOf(step);
+    if (step.phase === "basics") {
+      // Count only steps in this run, so the total stays the same across pages.
+      const available = steps.filter((item) => item.phase === "basics" && isAvailable(item));
+      return `Basics · ${available.indexOf(step) + 1} of ${available.length}`;
+    }
+    return `Full tour · ${position - basicsCount + 1} of ${moreCount}`;
+  };
+
+  const renderProgress = (step: Step) => {
+    if (!progressEl) return;
+    const visible = steps.filter(isAvailable);
+    progressEl.replaceChildren(
+      ...visible.map((item) => {
+        const dot = document.createElement("span");
+        dot.className = "tour-dot";
+        if (item.phase === "more") dot.classList.add("is-more");
+        if (steps.indexOf(item) < steps.indexOf(step)) dot.classList.add("is-done");
+        if (item === step) dot.classList.add("is-current");
+        return dot;
+      })
+    );
+  };
+
+  const position = () => {
+    if (!root || !card || !spotlight || root.hidden) return;
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = window.innerHeight;
+    const gap = 14;
+    const margin = 16;
+    const cardWidth = card.offsetWidth;
+    const cardHeight = card.offsetHeight;
+
+    if (!target) {
+      spotlight.classList.add("is-empty");
+      card.style.left = `${Math.max(margin, (viewportWidth - cardWidth) / 2)}px`;
+      card.style.top = `${Math.max(margin, (viewportHeight - cardHeight) / 2)}px`;
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+    const top = Math.max(rect.top - pad, 4);
+    const bottom = Math.min(rect.bottom + pad, viewportHeight - 4);
+    const left = Math.max(rect.left - pad, 4);
+    const right = Math.min(rect.right + pad, viewportWidth - 4);
+    spotlight.classList.remove("is-empty");
+    spotlight.style.top = `${top}px`;
+    spotlight.style.left = `${left}px`;
+    spotlight.style.width = `${Math.max(0, right - left)}px`;
+    spotlight.style.height = `${Math.max(0, bottom - top)}px`;
+
+    const clampLeft = (value: number) => Math.max(margin, Math.min(value, viewportWidth - cardWidth - margin));
+    const clampTop = (value: number) => Math.max(margin, Math.min(value, viewportHeight - cardHeight - margin));
+    const centeredLeft = clampLeft(left + (right - left) / 2 - cardWidth / 2);
+    let cardTop: number;
+    let cardLeft = centeredLeft;
+    if (bottom + gap + cardHeight <= viewportHeight - margin) cardTop = bottom + gap;
+    else if (top - gap - cardHeight >= margin) cardTop = top - gap - cardHeight;
+    else {
+      // Target is too tall for above/below: sit beside it if there's room, else dock at the bottom.
+      cardTop = clampTop(top + (bottom - top) / 2 - cardHeight / 2);
+      if (right + gap + cardWidth <= viewportWidth - margin) cardLeft = right + gap;
+      else if (left - gap - cardWidth >= margin) cardLeft = left - gap - cardWidth;
+      else cardTop = viewportHeight - cardHeight - margin;
+    }
+    card.style.top = `${cardTop}px`;
+    card.style.left = `${cardLeft}px`;
+  };
+
+  const loop = () => {
+    position();
+    frame = requestAnimationFrame(loop);
+  };
+
+  const scrollToTarget = (element: HTMLElement) => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const headerSpace = header && !header.contains(element) ? header.getBoundingClientRect().bottom + 16 : 16;
+    if (element.closest(".site-header")) return;
+    const rect = element.getBoundingClientRect();
+    const available = window.innerHeight - headerSpace;
+    // Leave room for the card below shorter targets; tall ones start just under the header.
+    const offset = rect.height + 220 < available ? Math.max(headerSpace, (window.innerHeight - rect.height - 220) / 2) : headerSpace;
+    window.scrollTo({ top: Math.max(0, rect.top + window.scrollY - offset), behavior: "instant" });
+  };
+
+  const close = (options: { focus?: HTMLElement | null } = {}) => {
+    if (!root) return;
+    root.hidden = true;
+    cancelAnimationFrame(frame);
+    saveStep(null);
+    target = null;
+    document.removeEventListener("keydown", onKeydown);
+    if (options.focus) options.focus.focus();
+    else returnFocus?.focus({ preventScroll: true });
+    returnFocus = null;
+  };
+
+  const show = (nextIndex: number, direction: 1 | -1 = 1) => {
+    let candidate = nextIndex;
+    while (candidate >= 0 && candidate < steps.length && !isAvailable(steps[candidate])) candidate += direction;
+    if (candidate < 0) candidate = 0;
+    if (candidate >= steps.length) return close();
+
+    const step = steps[candidate];
+    if (!isHere(step)) {
+      saveStep(candidate);
+      location.href = pageUrl(step.page);
+      return;
+    }
+
+    index = candidate;
+    saveStep(index);
+    if (!root || !card) return;
+
+    if (phaseEl) phaseEl.textContent = stepLabel(step);
+    if (titleEl) titleEl.textContent = step.title;
+    if (bodyEl) bodyEl.textContent = step.body;
+    renderProgress(step);
+
+    const firstAvailable = steps.findIndex(isAvailable);
+    if (backButton) backButton.hidden = index === firstAvailable;
+    if (nextButton) {
+      const last = index === steps.length - 1;
+      nextButton.textContent = step.checkpoint ? "Continue full tour" : last ? "Finish" : "Next";
+    }
+    if (skipButton) {
+      skipButton.textContent = step.checkpoint ? "Start using the tools" : "Skip tour";
+      skipButton.classList.toggle("is-emphasized", Boolean(step.checkpoint));
+    }
+    card.classList.toggle("is-checkpoint", Boolean(step.checkpoint));
+
+    root.hidden = false;
+    target = findTarget(step);
+    if (target) scrollToTarget(target);
+    cancelAnimationFrame(frame);
+    loop();
+    card.focus({ preventScroll: true });
+  };
+
+  const onKeydown = (event: KeyboardEvent) => {
+    if (!root || root.hidden) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+    } else if (event.key === "ArrowRight" && document.activeElement === card) {
+      event.preventDefault();
+      nextButton?.click();
+    } else if (event.key === "ArrowLeft" && document.activeElement === card && backButton && !backButton.hidden) {
+      event.preventDefault();
+      show(index - 1, -1);
+    }
+  };
+
+  const start = (from = 0, startedOn: Page = currentPage()) => {
+    if (!root) return;
+    origin = startedOn;
+    returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    document.addEventListener("keydown", onKeydown);
+    show(from);
+  };
+
+  backButton?.addEventListener("click", () => show(index - 1, -1));
+  nextButton?.addEventListener("click", () => show(index + 1));
+  closeButton?.addEventListener("click", () => close());
+  skipButton?.addEventListener("click", () => {
+    if (!steps[index]?.checkpoint) return close();
+    // "Start using the tools": end the tour and drop the visitor into the search box.
+    close({ focus: document.querySelector<HTMLInputElement>("#tool-search") });
+  });
+
+  document.querySelectorAll<HTMLElement>("[data-tour-start]").forEach((trigger) =>
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      start(0);
+    })
+  );
+
+  const saved = readSaved();
+  if (saved) {
+    // Wait for fonts so layout (and the spotlight) is settled before measuring.
+    document.fonts.ready.then(() => start(saved.index, saved.origin));
+  }
+</script>
+
+<style is:global>
+  .tour {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .tour[hidden] {
+    display: none;
+  }
+
+  .tour-spotlight {
+    position: fixed;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow:
+      0 0 0 4px rgba(34, 197, 94, 0.16),
+      0 0 0 9999px rgba(2, 6, 23, 0.72);
+    transition: top 220ms ease, left 220ms ease, width 220ms ease, height 220ms ease;
+  }
+
+  .tour-spotlight.is-empty {
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-color: transparent;
+  }
+
+  .tour-card {
+    position: fixed;
+    width: min(380px, calc(100vw - 32px));
+    padding: 18px 20px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-strong);
+    box-shadow: var(--shadow);
+    color: var(--text);
+    pointer-events: auto;
+    transition: top 220ms ease, left 220ms ease;
+  }
+
+  .tour-card:focus {
+    outline: none;
+  }
+
+
+  .tour-card.is-checkpoint {
+    border-color: var(--border-strong);
+  }
+
+  .tour-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .tour-phase {
+    margin: 0;
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tour-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin: -6px -8px 0 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .tour-close:hover,
+  .tour-close:focus-visible {
+    background: rgba(148, 163, 184, 0.12);
+    color: var(--text);
+  }
+
+  .tour-close svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .tour-card h2 {
+    margin: 6px 0 6px;
+    font-family: "Space Grotesk", Archivo, sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.3;
+  }
+
+  .tour-card p#tour-body {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+  }
+
+  .tour-progress {
+    display: flex;
+    gap: 5px;
+    margin: 16px 0 14px;
+  }
+
+  .tour-dot {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.22);
+  }
+
+  .tour-dot.is-more {
+    background: rgba(148, 163, 184, 0.12);
+  }
+
+  .tour-dot.is-done {
+    background: rgba(34, 197, 94, 0.55);
+  }
+
+  .tour-dot.is-current {
+    background: var(--primary);
+  }
+
+  .tour-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .tour-actions-main {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .tour-button {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 0.9rem;
+  }
+
+  .tour-button[hidden] {
+    display: none;
+  }
+
+  .tour-link {
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+
+  .tour-link:hover,
+  .tour-link:focus-visible {
+    color: var(--text);
+  }
+
+  /* At the checkpoint, skipping is a first-class choice: jump straight into the tools. */
+  .tour-link.is-emphasized {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #052e16;
+    font-weight: 700;
+  }
+
+  .tour-link.is-emphasized:hover,
+  .tour-link.is-emphasized:focus-visible {
+    background: var(--lime);
+    color: #052e16;
+  }
+
+  .tour-card.is-checkpoint [data-tour-next] {
+    border-color: var(--border);
+    color: var(--text);
+    background: rgba(15, 23, 42, 0.62);
+  }
+
+  .tour-card.is-checkpoint .tour-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .tour-card.is-checkpoint .tour-actions-main,
+  .tour-card.is-checkpoint .tour-link.is-emphasized {
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .tour-card.is-checkpoint .tour-actions-main .tour-button {
+    flex: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tour-spotlight,
+    .tour-card {
+      transition: none;
+    }
+  }
+</style>

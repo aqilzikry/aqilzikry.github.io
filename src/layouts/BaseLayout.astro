@@ -1,5 +1,6 @@
 ---
 import "@styles/global.css";
+import SiteTour from "@components/SiteTour.astro";
 
 type Props = {
   title: string;
@@ -45,5 +46,6 @@ const imageUrl = new URL(image, Astro.site);
   </head>
   <body>
     <slot />
+    <SiteTour />
   </body>
 </html>
